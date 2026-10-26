@@ -1,0 +1,2666 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORDAWORLD Backoffice</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font: Montserrat & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fordaCyan: {
+                            400: '#38bdf8',
+                            500: '#00f2fe',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom PearPad / iForda Cyan Styling */
+        .iforda-frame {
+            border: 4px solid #00f2fe;
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.4), inset 0 0 15px rgba(0, 242, 254, 0.2);
+            border-radius: 40px 40px 60px 60px;
+            background: linear-gradient(145deg, #0f172a, #0369a1);
+        }
+        .pear-stem {
+            width: 24px;
+            height: 18px;
+            background: #00f2fe;
+            border-radius: 12px 12px 0 0;
+            margin: 0 auto -4px auto;
+            box-shadow: 0 0 10px #00f2fe;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0284c7;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f2fe;
+        }
+        .tab-scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .tab-scroll-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans bg-slate-950 text-slate-100 overflow-x-hidden select-none">
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-x-full transition-transform duration-300 ease-out flex items-center p-4 max-w-xs text-white bg-slate-900 border-2 border-cyan-400 rounded-xl shadow-2xl space-x-3">
+        <i id="toastIcon" class="fas fa-info-circle text-cyan-400 text-xl"></i>
+        <div id="toastMsg" class="text-xs font-semibold">Mensaje de notificación</div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app" class="flex-1 flex flex-col min-h-screen">
+        
+        <!-- ================= LOGIN SCREEN ================= -->
+        <section id="loginScreen" class="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-sky-950">
+            <div class="w-full max-w-md bg-slate-900/90 border border-slate-800 backdrop-blur-xl rounded-3xl p-8 shadow-2xl shadow-cyan-950/50">
+                
+                <!-- Logo & Header -->
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-slate-950 font-black text-2xl mb-3 shadow-lg shadow-cyan-500/30">
+                        FDW
+                    </div>
+                    <h1 class="text-2xl font-extrabold tracking-wider text-white uppercase">FORDAWORLD BACKOFFICE</h1>
+                </div>
+
+                <!-- Clean Form -->
+                <form id="loginForm" onsubmit="handleLogin(event)" autocomplete="off" class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Correo Electrónico</label>
+                        <div class="relative">
+                            <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                            <input type="text" id="loginEmail" name="fdw_usr_field" required autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email" readonly onfocus="this.removeAttribute('readonly')"
+                                class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-100 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
+                                placeholder="Ingresa tu correo">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Contraseña</label>
+                        <div class="relative">
+                            <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                            <input type="password" id="loginPassword" name="fdw_key_field" required autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')"
+                                class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-100 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
+                                placeholder="Ingresa tu contraseña">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="loginSubmitBtn"
+                        class="w-full py-3.5 px-6 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-400 via-sky-500 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-500/25 transition transform active:scale-95 flex items-center justify-center space-x-2">
+                        <span>INICIAR SESIÓN</span>
+                        <i class="fas fa-arrow-right text-xs"></i>
+                    </button>
+                    <p id="loginConn" class="text-center text-[11px] min-h-[1rem] text-slate-500"></p>
+                </form>
+
+                <div class="mt-8 text-center border-t border-slate-800/80 pt-4">
+                    <p class="text-[11px] text-slate-500">Sistema seguro de control operativo Fordaworld &copy; 2026</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MAIN DASHBOARD ================= -->
+        <div id="mainDashboard" class="hidden flex-1 flex flex-col">
+            
+            <!-- TOP NAVBAR -->
+            <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md px-4 py-3">
+                <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+                    
+                    <!-- Logo & Global Nav Select -->
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black px-2.5 py-1 rounded-lg text-sm">FDW</span>
+                            <span class="font-extrabold text-sm hidden sm:inline tracking-wider">BACKOFFICE</span>
+                        </div>
+
+                        <!-- Dropdown Menu Global -->
+                        <div class="relative hidden md:block">
+                            <select id="globalNavSelect" onchange="switchTab(this.value)" 
+                                class="bg-slate-950 border border-cyan-500/40 rounded-lg px-3 py-1.5 text-xs font-semibold text-cyan-300 focus:outline-none focus:border-cyan-400 cursor-pointer">
+                                <option value="dashboard">📱 Dashboard / iForda</option>
+                                <option value="proyectos">🚀 Control de Proyectos</option>
+                                <option value="horarios">⏱️ Registro de Horarios</option>
+                                <option value="reuniones">📅 Reuniones y Agenda</option>
+                                <option value="cuponera">🎟️ Cuponera Fordaworld</option>
+                                <option value="cronograma">🗓️ Cronograma Mensual</option>
+                                <option value="llamadas">⚠️ Llamadas de Atención</option>
+                                <option value="perfil">👤 Mi Perfil</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- User Info Top Bar & Timer Widget -->
+                    <div class="flex items-center space-x-3">
+                        <div id="syncStatus" class="flex items-center space-x-1.5 bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-full text-[10px] font-semibold text-slate-300" title="">
+                            <span id="syncDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                            <span id="syncText" class="hidden sm:inline">Conectando…</span>
+                        </div>
+
+                        <div id="topTimerStatus" class="hidden md:flex items-center space-x-2 bg-slate-950 border border-slate-800 px-3 py-1 rounded-full text-xs font-mono text-cyan-400">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                            <span id="topTimerDisplay">00:00:00</span>
+                        </div>
+
+                        <div class="flex items-center space-x-3 border-l border-slate-800 pl-3">
+                            <img id="navAvatar" src="" alt="Avatar" class="w-8 h-8 rounded-full border border-cyan-400/50 object-cover">
+                            <div class="hidden lg:block text-left">
+                                <p id="navUserName" class="text-xs font-bold leading-tight"></p>
+                                <p id="navUserRole" class="text-[10px] text-cyan-400 font-medium"></p>
+                            </div>
+                            <button onclick="logout()" title="Cerrar sesión" class="shrink-0 flex items-center space-x-2 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-3 py-2 rounded-xl shadow shadow-rose-950 transition">
+                                <i class="fas fa-right-from-bracket"></i>
+                                <span class="sm:hidden">Salir</span><span class="hidden sm:inline">Cerrar sesión</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horizontal Tabs Bar -->
+                <nav class="max-w-7xl mx-auto mt-3 pt-2 border-t border-slate-800/60 overflow-x-auto tab-scroll-hide">
+                    <div class="flex space-x-2 min-w-max pb-1 text-xs">
+                        <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                            <i class="fas fa-mobile-screen"></i> <span>iForda & Tareas</span>
+                        </button>
+                        <button onclick="switchTab('proyectos')" id="tab-btn-proyectos" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
+                            <i class="fas fa-kanban"></i> <span>Proyectos</span>
+                        </button>
+                        <button onclick="switchTab('horarios')" id="tab-btn-horarios" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
+                            <i class="fas fa-stopwatch"></i> <span>Horarios</span>
+                        </button>
+                        <button onclick="switchTab('reuniones')" id="tab-btn-reuniones" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
+                            <i class="fas fa-calendar-alt"></i> <span>Reuniones</span>
+                        </button>
+                        <button onclick="switchTab('cuponera')" id="tab-btn-cuponera" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
+                            <i class="fas fa-ticket-alt"></i> <span>Cuponera</span>
+                        </button>
+                        <button onclick="switchTab('cronograma')" id="tab-btn-cronograma" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
+                            <i class="fas fa-calendar-days"></i> <span>Cronograma</span>
+                        </button>
+                        <button onclick="switchTab('llamadas')" id="tab-btn-llamadas" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-rose-400 hover:bg-rose-950/40 border border-rose-500/20">
+                            <i class="fas fa-triangle-exclamation"></i> <span>Llamadas de Atención</span>
+                        </button>
+                        <button onclick="switchTab('perfil')" id="tab-btn-perfil" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
+                            <i class="fas fa-user-gear"></i> <span>Mi Perfil</span>
+                        </button>
+                    </div>
+                </nav>
+            </header>
+
+            <!-- CONTAINER FOR TABS -->
+            <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+
+                <!-- ================= TAB 1: DASHBOARD & iFORDA ================= -->
+                <section id="view-dashboard" class="tab-view space-y-8">
+                    
+                    <!-- SUMMARY METRICS -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-4 flex items-center space-x-3 shadow-lg">
+                            <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-lg">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Estado Turno</p>
+                                <p id="metricTurno" class="text-sm font-extrabold text-cyan-300">Fuera de Turno</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-4 flex items-center space-x-3 shadow-lg">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-lg">
+                                <i class="fas fa-list-check"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Lista de Pendientes</p>
+                                <p id="metricPendientes" class="text-xl font-extrabold text-amber-300">0</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-4 flex items-center space-x-3 shadow-lg">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-lg">
+                                <i class="fas fa-heart-pulse"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Estado Global</p>
+                                <p id="metricEstadoGlobal" class="text-sm font-extrabold text-emerald-400">Óptimo (100%)</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-4 flex items-center space-x-3 shadow-lg">
+                            <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-300 flex items-center justify-center text-lg">
+                                <i class="fas fa-cubes"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Proyectos Activos</p>
+                                <p id="metricProyectosActivos" class="text-xl font-extrabold text-sky-300">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PEARPAD / iFORDA CYAN SECTION -->
+                    <div class="flex justify-center my-4">
+                        <div class="w-full max-w-md">
+                            <div class="pear-stem"></div>
+                            
+                            <div class="iforda-frame p-6 relative overflow-hidden text-slate-100 shadow-2xl">
+                                <div class="flex justify-between items-center text-[11px] font-mono mb-4 text-cyan-300/80 border-b border-cyan-500/30 pb-2">
+                                    <span class="font-bold tracking-widest"><i class="fas fa-apple-alt text-cyan-400 mr-1"></i> iFORDA OS v4.4</span>
+                                    <span>OCT 2026</span>
+                                </div>
+
+                                <div class="bg-slate-950/80 rounded-2xl p-4 border border-cyan-500/40 space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <img id="ifordaAvatar" src="" class="w-14 h-14 rounded-2xl border-2 border-cyan-400 object-cover shadow-md">
+                                        <div>
+                                            <h3 id="ifordaName" class="font-black text-base text-cyan-300"></h3>
+                                            <p id="ifordaRole" class="text-xs text-slate-400"></p>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-2 border-t border-slate-800 space-y-2">
+                                        <!-- Public Notes from Master for Everyone -->
+                                        <div class="bg-slate-900/90 rounded-xl p-3 border border-cyan-500/30 text-xs">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <span class="text-[10px] font-bold text-cyan-400 uppercase"><i class="fas fa-bullhorn mr-1"></i> Nota Master / Observaciones (Público):</span>
+                                                <span class="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-800 px-1.5 py-0.5 rounded">PÚBLICO</span>
+                                            </div>
+                                            <p id="ifordaNoteDisplay" class="text-slate-200 font-medium italic break-words">Espacio disponible para notas u observaciones públicas del administrador master.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Master Only Control -->
+                                    <div id="masterStatusControl" class="hidden pt-2 border-t border-slate-800/80 space-y-2">
+                                        <label class="block text-[10px] font-bold text-cyan-400 uppercase">GESTIÓN DE NOTA MASTER PÚBLICA (MASTER):</label>
+                                        <textarea id="masterNoteInput" placeholder="Escribe la Nota Master pública para todo el equipo..." 
+                                            class="w-full bg-slate-900 border border-cyan-500/50 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400 h-16"></textarea>
+                                        
+                                        <button onclick="updatePublicMasterNote()" class="w-full bg-cyan-500 text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-cyan-400 transition">
+                                            Publicar Nota Master para Todos
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Clock & Direct Stopwatch -->
+                                <div class="mt-4 bg-cyan-950/40 rounded-2xl p-4 border border-cyan-500/30 text-center">
+                                    <div class="text-[10px] font-bold uppercase text-cyan-400 mb-1">Reloj de Trabajo Integrado</div>
+                                    <div id="ifordaTimerDisplay" class="font-mono text-3xl font-extrabold text-cyan-300 tracking-wider my-1">00:00:00</div>
+                                    
+                                    <div class="flex justify-center space-x-2 mt-3">
+                                        <button onclick="startTimer()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1">
+                                            <i class="fas fa-play text-[10px]"></i> <span>Iniciar</span>
+                                        </button>
+                                        <button onclick="pauseTimer()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1">
+                                            <i class="fas fa-pause text-[10px]"></i> <span>Pausar</span>
+                                        </button>
+                                        <button onclick="stopTimer()" class="bg-rose-500 hover:bg-rose-400 text-slate-950 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1">
+                                            <i class="fas fa-stop text-[10px]"></i> <span>Fin</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TASKS & CHECKLIST DASHBOARD SECTION -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Lista de Deberes de Integrantes -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="font-bold text-lg text-cyan-300 flex items-center space-x-2">
+                                    <i class="fas fa-list-check"></i> <span>Deberes del Equipo</span>
+                                </h2>
+                                <button onclick="openNewDutyModal()" class="text-xs bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 px-3 py-1 rounded-xl font-bold transition">
+                                    + Agregar Deber
+                                </button>
+                            </div>
+
+                            <div class="space-y-3 max-h-80 overflow-y-auto pr-1" id="teamDutiesList">
+                                <!-- Generated Dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Checklist de Tareas Rápidas Personales -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="font-bold text-lg text-cyan-300 flex items-center space-x-2">
+                                    <i class="fas fa-square-check"></i> <span>Mi Checklist Rápido</span>
+                                </h2>
+                                <span class="text-xs bg-cyan-950 text-cyan-400 border border-cyan-800 px-2.5 py-1 rounded-full font-mono" id="checklistCount">0 completados</span>
+                            </div>
+
+                            <div class="flex space-x-2 mb-4">
+                                <input type="text" id="newChecklistItem" placeholder="Añadir nueva tarea personal..."
+                                    class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-cyan-400">
+                                <button onclick="addChecklistItem()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold transition">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+
+                            <div class="space-y-2 flex-1 overflow-y-auto pr-1" id="personalChecklist">
+                                <!-- Rendered dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 2: CONTROL DE PROYECTOS ================= -->
+                <section id="view-proyectos" class="tab-view hidden space-y-6">
+                    <div class="bg-slate-900 border border-cyan-500/30 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                            <div>
+                                <h2 class="text-2xl font-black text-cyan-300 tracking-wide flex items-center space-x-2">
+                                    <i class="fas fa-cubes text-cyan-400"></i>
+                                    <span>CONTROL DE PROYECTOS</span>
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-1">Gestión ilimitada de proyectos con fecha límite manual sincronizada al cronograma</p>
+                            </div>
+
+                            <div>
+                                <button onclick="openNewProjectModal()" class="bg-gradient-to-r from-cyan-400 to-sky-500 hover:from-cyan-300 hover:to-sky-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow-lg shadow-cyan-500/20 flex items-center space-x-2">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <span>NUEVO PROYECTO</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Projects Grid / Cards -->
+                        <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Populated Dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 3: REGISTRO DE HORARIOS ================= -->
+                <section id="view-horarios" class="tab-view hidden space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+                        
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                            <div>
+                                <h2 class="text-xl font-bold text-cyan-300 flex items-center space-x-2">
+                                    <i class="fas fa-user-clock text-cyan-400"></i>
+                                    <span>REGISTRO DE HORARIOS Y CONTROL DE TIEMPO</span>
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-1">Fechas permitidas desde Octubre 2026 hasta Diciembre 2044</p>
+                            </div>
+                        </div>
+
+                        <!-- Manual Entry & Timer -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Timer Box -->
+                            <div class="bg-slate-950/80 border border-cyan-500/30 rounded-2xl p-5 text-center flex flex-col justify-between space-y-4">
+                                <span class="text-xs font-bold uppercase tracking-wider text-cyan-400">Cronómetro en Curso</span>
+                                <div id="horariosTimerDisplay" class="font-mono text-4xl font-black text-cyan-300">00:00:00</div>
+                                <div class="flex justify-center space-x-2">
+                                    <button onclick="startTimer()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-2 rounded-xl text-xs font-bold transition">Iniciar</button>
+                                    <button onclick="pauseTimer()" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 py-2 rounded-xl text-xs font-bold transition">Pausar</button>
+                                    <button onclick="stopTimer()" class="flex-1 bg-rose-500 hover:bg-rose-400 text-slate-950 py-2 rounded-xl text-xs font-bold transition">Fin (Guardar)</button>
+                                </div>
+                            </div>
+
+                            <!-- Manual Form -->
+                            <div class="lg:col-span-2 bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-4">
+                                <h3 class="text-sm font-bold text-slate-200">Añadir Registro Manual</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="block text-[10px] text-slate-400 uppercase mb-1">Título del Registro *</label>
+                                        <input type="text" id="manualTitle" placeholder="Ej: Avance de Diseño" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] text-slate-400 uppercase mb-1">Fecha (Oct 2026 - Dic 2044) *</label>
+                                        <input type="date" id="workLogDate" min="2026-10-01" max="2044-12-31" value="2026-10-26" class="w-full bg-slate-900 border border-cyan-500/40 rounded-lg px-3 py-2 text-xs text-cyan-300 font-mono">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] text-slate-400 uppercase mb-1">Horas Trab.</label>
+                                        <input type="number" id="manualHours" min="0.5" step="0.5" value="4" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-400 uppercase mb-1">Descripción Opcional (Predeterminada: iForda)</label>
+                                    <input type="text" id="manualDesc" placeholder="iForda" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100">
+                                </div>
+                                <button onclick="addManualWorkLog()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-2 rounded-xl text-xs transition">
+                                    REGISTRAR HORAS
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Deletion Panel (Exclusivo Master) -->
+                        <div id="masterLogDeletePanel" class="hidden bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+                            <span class="text-xs font-bold text-rose-300 flex items-center space-x-2">
+                                <i class="fas fa-shield-halved"></i>
+                                <span>ACCIONES EXCLUSIVAS DE MASTER (FORDWORLD@FORDAWORLD):</span>
+                            </span>
+                            <div class="flex space-x-2">
+                                <button onclick="masterDeleteSelectedLogs('month')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                    Borrar Registro Mensual
+                                </button>
+                                <button onclick="masterDeleteSelectedLogs('year')" class="bg-rose-700 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                                    Borrar Todo el Año Completo
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Month Filter & Table -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-sm font-bold text-slate-200">Panel de Horas Detallado</h3>
+                                <select id="filterLogMonth" onchange="renderWorkLogs()" class="bg-slate-950 border border-slate-800 text-xs rounded-xl px-3 py-1 text-cyan-300"></select>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-slate-800 text-slate-400 uppercase tracking-wider font-mono">
+                                            <th class="p-3">Integrante</th>
+                                            <th class="p-3">Título</th>
+                                            <th class="p-3">Fecha</th>
+                                            <th class="p-3">Horas</th>
+                                            <th class="p-3">Descripción</th>
+                                            <th class="p-3 text-right">Detalle</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="workLogsTable" class="divide-y divide-slate-800/60">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 4: REUNIONES Y AGENDA ================= -->
+                <section id="view-reuniones" class="tab-view hidden space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+                        
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                            <div>
+                                <h2 class="text-xl font-bold text-cyan-300 flex items-center space-x-2">
+                                    <i class="fas fa-calendar-day text-cyan-400"></i>
+                                    <span>AGENDA DE REUNIONES FORDAWORLD</span>
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-1">Con enlace/lugar y confirmación individual de asistencia</p>
+                            </div>
+
+                            <button onclick="openNewMeetingModal()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2">
+                                <i class="fas fa-calendar-plus"></i>
+                                <span>AGENDAR REUNIÓN</span>
+                            </button>
+                        </div>
+
+                        <!-- Meetings Grid -->
+                        <div id="meetingsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 5: CUPONERA FORDAWORLD ================= -->
+                <section id="view-cuponera" class="tab-view hidden space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+                        
+                        <div class="border-b border-slate-800 pb-4">
+                            <h2 class="text-xl font-bold text-cyan-300 flex items-center space-x-2">
+                                <i class="fas fa-ticket-alt text-cyan-400"></i>
+                                <span>CUPONERA FORDAWORLD</span>
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-1">Solicita cupones con aprobación centralizada de la cuenta Master</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            
+                            <!-- Cupón 1: Día Libre -->
+                            <div class="bg-slate-950 border border-cyan-500/40 rounded-3xl p-5 space-y-3 shadow-xl flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-2">
+                                        <span class="text-2xl">🏖️</span>
+                                        <span class="text-[9px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded-full">SOLICITUD</span>
+                                    </div>
+                                    <h3 class="font-extrabold text-sm text-white">DÍA LIBRE</h3>
+                                    <p class="text-[11px] text-slate-400 mt-1">Indica fecha y motivo. Si la fecha tiene eventos/proyectos o ya fue tomada, no se habilitará.</p>
+                                </div>
+                                
+                                <div class="space-y-2 pt-2 border-t border-slate-800">
+                                    <input type="date" id="couponFreeDayDate" min="2026-10-01" max="2044-12-31" value="2026-10-30"
+                                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-cyan-300 font-mono">
+                                    <input type="text" id="couponFreeDayReason" placeholder="Motivo del día libre..."
+                                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-100">
+                                    <button onclick="claimFreeDayCoupon()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2 rounded-xl text-xs transition">
+                                        Solicitar Día Libre
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Cupón 2: Cupón Bono S/4.44 -->
+                            <div class="bg-slate-950 border border-emerald-500/40 rounded-3xl p-5 space-y-3 shadow-xl flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-2">
+                                        <span class="text-2xl">💵</span>
+                                        <span class="text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full">BONO</span>
+                                    </div>
+                                    <h3 class="font-extrabold text-sm text-white">Cupón Bono S/4.44</h3>
+                                    <p class="text-[11px] text-slate-400 mt-1">Solicita el bono simbólico predeterminado corporativo.</p>
+                                </div>
+
+                                <div class="pt-2 border-t border-slate-800">
+                                    <button onclick="claimCashCoupon()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition">
+                                        Solicitar Cupón Bono S/4.44
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Cupón 3: MONTO ESPECIAL -->
+                            <div class="bg-slate-950 border border-purple-500/40 rounded-3xl p-5 space-y-3 shadow-xl flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-2">
+                                        <span class="text-2xl">💎</span>
+                                        <span class="text-[9px] font-bold bg-purple-950 text-purple-300 border border-purple-800 px-2 py-0.5 rounded-full">ESPECIAL</span>
+                                    </div>
+                                    <h3 class="font-extrabold text-sm text-white">MONTO ESPECIAL</h3>
+                                    <p class="text-[11px] text-slate-400 mt-1">Registra título, descripción y monto requerido.</p>
+                                </div>
+
+                                <div class="space-y-2 pt-2 border-t border-slate-800">
+                                    <input type="text" id="specialTitle" placeholder="Título del requerimiento..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1 text-xs">
+                                    <input type="text" id="specialDesc" placeholder="Descripción breve..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1 text-xs">
+                                    <input type="number" id="specialAmount" placeholder="Monto (S/)" oninput="updateSpecialAmountBtn(this.value)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1 text-xs text-purple-300 font-mono">
+                                    
+                                    <button id="btnClaimSpecial" onclick="claimSpecialCoupon()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded-xl text-xs transition">
+                                        Solicitar Monto Especial S/ 0.00
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Claimed Coupons History -->
+                        <div class="pt-4 border-t border-slate-800 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-sm font-bold text-slate-200">Historial de Cupones y Solicitudes</h3>
+                                <select id="filterCouponsMonth" onchange="renderCouponsHistory()" class="bg-slate-950 border border-slate-800 text-xs rounded-xl px-3 py-1 text-cyan-300"></select>
+                            </div>
+
+                            <div id="claimedCouponsList" class="space-y-2">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 6: CRONOGRAMA MENSUAL Y SEMANAL ================= -->
+                <section id="view-cronograma" class="tab-view hidden space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+                        
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                            <div>
+                                <h2 class="text-xl font-bold text-cyan-300 flex items-center space-x-2">
+                                    <i class="fas fa-calendar-days text-cyan-400"></i>
+                                    <span>CRONOGRAMA CONSOLIDADO</span>
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-1">Visualización completa e interactiva mensual y semanal</p>
+                            </div>
+
+                            <div class="flex items-center space-x-2 bg-slate-950 p-1 border border-slate-800 rounded-xl">
+                                <button id="btnCronogramMonth" onclick="setCronogramView('month')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-500 text-slate-950">
+                                    Vista Mensual
+                                </button>
+                                <button id="btnCronogramWeek" onclick="setCronogramView('week')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-100">
+                                    Vista Semanal
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 text-xs">
+                            <div class="flex items-center space-x-4">
+                                <span class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-cyan-500"></span><span class="text-slate-300">🚀 Proyectos</span></span>
+                                <span class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-amber-400"></span><span class="text-slate-300">📅 Reuniones</span></span>
+                                <span class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-emerald-400"></span><span class="text-slate-300">🏖️ Días Libres</span></span>
+                                <span class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-purple-400"></span><span class="text-slate-300">📌 Eventos</span></span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="cronogramShift(-1)" title="Anterior" class="bg-slate-900 border border-slate-700 hover:border-cyan-400 text-cyan-300 w-8 h-8 rounded-lg text-xs"><i class="fas fa-chevron-left"></i></button>
+                                <span id="cronogramLabel" class="text-xs text-cyan-300 font-mono font-bold uppercase min-w-[9rem] text-center"></span>
+                                <button onclick="cronogramShift(1)" title="Siguiente" class="bg-slate-900 border border-slate-700 hover:border-cyan-400 text-cyan-300 w-8 h-8 rounded-lg text-xs"><i class="fas fa-chevron-right"></i></button>
+                                <button onclick="cronogramToday()" class="bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30 px-3 h-8 rounded-lg text-xs font-bold">Hoy</button>
+                            </div>
+                        </div>
+
+                        <!-- Calendar Grid -->
+                        <div id="cronogramGrid" class="space-y-4">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 7: NUEVA SECCIÓN - LLAMADAS DE ATENCIÓN ================= -->
+                <section id="view-llamadas" class="tab-view hidden space-y-6">
+                    <div class="bg-slate-900 border border-rose-500/40 rounded-3xl p-6 shadow-2xl space-y-6 relative overflow-hidden">
+                        
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-rose-500/30 pb-4">
+                            <div>
+                                <h2 class="text-xl font-black text-rose-400 flex items-center space-x-2 tracking-wide">
+                                    <i class="fas fa-triangle-exclamation text-rose-500"></i>
+                                    <span>LLAMADAS DE ATENCIÓN Y AMONESTACIONES</span>
+                                </h2>
+                                <p class="text-xs text-rose-300/80 mt-1">Historial público de faltas corporativas. Etiqueta y registra llamadas entre compañeros.</p>
+                            </div>
+
+                            <button onclick="openNewWarningModal()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2 shadow-lg shadow-rose-950">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>REGISTRAR LLAMADA DE ATENCIÓN</span>
+                            </button>
+                        </div>
+
+                        <!-- Feed de Faltas -->
+                        <div class="space-y-3" id="warningsListFeed">
+                            <!-- Dynamically rendered -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 8: PERFIL PRIVADO ================= -->
+                <section id="view-perfil" class="tab-view hidden space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl max-w-2xl mx-auto space-y-6">
+                        
+                        <div class="flex items-center space-x-4 border-b border-slate-800 pb-4">
+                            <img id="profileAvatarPreview" src="" class="w-20 h-20 rounded-2xl border-2 border-cyan-400 object-cover shadow-lg">
+                            <div>
+                                <h2 id="profileTitleName" class="text-2xl font-black text-cyan-300"></h2>
+                                <p id="profileTitleRole" class="text-xs text-slate-400"></p>
+                                <p class="text-[10px] text-emerald-400 mt-1"><i class="fas fa-lock"></i> Datos Privados (Solo visible para ti y la cuenta Master)</p>
+                            </div>
+                        </div>
+
+                        <form id="profileForm" onsubmit="saveProfile(event)" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Nombre Completo</label>
+                                    <input type="text" id="profileName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Cargo / Rol</label>
+                                    <input type="text" id="profileRole" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Edad</label>
+                                    <input type="number" id="profileAge" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Teléfono</label>
+                                    <input type="text" id="profilePhone" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Foto de Perfil (URL / Archivo de Imagen)</label>
+                                <div class="flex space-x-2">
+                                    <input type="url" id="profileAvatarUrl" required class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                                    <button type="button" onclick="clearProfileAvatar()" class="bg-rose-950 border border-rose-500/40 text-rose-300 px-3 rounded-xl text-xs font-bold hover:bg-rose-900">
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="pt-2">
+                                <button type="submit" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition">
+                                    ACTUALIZAR MI PERFIL
+                                </button>
+                            </div>
+                        </form>
+                        <button type="button" onclick="logout()" class="w-full flex items-center justify-center space-x-2 bg-rose-950/60 hover:bg-rose-600 border border-rose-500/50 text-rose-300 hover:text-white font-bold py-3 rounded-xl text-xs transition">
+                            <i class="fas fa-right-from-bracket"></i><span>CERRAR SESIÓN</span>
+                        </button>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTRAR / EDITAR PROYECTO -->
+    <div id="projectModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 max-w-md w-full space-y-4">
+            <h3 id="projectModalTitle" class="font-bold text-lg text-cyan-300">Crear Proyecto</h3>
+            <input type="hidden" id="editProjId">
+            
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Título del Proyecto *</label>
+                <input type="text" id="projTitleInput" placeholder="Nombre del proyecto..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+            </div>
+            
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Responsable *</label>
+                <select id="projOwnerInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                    <!-- Populated dynamically -->
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Descripción</label>
+                <textarea id="projDescInput" placeholder="Descripción breve..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 h-16"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[10px] text-slate-400 uppercase mb-1">Avance (%)</label>
+                    <input type="number" id="projProgressInput" min="0" max="100" value="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-slate-400 uppercase mb-1">Fecha Límite *</label>
+                    <input type="date" id="projDueDateInput" min="2026-10-01" max="2044-12-31" value="2026-10-31" class="w-full bg-slate-950 border border-cyan-500/40 rounded-xl px-2.5 py-2 text-xs text-cyan-300 font-mono">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Estado del Proyecto</label>
+                <select id="projStatusInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                    <option value="No Iniciado">No Iniciado</option>
+                    <option value="En Proceso" selected>En Proceso</option>
+                    <option value="En Revisión">En Revisión</option>
+                    <option value="Solicitud de Revisión">Solicitud de Revisión</option>
+                    <option value="Corrigiendo">Corrigiendo</option>
+                    <option value="Aprobado">Aprobado</option>
+                    <option value="Completado">Completado</option>
+                    <option value="Agendar Reunión">Agendar Reunión</option>
+                    <option value="Reunión Agendada">Reunión Agendada</option>
+                    <option value="Reunión Confirmada">Reunión Confirmada</option>
+                </select>
+            </div>
+            
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeProjectModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2 rounded-xl text-xs font-bold">Cancelar</button>
+                <button onclick="saveProject()" class="flex-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 py-2 rounded-xl text-xs font-bold">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: NUEVO DEBER -->
+    <div id="newDutyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 max-w-md w-full space-y-4">
+            <h3 class="font-bold text-lg text-cyan-300">Agregar Deber al Equipo</h3>
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Descripción del Deber</label>
+                <input type="text" id="newDutyTask" placeholder="Ej: Revisar entregables..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Responsable</label>
+                <select id="newDutyUser" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                    <!-- Populated dynamically -->
+                </select>
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeNewDutyModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2 rounded-xl text-xs font-bold">Cancelar</button>
+                <button onclick="saveNewDuty()" class="flex-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 py-2 rounded-xl text-xs font-bold">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: NUEVA REUNIÓN -->
+    <div id="newMeetingModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 max-w-md w-full space-y-4">
+            <h3 class="font-bold text-lg text-cyan-300">Agendar Reunión</h3>
+            <input type="text" id="newMeetTitle" placeholder="Asunto / Título de la reunión" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+            
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Enlace (Link) o Lugar de la Reunión</label>
+                <input type="text" id="newMeetLink" placeholder="Ej: https://meet.google.com/abc-defg-hij o Sala 2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[10px] text-slate-400 uppercase mb-1">Fecha (Oct 26 - Dic 44)</label>
+                    <input type="date" id="newMeetDate" min="2026-10-01" max="2044-12-31" value="2026-10-28" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-2 text-xs text-cyan-300 font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-slate-400 uppercase mb-1">Hora</label>
+                    <input type="time" id="newMeetTime" value="10:00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-2 text-xs text-cyan-300 font-mono">
+                </div>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeNewMeetingModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2 rounded-xl text-xs font-bold">Cancelar</button>
+                <button onclick="saveNewMeeting()" class="flex-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 py-2 rounded-xl text-xs font-bold">Agendar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTRAR LLAMADA DE ATENCIÓN / AMONESTACIÓN -->
+    <div id="newWarningModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-rose-500/40 rounded-3xl p-6 max-w-md w-full space-y-4">
+            <h3 class="font-bold text-lg text-rose-400 flex items-center space-x-2">
+                <i class="fas fa-triangle-exclamation"></i>
+                <span>Registrar Falta o Amonestación</span>
+            </h3>
+            
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Usuario Etiquetado *</label>
+                <select id="warnTargetUser" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                    <!-- Populated dynamically -->
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Tipo de Registro</label>
+                <select id="warnType" onchange="toggleWarnTypeNotice()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                    <option value="Llamada de Atención">Llamada de Atención (Cualquier usuario)</option>
+                    <option value="Amonestación Oficial">Amonestación Oficial (Exclusivo Master)</option>
+                </select>
+                <p id="warnMasterNotice" class="hidden text-[10px] text-rose-400 mt-1">* Solo se guardará si estás conectado con la cuenta master.</p>
+            </div>
+
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Motivo / Descripción de la Falta *</label>
+                <textarea id="warnReason" placeholder="Describe el motivo o incumplimiento..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 h-20 focus:outline-none focus:border-rose-500"></textarea>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeNewWarningModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2 rounded-xl text-xs font-bold">Cancelar</button>
+                <button onclick="saveWarning()" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-xl text-xs font-bold">Publicar Registro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EXAMINAR ELEMENTO DEL CRONOGRAMA -->
+    <div id="cronogramExamModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 max-w-md w-full space-y-4">
+            <h3 class="font-bold text-lg text-cyan-300 flex items-center space-x-2">
+                <i class="fas fa-magnifying-glass"></i>
+                <span>Examinar Detalle del Cronograma</span>
+            </h3>
+
+            <input type="hidden" id="examItemId">
+            <input type="hidden" id="examItemType">
+
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Título</label>
+                <input type="text" id="examTitle" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+            </div>
+
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Fecha</label>
+                <input type="text" id="examDate" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-cyan-400 font-mono">
+            </div>
+
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Descripción / Notas Adicionales</label>
+                <textarea id="examDesc" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 h-24 focus:outline-none focus:border-cyan-400"></textarea>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeCronogramExamModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2 rounded-xl text-xs font-bold">Cerrar</button>
+                <button id="examDeleteBtn" onclick="deleteCustomEvent()" class="hidden flex-1 bg-rose-950 border border-rose-500/40 text-rose-300 hover:bg-rose-900 py-2 rounded-xl text-xs font-bold">Eliminar</button>
+                <button onclick="saveCronogramExamEdits()" class="flex-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 py-2 rounded-xl text-xs font-bold">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // =====================================================================
+        //  CONFIGURACIÓN DE LA BASE DE DATOS COMPARTIDA (TIEMPO REAL)
+        //  Pega aquí la URL de tu Firebase Realtime Database, por ejemplo:
+        //  "https://fordaworld-default-rtdb.firebaseio.com"
+        //  Si se deja vacío, los datos se guardan solo en este navegador.
+        // =====================================================================
+        const FIREBASE_DB_URL = "";
+        const DB_ROOT = "fordaworld";
+
+        // Database of users
+        const USERS_DB = {
+            "andrea@fordaworld": { password: "4444", name: "Andrea", role: "Diseñadora Senior", age: 25, phone: "+51 987 654 321", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" },
+            "vale@fordaworld": { password: "4444", name: "Vale", role: "Community Manager", age: 24, phone: "+51 987 654 322", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" },
+            "karito@fordaworld": { password: "4444", name: "Karito", role: "Project Manager", age: 26, phone: "+51 987 654 323", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150" },
+            "shenni@fordaworld": { password: "4444", name: "Shenni", role: "Desarrolladora Web", age: 27, phone: "+51 987 654 324", avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150" },
+            "antu@fordaworld": { password: "4444", name: "Antu", role: "Estratega Digital", age: 25, phone: "+51 987 654 325", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" },
+            "mish@fordaworld": { password: "4444", name: "Mish", role: "Directora Creativa", age: 28, phone: "+51 987 654 326", avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150" },
+            "fordaworld@fordaworld": { password: "FDW4444", name: "Cuenta Master", role: "Super Administrador", age: 30, phone: "+51 999 999 999", avatar: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150", isMaster: true }
+        };
+
+        // Application State
+        let currentUser = null;
+        let activeTimer = null;
+        let timerSeconds = 0;
+        let cronogramViewMode = 'month';
+
+        // Public Master Note
+        const DEFAULT_NOTE = "Bienvenidos al Backoffice de Fordaworld. Revisar entregables semanales y coordinar reuniones con anticipación.";
+        let publicMasterNote = DEFAULT_NOTE;
+
+        // Dynamic Stores (se llenan desde la base de datos compartida)
+        let teamDuties = [];
+        let personalChecklists = {};
+        let projects = [];
+        let workLogs = [];
+        let meetings = [];
+        let claimedCoupons = [];
+        let warnings = [];
+        let customEvents = [];
+
+        // INIT
+        window.onload = initApp;
+
+        // LOGIN SYSTEM
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('loginPassword').value.trim();
+
+            if (!dataReady) {
+                showToast('Conectando con la base de datos, intenta en unos segundos…', 'info');
+                return;
+            }
+            if (!email || !pass) {
+                showToast('Ingresa tu correo y contraseña.', 'error');
+                return;
+            }
+
+            if (USERS_DB[email] && USERS_DB[email].password === pass) {
+                enterApp(email, false);
+            } else {
+                document.getElementById('loginPassword').value = '';
+                showToast('Credenciales incorrectas. Intenta de nuevo.', 'error');
+            }
+        }
+
+        function logout() {
+            if (!currentUser) return;
+            // Si había un cronómetro en curso, se guarda antes de salir
+            if (activeTimer || timerSeconds > 0) stopTimer(); else resetTimerState();
+            syncDirty();
+            currentUser = null;
+            try { sessionStorage.removeItem('fdw_session'); } catch (e) {}
+            closeAllModals();
+            document.getElementById('mainDashboard').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            clearLoginForm();
+            showToast('Sesión cerrada correctamente.', 'info');
+        }
+
+        // INITIALIZE DASHBOARD
+        function initUserDashboard() {
+            document.getElementById('navAvatar').src = currentUser.avatar;
+            document.getElementById('navUserName').innerText = currentUser.name;
+            document.getElementById('navUserRole').innerText = currentUser.role;
+
+            document.getElementById('ifordaAvatar').src = currentUser.avatar;
+            document.getElementById('ifordaName').innerText = currentUser.name;
+            document.getElementById('ifordaRole').innerText = currentUser.role;
+
+            document.getElementById('ifordaNoteDisplay').innerText = publicMasterNote;
+
+            const masterCtrl = document.getElementById('masterStatusControl');
+            const masterLogDel = document.getElementById('masterLogDeletePanel');
+            
+            if (currentUser.isMaster) {
+                masterCtrl.classList.remove('hidden');
+                masterLogDel.classList.remove('hidden');
+            } else {
+                masterCtrl.classList.add('hidden');
+                masterLogDel.classList.add('hidden');
+            }
+
+            populateDropdownUsers();
+            updateDashboardMetrics();
+            renderTeamDuties();
+            renderPersonalChecklist();
+            renderProjects();
+            renderWorkLogs();
+            renderMeetings();
+            renderCouponsHistory();
+            renderCronogram();
+            renderWarningsFeed();
+            loadProfileFormData();
+        }
+
+        function populateDropdownUsers() {
+            const userOptions = Object.values(USERS_DB).map(u => `<option value="${esc(u.name)}">${esc(u.name)}</option>`).join('');
+            const userEmailOptions = Object.keys(USERS_DB).map(e => `<option value="${esc(e)}">${esc(USERS_DB[e].name)} (${esc(e)})</option>`).join('');
+
+            document.getElementById('projOwnerInput').innerHTML = userOptions;
+            document.getElementById('newDutyUser').innerHTML = userOptions;
+            document.getElementById('warnTargetUser').innerHTML = userEmailOptions;
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-cyan-500/20', 'text-cyan-300', 'border', 'border-cyan-500/40');
+                btn.classList.add('text-slate-400');
+            });
+
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            if(activeBtn) {
+                activeBtn.classList.add('bg-cyan-500/20', 'text-cyan-300', 'border', 'border-cyan-500/40');
+                activeBtn.classList.remove('text-slate-400');
+            }
+
+            document.getElementById('globalNavSelect').value = tabId;
+        }
+
+        function updateDashboardMetrics() {
+            const isTurnActive = activeTimer !== null;
+            const turnoEl = document.getElementById('metricTurno');
+            if (isTurnActive) {
+                turnoEl.innerText = "En Turno (Activo)";
+                turnoEl.className = "text-sm font-extrabold text-emerald-400";
+            } else {
+                turnoEl.innerText = "Fuera de Turno";
+                turnoEl.className = "text-sm font-extrabold text-cyan-300";
+            }
+
+            const pendingDutiesCount = teamDuties.filter(d => d.status === 'Pendiente' || d.status === 'En curso').length;
+            document.getElementById('metricPendientes').innerText = pendingDutiesCount;
+            document.getElementById('metricEstadoGlobal').innerText = "Óptimo (100%)";
+            document.getElementById('metricProyectosActivos').innerText = projects.length;
+        }
+
+        // PUBLIC MASTER NOTE
+        function updatePublicMasterNote() {
+            if (!currentUser.isMaster) return;
+            const noteVal = document.getElementById('masterNoteInput').value.trim();
+            if (!noteVal) return;
+
+            publicMasterNote = noteVal;
+            document.getElementById('ifordaNoteDisplay').innerText = publicMasterNote;
+            document.getElementById('masterNoteInput').value = '';
+            showToast('Nota Master pública actualizada para todos los usuarios', 'success');
+        }
+
+        // TIMER SYSTEM (basado en reloj real: no se atrasa si la pestaña queda en segundo plano)
+        let timerBase = 0;          // segundos acumulados antes de la corrida actual
+        let timerStartedAt = null;  // marca de tiempo del último "Iniciar"
+
+        function computeTimerSeconds() {
+            return timerBase + (timerStartedAt ? Math.max(0, Math.floor((Date.now() - timerStartedAt) / 1000)) : 0);
+        }
+
+        function timerStorageKey() {
+            return 'fdw_timer_' + (currentUser ? currentUser.email : '');
+        }
+
+        function persistTimer() {
+            if (!currentUser) return;
+            try {
+                if (timerBase === 0 && !timerStartedAt) localStorage.removeItem(timerStorageKey());
+                else localStorage.setItem(timerStorageKey(), JSON.stringify({ base: timerBase, startedAt: timerStartedAt }));
+            } catch (e) {}
+        }
+
+        function startTimerInterval() {
+            activeTimer = setInterval(() => {
+                timerSeconds = computeTimerSeconds();
+                updateTimerDisplays();
+            }, 1000);
+            document.getElementById('topTimerStatus').classList.remove('hidden');
+        }
+
+        function resetTimerState() {
+            if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
+            timerBase = 0;
+            timerStartedAt = null;
+            timerSeconds = 0;
+            updateTimerDisplays();
+        }
+
+        // Recupera el cronómetro del usuario si recargó la página o volvió a entrar
+        function restoreTimer() {
+            resetTimerState();
+            try {
+                const raw = localStorage.getItem(timerStorageKey());
+                if (!raw) { updateDashboardMetrics(); return; }
+                const t = JSON.parse(raw);
+                timerBase = t.base || 0;
+                if (t.startedAt) {
+                    timerStartedAt = t.startedAt;
+                    startTimerInterval();
+                }
+                timerSeconds = computeTimerSeconds();
+                updateTimerDisplays();
+                if (timerSeconds > 0) document.getElementById('topTimerStatus').classList.remove('hidden');
+            } catch (e) {}
+            updateDashboardMetrics();
+        }
+
+        function startTimer() {
+            if (activeTimer || !currentUser) return;
+            timerStartedAt = Date.now();
+            startTimerInterval();
+            persistTimer();
+            updateDashboardMetrics();
+            showToast('Reloj de trabajo iniciado', 'info');
+        }
+
+        function pauseTimer() {
+            if (!activeTimer) return;
+            clearInterval(activeTimer);
+            activeTimer = null;
+            timerSeconds = computeTimerSeconds();
+            timerBase = timerSeconds;
+            timerStartedAt = null;
+            persistTimer();
+            updateTimerDisplays();
+            updateDashboardMetrics();
+            showToast('Reloj en pausa', 'info');
+        }
+
+        function stopTimer() {
+            if (activeTimer) {
+                clearInterval(activeTimer);
+                activeTimer = null;
+            }
+            timerSeconds = computeTimerSeconds();
+            timerStartedAt = null;
+            timerBase = 0;
+
+            if (timerSeconds > 0 && currentUser) {
+                const hoursLogged = Math.max(0.01, parseFloat((timerSeconds / 3600).toFixed(2)));
+                workLogs.unshift({
+                    id: Date.now(),
+                    email: currentUser.email,
+                    title: "Sesión de Cronómetro",
+                    date: todayLocal(),
+                    hours: hoursLogged,
+                    desc: "iForda"
+                });
+                renderWorkLogs();
+                showToast(`Guardado automático: ${hoursLogged} hrs registradas.`, 'success');
+            } else {
+                showToast('Reloj detenido', 'info');
+            }
+
+            timerSeconds = 0;
+            persistTimer();
+            updateTimerDisplays();
+            updateDashboardMetrics();
+        }
+
+        function updateTimerDisplays() {
+            const hrs = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
+            const secs = String(timerSeconds % 60).padStart(2, '0');
+            const formatted = `${hrs}:${mins}:${secs}`;
+
+            document.getElementById('ifordaTimerDisplay').innerText = formatted;
+            document.getElementById('topTimerDisplay').innerText = formatted;
+            document.getElementById('horariosTimerDisplay').innerText = formatted;
+        }
+
+        // TEAM DUTIES & CHECKLIST (ELIMINACIÓN LIBRE)
+        function renderTeamDuties() {
+            const container = document.getElementById('teamDutiesList');
+            container.innerHTML = teamDuties.map(d => `
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-950/60 border border-slate-800 text-xs">
+                    <div>
+                        <p class="font-bold text-slate-200">${esc(d.task)}</p>
+                        <p class="text-[10px] text-cyan-400">Responsable: ${esc(d.user)}</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <select onchange="changeDutyStatus(${esc(d.id)}, this.value)" class="bg-slate-900 border border-slate-800 text-[10px] rounded-lg px-2 py-1 text-slate-300">
+                            <option value="Pendiente" ${d.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                            <option value="En curso" ${d.status === 'En curso' ? 'selected' : ''}>En curso</option>
+                            <option value="Completado" ${d.status === 'Completado' ? 'selected' : ''}>Completado</option>
+                        </select>
+                        <button onclick="deleteDuty(${esc(d.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar Librely">
+                            <i class="fas fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            updateDashboardMetrics();
+        }
+
+        function changeDutyStatus(id, newStatus) {
+            const duty = teamDuties.find(d => d.id === id);
+            if (duty) {
+                duty.status = newStatus;
+                renderTeamDuties();
+            }
+        }
+
+        function deleteDuty(id) {
+            teamDuties = teamDuties.filter(d => d.id !== id);
+            renderTeamDuties();
+            showToast('Deber eliminado libremente', 'info');
+        }
+
+        function openNewDutyModal() {
+            document.getElementById('newDutyModal').classList.remove('hidden');
+        }
+        function closeNewDutyModal() {
+            document.getElementById('newDutyModal').classList.add('hidden');
+        }
+
+        function saveNewDuty() {
+            const task = document.getElementById('newDutyTask').value.trim();
+            const user = document.getElementById('newDutyUser').value;
+            if (!task) return;
+
+            teamDuties.push({ id: Date.now(), task, user, status: 'Pendiente' });
+            closeNewDutyModal();
+            document.getElementById('newDutyTask').value = '';
+            renderTeamDuties();
+            showToast('Deber registrado correctamente', 'success');
+        }
+
+        function renderPersonalChecklist() {
+            const container = document.getElementById('personalChecklist');
+            const userItems = personalChecklists[currentUser.email] || [];
+            
+            const completedCount = userItems.filter(i => i.done).length;
+            document.getElementById('checklistCount').innerText = `${esc(completedCount)} completados`;
+
+            container.innerHTML = userItems.map(item => `
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/80 text-xs">
+                    <label class="flex items-center space-x-2 cursor-pointer flex-1">
+                        <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleChecklistItem(${esc(item.id)})" class="rounded border-slate-700 bg-slate-900 text-cyan-400 focus:ring-0">
+                        <span class="${item.done ? 'line-through text-slate-500' : 'text-slate-200'} font-medium">${esc(item.text)}</span>
+                    </label>
+                    <button onclick="deleteChecklistItem(${esc(item.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar Tarea">
+                        <i class="fas fa-trash-can"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addChecklistItem() {
+            const input = document.getElementById('newChecklistItem');
+            const txt = input.value.trim();
+            if (!txt) return;
+
+            if (!personalChecklists[currentUser.email]) personalChecklists[currentUser.email] = [];
+            personalChecklists[currentUser.email].push({ id: Date.now(), text: txt, done: false });
+            input.value = '';
+            renderPersonalChecklist();
+        }
+
+        function toggleChecklistItem(id) {
+            const list = personalChecklists[currentUser.email] || [];
+            const item = list.find(i => i.id === id);
+            if (item) item.done = !item.done;
+            renderPersonalChecklist();
+        }
+
+        function deleteChecklistItem(id) {
+            personalChecklists[currentUser.email] = (personalChecklists[currentUser.email] || []).filter(i => i.id !== id);
+            renderPersonalChecklist();
+            showToast('Tarea de checklist eliminada', 'info');
+        }
+
+        // CONTROL DE PROYECTOS
+        function renderProjects() {
+            const container = document.getElementById('projectsGrid');
+            container.innerHTML = projects.map(p => `
+                <div class="bg-slate-950/80 border border-cyan-500/30 rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-lg hover:border-cyan-400 transition">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-slate-100 text-sm">${esc(p.title)}</h3>
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-500/40">${esc(p.status)}</span>
+                        </div>
+                        <p class="text-xs text-slate-400 line-clamp-2">${esc(p.desc || 'Sin descripción')}</p>
+                        <div class="mt-2 text-[10px] font-mono text-slate-400 space-y-0.5">
+                            <p>👤 Responsable: <span class="text-cyan-300 font-bold">${esc(p.owner)}</span></p>
+                            <p>📅 Fecha Límite: <span class="text-amber-400 font-bold">${esc(p.dueDate)}</span></p>
+                            <p class="text-slate-500">Creado el: ${esc(p.createdAt)}</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-[11px] font-mono text-cyan-400">
+                            <span>Avance:</span>
+                            <span class="font-bold">${esc(p.progress)}%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
+                            <div class="bg-gradient-to-r from-cyan-500 to-sky-400 h-full transition-all duration-300" style="width: ${esc(p.progress)}%"></div>
+                        </div>
+
+                        <div class="pt-2 flex items-center space-x-2">
+                            <input type="range" min="0" max="100" value="${esc(p.progress)}" onchange="updateProjectProgress(${esc(p.id)}, this.value)" 
+                                class="w-full accent-cyan-400 cursor-pointer">
+                            
+                            <button onclick="openEditProjectModal(${esc(p.id)})" title="Modificar Proyecto" class="bg-cyan-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 p-2 rounded-xl transition">
+                                <i class="fas fa-pen-to-square text-xs"></i>
+                            </button>
+
+                            <button onclick="deleteProject(${esc(p.id)})" title="Eliminar Proyecto Libremente" class="bg-rose-950/60 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 p-2 rounded-xl transition">
+                                <i class="fas fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateDashboardMetrics();
+            renderCronogram();
+        }
+
+        function updateProjectProgress(id, val) {
+            const p = projects.find(item => item.id === id);
+            if (p) {
+                p.progress = parseInt(val);
+                renderProjects();
+                showToast('Progreso de proyecto actualizado', 'info');
+            }
+        }
+
+        function deleteProject(id) {
+            projects = projects.filter(p => p.id !== id);
+            renderProjects();
+            showToast('Proyecto eliminado libremente', 'success');
+        }
+
+        function openNewProjectModal() {
+            document.getElementById('projectModalTitle').innerText = "Crear Nuevo Proyecto";
+            document.getElementById('editProjId').value = "";
+            document.getElementById('projTitleInput').value = "";
+            document.getElementById('projDescInput').value = "";
+            document.getElementById('projProgressInput').value = 0;
+            document.getElementById('projDueDateInput').value = addDaysStr(todayLocal(), 7);
+            document.getElementById('projStatusInput').value = "En Proceso";
+            document.getElementById('projectModal').classList.remove('hidden');
+        }
+
+        function openEditProjectModal(id) {
+            const p = projects.find(item => item.id === id);
+            if (!p) return;
+
+            document.getElementById('projectModalTitle').innerText = "Modificar Proyecto";
+            document.getElementById('editProjId').value = p.id;
+            document.getElementById('projTitleInput').value = p.title;
+            document.getElementById('projOwnerInput').value = p.owner;
+            document.getElementById('projDescInput').value = p.desc;
+            document.getElementById('projProgressInput').value = p.progress;
+            document.getElementById('projDueDateInput').value = p.dueDate;
+            document.getElementById('projStatusInput').value = p.status;
+            document.getElementById('projectModal').classList.remove('hidden');
+        }
+
+        function closeProjectModal() {
+            document.getElementById('projectModal').classList.add('hidden');
+        }
+
+        function saveProject() {
+            const editId = document.getElementById('editProjId').value;
+            const title = document.getElementById('projTitleInput').value.trim();
+            const owner = document.getElementById('projOwnerInput').value;
+            const desc = document.getElementById('projDescInput').value.trim();
+            const progress = parseInt(document.getElementById('projProgressInput').value) || 0;
+            const dueDate = document.getElementById('projDueDateInput').value;
+            const status = document.getElementById('projStatusInput').value;
+
+            if (!title || !dueDate) {
+                showToast('El título y la fecha límite son requeridos', 'error');
+                return;
+            }
+
+            if (editId) {
+                const p = projects.find(item => item.id == editId);
+                if (p) {
+                    p.title = title;
+                    p.owner = owner;
+                    p.desc = desc;
+                    p.progress = progress;
+                    p.dueDate = dueDate;
+                    p.status = status;
+                }
+                showToast('Proyecto modificado con éxito', 'success');
+            } else {
+                const todayStr = todayLocal();
+                projects.push({
+                    id: Date.now(),
+                    title,
+                    owner,
+                    desc,
+                    progress,
+                    dueDate,
+                    createdAt: todayStr,
+                    status
+                });
+                showToast('Proyecto registrado y añadido al cronograma', 'success');
+            }
+
+            closeProjectModal();
+            renderProjects();
+        }
+
+        // WORK LOGS / HORARIOS
+        function renderWorkLogs() {
+            const filterMonth = document.getElementById('filterLogMonth')?.value || 'ALL';
+            const table = document.getElementById('workLogsTable');
+
+            let filtered = workLogs;
+            if (filterMonth !== 'ALL') {
+                filtered = workLogs.filter(l => l.date.startsWith(filterMonth));
+            }
+
+            if (filtered.length === 0) {
+                table.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500 italic">No hay registros de horarios para el período seleccionado.</td></tr>';
+                return;
+            }
+
+            table.innerHTML = filtered.map(log => {
+                const userObj = USERS_DB[log.email] || { name: log.email };
+                return `
+                    <tr class="hover:bg-slate-900/40 transition">
+                        <td class="p-3 font-semibold text-cyan-300">${esc(userObj.name)}</td>
+                        <td class="p-3 font-bold text-slate-200">${esc(log.title || 'Registro de Horas')}</td>
+                        <td class="p-3 font-mono text-slate-300">${esc(log.date)}</td>
+                        <td class="p-3 font-mono font-bold text-cyan-400">${esc(log.hours)} hrs</td>
+                        <td class="p-3 text-slate-400 max-w-xs truncate">${esc(log.desc || 'iForda')}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="examineLogDetail(${esc(log.id)})" class="text-xs bg-slate-800 hover:bg-slate-700 text-cyan-300 px-2.5 py-1 rounded-lg">
+                                Examine
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function addManualWorkLog() {
+            const title = document.getElementById('manualTitle').value.trim();
+            const date = document.getElementById('workLogDate').value;
+            const hours = parseFloat(document.getElementById('manualHours').value);
+            let desc = document.getElementById('manualDesc').value.trim();
+
+            if (!title) {
+                showToast('Ingresa un título para el registro', 'error');
+                return;
+            }
+
+            if (!desc) desc = "iForda";
+
+            workLogs.unshift({
+                id: Date.now(),
+                email: currentUser.email,
+                title,
+                date,
+                hours,
+                desc
+            });
+
+            renderWorkLogs();
+            document.getElementById('manualTitle').value = '';
+            document.getElementById('manualDesc').value = '';
+            showToast('Registro de horarios guardado', 'success');
+        }
+
+        function examineLogDetail(id) {
+            const log = workLogs.find(l => l.id === id);
+            if (!log) return;
+            showToast(`Detalle: ${log.title} | ${log.hours}h el ${log.date} | Desc: ${log.desc}`, 'info');
+        }
+
+        function masterDeleteSelectedLogs(type) {
+            if (!currentUser.isMaster) {
+                showToast('Acción restringida únicamente para la cuenta master fordaworld@fordaworld', 'error');
+                return;
+            }
+
+            if (type === 'month') {
+                const curMonth = document.getElementById('workLogDate').value.substring(0, 7);
+                if (!confirm(`¿Borrar TODOS los registros de horarios de ${curMonth}? Esta acción no se puede deshacer.`)) return;
+                workLogs = workLogs.filter(l => !l.date.startsWith(curMonth));
+                showToast(`Registros del mes ${curMonth} eliminados por Master`, 'info');
+            } else if (type === 'year') {
+                const curYear = document.getElementById('workLogDate').value.substring(0, 4);
+                if (!confirm(`¿Borrar TODOS los registros de horarios del año ${curYear}? Esta acción no se puede deshacer.`)) return;
+                workLogs = workLogs.filter(l => !l.date.startsWith(curYear));
+                showToast(`Todos los registros del año ${curYear} eliminados por Master`, 'info');
+            }
+            renderWorkLogs();
+        }
+
+        // MEETINGS / AGENDA
+        function renderMeetings() {
+            const container = document.getElementById('meetingsGrid');
+            container.innerHTML = meetings.map(m => {
+                const myResponse = (m.responses && m.responses[currentUser.email]) || "Por Confirmar";
+
+                return `
+                    <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950 border border-cyan-800 px-2 py-0.5 rounded-md">
+                                    ${esc(m.date)} - ${esc(m.time)}
+                                </span>
+                                <button onclick="deleteMeeting(${esc(m.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar libremente">
+                                    <i class="fas fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
+                            <h3 class="font-bold text-slate-100 text-sm mt-2">${esc(m.title)}</h3>
+                            <p class="text-[11px] text-cyan-300 font-mono mt-1 truncate"><i class="fas fa-location-dot mr-1"></i> ${esc(m.link || 'Lugar por definir')}</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Organiza: ${esc(USERS_DB[m.organizer]?.name || m.organizer)}</p>
+                        </div>
+
+                        <!-- Response options per user -->
+                        <div class="pt-2 border-t border-slate-800/80 space-y-1">
+                            <label class="block text-[9px] font-bold uppercase text-slate-400">Mi Respuesta:</label>
+                            <select onchange="updateMeetingResponse(${esc(m.id)}, this.value)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-cyan-300 font-semibold">
+                                <option value="Por Confirmar" ${myResponse === 'Por Confirmar' ? 'selected' : ''}>Por Confirmar</option>
+                                <option value="Confirmado" ${myResponse === 'Confirmado' ? 'selected' : ''}>Confirmado</option>
+                                <option value="No Podré" ${myResponse === 'No Podré' ? 'selected' : ''}>No Podré</option>
+                                <option value="Concluido" ${myResponse === 'Concluido' ? 'selected' : ''}>Concluido</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            renderCronogram();
+        }
+
+        function updateMeetingResponse(id, responseVal) {
+            const m = meetings.find(item => item.id === id);
+            if (m) {
+                if (!m.responses) m.responses = {};
+                m.responses[currentUser.email] = responseVal;
+                renderMeetings();
+                showToast(`Estado de reunión actualizado: ${responseVal}`, 'info');
+            }
+        }
+
+        function openNewMeetingModal() {
+            document.getElementById('newMeetingModal').classList.remove('hidden');
+        }
+        function closeNewMeetingModal() {
+            document.getElementById('newMeetingModal').classList.add('hidden');
+        }
+
+        function saveNewMeeting() {
+            const title = document.getElementById('newMeetTitle').value.trim();
+            const link = document.getElementById('newMeetLink').value.trim();
+            const date = document.getElementById('newMeetDate').value;
+            const time = document.getElementById('newMeetTime').value;
+
+            if (!title || !date) return;
+
+            meetings.push({
+                id: Date.now(),
+                title,
+                link,
+                date,
+                time,
+                organizer: currentUser.email,
+                responses: {}
+            });
+
+            closeNewMeetingModal();
+            renderMeetings();
+            showToast('Reunión agendada e integrada al cronograma', 'success');
+        }
+
+        function deleteMeeting(id) {
+            meetings = meetings.filter(item => item.id !== id);
+            renderMeetings();
+            showToast('Reunión eliminada libremente', 'info');
+        }
+
+        // CUPONERA FORDAWORLD
+        function updateSpecialAmountBtn(val) {
+            const btn = document.getElementById('btnClaimSpecial');
+            btn.innerText = `Solicitar Monto Especial S/ ${val || '0.00'}`;
+        }
+
+        function checkCronogramCollision(dateStr) {
+            const projCollision = projects.some(p => p.dueDate === dateStr);
+            const meetCollision = meetings.some(m => m.date === dateStr);
+            const couponCollision = claimedCoupons.some(c => c.type === 'Día Libre' && c.date === dateStr && c.status !== 'rechazado');
+
+            return projCollision || meetCollision || couponCollision || customEvents.some(e => e.date === dateStr);
+        }
+
+        function claimFreeDayCoupon() {
+            const date = document.getElementById('couponFreeDayDate').value;
+            const reason = document.getElementById('couponFreeDayReason').value.trim();
+
+            if (!reason) {
+                showToast('Ingresa el motivo de la solicitud de día libre', 'error');
+                return;
+            }
+
+            if (checkCronogramCollision(date)) {
+                showToast(`La fecha ${date} se encuentra bloqueada por evento, proyecto, reunión o día libre previo. Selecciona otra fecha.`, 'error');
+                return;
+            }
+
+            const monthStr = date.substring(0, 7);
+            claimedCoupons.unshift({
+                id: Date.now(),
+                email: currentUser.email,
+                type: 'Día Libre',
+                date,
+                reason,
+                status: 'solicitado',
+                month: monthStr
+            });
+
+            renderCouponsHistory();
+            renderCronogram();
+            showToast('Solicitud de Día Libre enviada con estado "Solicitado"', 'success');
+        }
+
+        function claimCashCoupon() {
+            const todayStr = todayLocal();
+            const monthStr = todayStr.substring(0, 7);
+
+            claimedCoupons.unshift({
+                id: Date.now(),
+                email: currentUser.email,
+                type: 'Cupón Bono S/4.44',
+                amount: '4.44',
+                date: todayStr,
+                status: 'solicitado',
+                month: monthStr
+            });
+
+            renderCouponsHistory();
+            showToast('Cupón Bono S/4.44 registrado en estado "Solicitado"', 'success');
+        }
+
+        function claimSpecialCoupon() {
+            const title = document.getElementById('specialTitle').value.trim();
+            const desc = document.getElementById('specialDesc').value.trim();
+            const amount = document.getElementById('specialAmount').value;
+
+            if (!title || !amount) {
+                showToast('Ingresa el título y monto especial', 'error');
+                return;
+            }
+
+            const todayStr = todayLocal();
+            const monthStr = todayStr.substring(0, 7);
+
+            claimedCoupons.unshift({
+                id: Date.now(),
+                email: currentUser.email,
+                type: `Monto Especial - ${title}`,
+                amount: amount,
+                desc,
+                date: todayStr,
+                status: 'solicitado',
+                month: monthStr
+            });
+
+            document.getElementById('specialTitle').value = '';
+            document.getElementById('specialDesc').value = '';
+            document.getElementById('specialAmount').value = '';
+            updateSpecialAmountBtn('0.00');
+
+            renderCouponsHistory();
+            showToast(`Solicitud de Monto Especial S/${amount} enviada`, 'success');
+        }
+
+        function renderCouponsHistory() {
+            const container = document.getElementById('claimedCouponsList');
+            const filterMonth = document.getElementById('filterCouponsMonth')?.value || 'ALL';
+
+            let filtered = claimedCoupons;
+            if (filterMonth !== 'ALL') {
+                filtered = claimedCoupons.filter(c => c.month === filterMonth);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-500 italic">No hay solicitudes registradas para este período.</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(c => {
+                const userObj = USERS_DB[c.email] || { name: c.email };
+                let badgeClass = "bg-amber-950 text-amber-300 border-amber-800";
+                if (c.status === 'aprobado') badgeClass = "bg-emerald-950 text-emerald-300 border-emerald-800";
+                if (c.status === 'rechazado') badgeClass = "bg-rose-950 text-rose-300 border-rose-800";
+
+                return `
+                    <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xl">${c.type.includes('Día Libre') ? '🏖️' : '💵'}</span>
+                            <div>
+                                <p class="font-bold text-slate-200">${esc(c.type)} ${c.amount ? `(S/ ${esc(c.amount)})` : ''} - <span class="text-cyan-400">${esc(userObj.name)}</span></p>
+                                <p class="text-[10px] text-slate-500">Fecha: ${esc(c.date)} ${c.reason ? `| Motivo: ${esc(c.reason)}` : ''}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <span class="text-[10px] uppercase font-bold border px-2.5 py-1 rounded-full ${esc(badgeClass)}">
+                                ${esc(c.status)}
+                            </span>
+
+                            ${currentUser.isMaster ? `
+                                <select onchange="updateCouponStatus(${esc(c.id)}, this.value)" class="bg-slate-900 border border-slate-700 text-[10px] rounded-lg px-2 py-1 text-slate-200 focus:outline-none">
+                                    <option value="solicitado" ${c.status === 'solicitado' ? 'selected' : ''}>Solicitado</option>
+                                    <option value="aprobado" ${c.status === 'aprobado' ? 'selected' : ''}>Aprobar</option>
+                                    <option value="rechazado" ${c.status === 'rechazado' ? 'selected' : ''}>Rechazar</option>
+                                </select>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateCouponStatus(id, newStatus) {
+            if (!currentUser.isMaster) return;
+            const coupon = claimedCoupons.find(c => c.id === id);
+            if (coupon) {
+                coupon.status = newStatus;
+                renderCouponsHistory();
+                renderCronogram();
+                showToast(`Estado de cupón actualizado a: ${newStatus}`, 'success');
+            }
+        }
+
+        // CRONOGRAMA CONSOLIDADO INTERACTIVO (navegable de Oct 2026 a Dic 2044)
+        const DAYS_SHORT = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        const DAYS_LONG = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        let cronYear = 2026, cronMonth = 9, cronWeekStart = new Date(2026, 9, 25);
+
+        function fmtDate(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
+
+        function startOfWeek(d) {
+            const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+            x.setDate(x.getDate() - x.getDay());
+            return x;
+        }
+
+        function cronogramToday() {
+            const [y, m, d] = todayLocal().split('-').map(Number);
+            cronYear = y;
+            cronMonth = m - 1;
+            cronWeekStart = startOfWeek(new Date(y, m - 1, d));
+            renderCronogram();
+        }
+
+        function cronogramShift(dir) {
+            if (cronogramViewMode === 'month') {
+                let m = cronMonth + dir, y = cronYear;
+                if (m < 0) { m = 11; y--; }
+                if (m > 11) { m = 0; y++; }
+                const idx = y * 12 + m;
+                if (idx < 2026 * 12 + 9 || idx > 2044 * 12 + 11) { showToast('Rango permitido: Octubre 2026 a Diciembre 2044', 'info'); return; }
+                cronYear = y;
+                cronMonth = m;
+            } else {
+                const d = new Date(cronWeekStart);
+                d.setDate(d.getDate() + 7 * dir);
+                if (fmtDate(d) < '2026-09-27' || fmtDate(d) > '2044-12-31') { showToast('Rango permitido: Octubre 2026 a Diciembre 2044', 'info'); return; }
+                cronWeekStart = d;
+            }
+            renderCronogram();
+        }
+
+        function setCronogramView(mode) {
+            cronogramViewMode = mode;
+            const btnMonth = document.getElementById('btnCronogramMonth');
+            const btnWeek = document.getElementById('btnCronogramWeek');
+
+            if (mode === 'month') {
+                btnMonth.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-500 text-slate-950";
+                btnWeek.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-100";
+            } else {
+                btnWeek.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-500 text-slate-950";
+                btnMonth.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-100";
+            }
+            renderCronogram();
+        }
+
+        function getCronogramItems() {
+            return [
+                ...projects.map(p => ({ id: p.id, type: 'project', title: p.title, desc: p.desc, date: p.dueDate, icon: '🚀', color: 'border-cyan-500/50 text-cyan-300 bg-cyan-950/40' })),
+                ...meetings.map(m => ({ id: m.id, type: 'meeting', title: m.title, desc: `Lugar/Link: ${m.link || 'N/A'}`, date: m.date, icon: '📅', color: 'border-amber-500/50 text-amber-300 bg-amber-950/40' })),
+                ...claimedCoupons.filter(c => c.type === 'Día Libre' && c.status === 'aprobado').map(c => ({ id: c.id, type: 'freeDay', title: `Día Libre: ${USERS_DB[c.email]?.name || c.email}`, desc: c.reason, date: c.date, icon: '🏖️', color: 'border-emerald-500/50 text-emerald-300 bg-emerald-950/40' })),
+                ...customEvents.map(e => ({ id: e.id, type: 'custom', title: e.title, desc: e.desc, date: e.date, icon: '📌', color: 'border-purple-500/50 text-purple-300 bg-purple-950/40' }))
+            ];
+        }
+
+        function renderCronogram() {
+            const container = document.getElementById('cronogramGrid');
+            if (!container) return;
+
+            const allItems = getCronogramItems();
+            const today = todayLocal();
+            const label = document.getElementById('cronogramLabel');
+
+            if (cronogramViewMode === 'month') {
+                label.innerText = `${MONTHS_ES[cronMonth]} ${cronYear}`;
+                const offset = new Date(cronYear, cronMonth, 1).getDay();
+                const dim = new Date(cronYear, cronMonth + 1, 0).getDate();
+
+                let cells = '';
+                for (let i = 0; i < offset; i++) cells += '<div class="hidden md:block"></div>';
+
+                for (let day = 1; day <= dim; day++) {
+                    const dayStr = `${cronYear}-${pad2(cronMonth + 1)}-${pad2(day)}`;
+                    const wd = new Date(cronYear, cronMonth, day).getDay();
+                    const dayEvents = allItems.filter(item => item.date === dayStr);
+                    const isToday = dayStr === today;
+
+                    cells += `
+                        <div class="bg-slate-950 border ${isToday ? 'border-cyan-400 shadow shadow-cyan-500/30' : 'border-slate-800'} rounded-2xl p-2.5 min-h-[110px] flex flex-col justify-between hover:border-cyan-500/40 transition cursor-pointer" onclick="openExamDayModal('${dayStr}')">
+                            <div class="flex justify-between items-center text-[10px] font-mono text-slate-500">
+                                <span>${DAYS_SHORT[wd].toUpperCase()}</span>
+                                <span class="font-bold ${isToday ? 'text-cyan-300' : 'text-slate-300'}">${day}</span>
+                            </div>
+                            <div class="space-y-1 my-1 flex-1 overflow-y-auto">
+                                ${dayEvents.map(ev => `
+                                    <div onclick="event.stopPropagation(); examineCronogramItem('${ev.type}', ${ev.id})" class="p-1 rounded-lg border ${ev.color} text-[10px] font-semibold flex items-center space-x-1 truncate" title="${esc(ev.title)}">
+                                        <span>${ev.icon}</span>
+                                        <span class="truncate">${esc(ev.title)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const header = `<div class="hidden md:grid grid-cols-7 gap-2 mb-2 text-[10px] font-bold text-slate-500 uppercase text-center">${DAYS_SHORT.map(d => `<div>${d}</div>`).join('')}</div>`;
+                container.innerHTML = `${header}<div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">${cells}</div>`;
+            } else {
+                const first = new Date(cronWeekStart);
+                const last = new Date(cronWeekStart);
+                last.setDate(last.getDate() + 6);
+                label.innerText = `${first.getDate()} ${MONTHS_ES[first.getMonth()].slice(0, 3)} – ${last.getDate()} ${MONTHS_ES[last.getMonth()].slice(0, 3)} ${last.getFullYear()}`;
+
+                let weekHtml = '';
+                for (let i = 0; i < 7; i++) {
+                    const d = new Date(cronWeekStart);
+                    d.setDate(d.getDate() + i);
+                    const dayStr = fmtDate(d);
+                    const dayEvents = allItems.filter(item => item.date === dayStr);
+                    const isToday = dayStr === today;
+
+                    weekHtml += `
+                        <div class="bg-slate-950 border ${isToday ? 'border-cyan-400 shadow shadow-cyan-500/30' : 'border-slate-800'} rounded-2xl p-4 space-y-3 cursor-pointer" onclick="openExamDayModal('${dayStr}')">
+                            <div class="border-b border-slate-800 pb-2 flex justify-between items-center">
+                                <h4 class="font-bold text-xs text-cyan-400 uppercase">${DAYS_LONG[d.getDay()]} (${d.getDate()})</h4>
+                                <span class="text-[10px] text-slate-500 font-mono">${MONTHS_ES[d.getMonth()].slice(0, 3)} ${d.getFullYear()}</span>
+                            </div>
+                            <div class="space-y-2">
+                                ${dayEvents.length > 0 ? dayEvents.map(ev => `
+                                    <div onclick="event.stopPropagation(); examineCronogramItem('${ev.type}', ${ev.id})" class="p-2 rounded-xl border ${ev.color} text-xs font-semibold space-y-1 hover:scale-105 transition">
+                                        <div class="flex items-center space-x-1.5">
+                                            <span>${ev.icon}</span>
+                                            <span class="font-bold">${esc(ev.title)}</span>
+                                        </div>
+                                        <p class="text-[10px] opacity-80">${esc(ev.desc || '')}</p>
+                                    </div>
+                                `).join('') : '<p class="text-[10px] text-slate-600 italic">Sin registros</p>'}
+                            </div>
+                        </div>
+                    `;
+                }
+                container.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-3">${weekHtml}</div>`;
+            }
+        }
+
+        function examineCronogramItem(type, id) {
+            document.getElementById('examItemType').value = type;
+            document.getElementById('examItemId').value = id;
+            document.getElementById('examDeleteBtn').classList.toggle('hidden', type !== 'custom');
+
+            if (type === 'project') {
+                const p = projects.find(item => item.id === id);
+                if (!p) return;
+                document.getElementById('examTitle').value = p.title;
+                document.getElementById('examDate').value = p.dueDate;
+                document.getElementById('examDesc').value = p.desc || '';
+            } else if (type === 'meeting') {
+                const m = meetings.find(item => item.id === id);
+                if (!m) return;
+                document.getElementById('examTitle').value = m.title;
+                document.getElementById('examDate').value = m.date;
+                document.getElementById('examDesc').value = `Enlace/Lugar: ${m.link || ''}`;
+            } else if (type === 'freeDay') {
+                const c = claimedCoupons.find(item => item.id === id);
+                if (!c) return;
+                document.getElementById('examTitle').value = `Día Libre: ${USERS_DB[c.email]?.name || c.email}`;
+                document.getElementById('examDate').value = c.date;
+                document.getElementById('examDesc').value = c.reason || '';
+            } else if (type === 'custom') {
+                const e = customEvents.find(item => item.id === id);
+                if (!e) return;
+                document.getElementById('examTitle').value = e.title;
+                document.getElementById('examDate').value = e.date;
+                document.getElementById('examDesc').value = e.desc || '';
+            }
+
+            document.getElementById('cronogramExamModal').classList.remove('hidden');
+        }
+
+        function openExamDayModal(dateStr) {
+            document.getElementById('examItemType').value = 'custom-new';
+            document.getElementById('examItemId').value = Date.now();
+            document.getElementById('examDeleteBtn').classList.add('hidden');
+            document.getElementById('examTitle').value = `Evento Personal / Adicional`;
+            document.getElementById('examDate').value = dateStr;
+            document.getElementById('examDesc').value = '';
+            document.getElementById('cronogramExamModal').classList.remove('hidden');
+        }
+
+        function closeCronogramExamModal() {
+            document.getElementById('cronogramExamModal').classList.add('hidden');
+        }
+
+        function saveCronogramExamEdits() {
+            const type = document.getElementById('examItemType').value;
+            const id = parseInt(document.getElementById('examItemId').value);
+            const newTitle = document.getElementById('examTitle').value.trim();
+            const newDesc = document.getElementById('examDesc').value.trim();
+            const dateStr = document.getElementById('examDate').value;
+
+            if (!newTitle) {
+                showToast('El título no puede estar vacío', 'error');
+                return;
+            }
+
+            if (type === 'project') {
+                const p = projects.find(item => item.id === id);
+                if (p) { p.title = newTitle; p.desc = newDesc; }
+            } else if (type === 'meeting') {
+                const m = meetings.find(item => item.id === id);
+                if (m) { m.title = newTitle; m.link = newDesc.replace(/^Enlace\/Lugar:\s*/i, ''); }
+            } else if (type === 'freeDay') {
+                const c = claimedCoupons.find(item => item.id === id);
+                if (c) c.reason = newDesc;
+            } else if (type === 'custom') {
+                const e = customEvents.find(item => item.id === id);
+                if (e) { e.title = newTitle; e.desc = newDesc; }
+            } else if (type === 'custom-new') {
+                customEvents.push({ id, title: newTitle, desc: newDesc, date: dateStr, createdBy: currentUser.email });
+            }
+
+            closeCronogramExamModal();
+            renderProjects();
+            renderMeetings();
+            renderCouponsHistory();
+            renderCronogram();
+            showToast('Detalle del cronograma guardado', 'success');
+        }
+
+        function deleteCustomEvent() {
+            const id = parseInt(document.getElementById('examItemId').value);
+            customEvents = customEvents.filter(e => e.id !== id);
+            closeCronogramExamModal();
+            renderCronogram();
+            showToast('Evento eliminado del cronograma', 'info');
+        }
+
+        // NUEVA SECCIÓN: LLAMADAS DE ATENCIÓN Y AMONESTACIONES
+        function renderWarningsFeed() {
+            const container = document.getElementById('warningsListFeed');
+            
+            if (warnings.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-500 italic p-4 text-center">No hay registros de faltas o amonestaciones.</p>';
+                return;
+            }
+
+            container.innerHTML = warnings.map(w => {
+                const targetObj = USERS_DB[w.targetUser] || { name: w.targetUser };
+                const creatorObj = USERS_DB[w.createdBy] || { name: w.createdBy };
+                const isMasterWarning = w.type === 'Amonestación Oficial';
+
+                // Deletion permission
+                let canDelete = false;
+                if (isMasterWarning) {
+                    canDelete = currentUser.isMaster;
+                } else {
+                    canDelete = true; // Any user can delete regular user warnings
+                }
+
+                return `
+                    <div class="bg-slate-950 border ${isMasterWarning ? 'border-rose-600 bg-rose-950/20' : 'border-rose-500/30'} rounded-2xl p-4 flex flex-col justify-between space-y-2 shadow-lg">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full ${isMasterWarning ? 'bg-rose-600 text-white' : 'bg-rose-950 text-rose-300 border border-rose-800'} uppercase">
+                                    ${esc(w.type)}
+                                </span>
+                                <span class="text-[10px] font-mono text-slate-500">${esc(w.date)}</span>
+                            </div>
+
+                            ${canDelete ? `
+                                <button onclick="deleteWarning(${esc(w.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar Registro">
+                                    <i class="fas fa-trash-can text-xs"></i>
+                                </button>
+                            ` : `<span class="text-[9px] text-rose-400 italic">Solo eliminable por Master</span>`}
+                        </div>
+
+                        <div>
+                            <p class="text-xs font-bold text-slate-100">
+                                Usuario Etiquetado: <span class="text-rose-400 font-extrabold">@${esc(targetObj.name)}</span>
+                            </p>
+                            <p class="text-xs text-slate-300 mt-1">${esc(w.reason)}</p>
+                        </div>
+
+                        <p class="text-[10px] text-slate-500 border-t border-slate-800/80 pt-1">
+                            Registrado por: ${esc(creatorObj.name)}
+                        </p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleWarnTypeNotice() {
+            const type = document.getElementById('warnType').value;
+            const notice = document.getElementById('warnMasterNotice');
+            if (type === 'Amonestación Oficial') {
+                notice.classList.remove('hidden');
+            } else {
+                notice.classList.add('hidden');
+            }
+        }
+
+        function openNewWarningModal() {
+            document.getElementById('newWarningModal').classList.remove('hidden');
+        }
+        function closeNewWarningModal() {
+            document.getElementById('newWarningModal').classList.add('hidden');
+        }
+
+        function saveWarning() {
+            const targetUser = document.getElementById('warnTargetUser').value;
+            const type = document.getElementById('warnType').value;
+            const reason = document.getElementById('warnReason').value.trim();
+
+            if (!reason) {
+                showToast('Ingresa la descripción de la falta', 'error');
+                return;
+            }
+
+            if (type === 'Amonestación Oficial' && !currentUser.isMaster) {
+                showToast('Las amonestaciones oficiales solo pueden ser emitidas por la cuenta master', 'error');
+                return;
+            }
+
+            const todayStr = todayLocal();
+
+            warnings.unshift({
+                id: Date.now(),
+                type,
+                targetUser,
+                createdBy: currentUser.email,
+                reason,
+                date: todayStr
+            });
+
+            closeNewWarningModal();
+            document.getElementById('warnReason').value = '';
+            renderWarningsFeed();
+            showToast('Registro de llamada de atención guardado', 'success');
+        }
+
+        function deleteWarning(id) {
+            const w = warnings.find(item => item.id === id);
+            if (!w) return;
+
+            if (w.type === 'Amonestación Oficial' && !currentUser.isMaster) {
+                showToast('Las amonestaciones oficiales solo pueden ser eliminadas por la cuenta master', 'error');
+                return;
+            }
+
+            warnings = warnings.filter(item => item.id !== id);
+            renderWarningsFeed();
+            showToast('Registro eliminado', 'info');
+        }
+
+        // PROFILE EDIT & AVATAR REMOVAL
+        function loadProfileFormData() {
+            document.getElementById('profileTitleName').innerText = currentUser.name;
+            document.getElementById('profileTitleRole').innerText = currentUser.role;
+            document.getElementById('profileAvatarPreview').src = currentUser.avatar;
+
+            document.getElementById('profileName').value = currentUser.name;
+            document.getElementById('profileRole').value = currentUser.role;
+            document.getElementById('profileAge').value = currentUser.age || 25;
+            document.getElementById('profilePhone').value = currentUser.phone || '';
+            document.getElementById('profileAvatarUrl').value = currentUser.avatar;
+        }
+
+        function clearProfileAvatar() {
+            const placeholder = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150";
+            document.getElementById('profileAvatarUrl').value = placeholder;
+            document.getElementById('profileAvatarPreview').src = placeholder;
+            showToast('Foto de perfil reiniciada', 'info');
+        }
+
+        function saveProfile(e) {
+            e.preventDefault();
+            currentUser.name = document.getElementById('profileName').value.trim();
+            currentUser.role = document.getElementById('profileRole').value.trim();
+            currentUser.age = document.getElementById('profileAge').value;
+            currentUser.phone = document.getElementById('profilePhone').value.trim();
+            currentUser.avatar = document.getElementById('profileAvatarUrl').value.trim();
+
+            USERS_DB[currentUser.email] = { ...USERS_DB[currentUser.email], ...currentUser };
+            initUserDashboard();
+            showToast('Perfil de usuario actualizado correctamente', 'success');
+        }
+
+        // TOAST NOTIFIER
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const txt = document.getElementById('toastMsg');
+
+            txt.innerText = msg;
+
+            if (type === 'error') {
+                toast.className = "fixed top-5 right-5 z-50 transform transition-transform duration-300 ease-out flex items-center p-4 max-w-xs text-white bg-slate-900 border-2 border-rose-500 rounded-xl shadow-2xl space-x-3";
+                icon.className = "fas fa-circle-exclamation text-rose-500 text-xl";
+            } else if (type === 'success') {
+                toast.className = "fixed top-5 right-5 z-50 transform transition-transform duration-300 ease-out flex items-center p-4 max-w-xs text-white bg-slate-900 border-2 border-emerald-400 rounded-xl shadow-2xl space-x-3";
+                icon.className = "fas fa-circle-check text-emerald-400 text-xl";
+            } else {
+                toast.className = "fixed top-5 right-5 z-50 transform transition-transform duration-300 ease-out flex items-center p-4 max-w-xs text-white bg-slate-900 border-2 border-cyan-400 rounded-xl shadow-2xl space-x-3";
+                icon.className = "fas fa-info-circle text-cyan-400 text-xl";
+            }
+
+            toast.classList.remove('translate-x-full');
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        // =====================================================================
+        //  UTILIDADES
+        // =====================================================================
+        const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+        function pad2(n) { return String(n).padStart(2, '0'); }
+
+        function esc(s) {
+            return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        // Fecha local de hoy (YYYY-MM-DD). No usa UTC, así no se adelanta un día por las noches.
+        function todayLocal() {
+            const d = new Date();
+            let s = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+            if (s < '2026-10-01') s = '2026-10-01';
+            return s;
+        }
+
+        function addDaysStr(str, n) {
+            const [y, m, d] = str.split('-').map(Number);
+            const dt = new Date(y, m - 1, d + n);
+            return `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}`;
+        }
+
+        function buildMonthOptions(selId, allLabel) {
+            const sel = document.getElementById(selId);
+            if (!sel) return;
+            let html = `<option value="ALL">${allLabel}</option>`;
+            for (let y = 2026; y <= 2044; y++) {
+                for (let m = 0; m < 12; m++) {
+                    if (y === 2026 && m < 9) continue;
+                    html += `<option value="${y}-${pad2(m + 1)}">${MONTHS_ES[m]} ${y}</option>`;
+                }
+            }
+            sel.innerHTML = html;
+            sel.value = todayLocal().slice(0, 7);
+            if (!sel.value) sel.value = 'ALL';
+        }
+
+        function setDefaultDates() {
+            const t = todayLocal();
+            document.getElementById('workLogDate').value = t;
+            document.getElementById('couponFreeDayDate').value = addDaysStr(t, 1);
+            document.getElementById('newMeetDate').value = t;
+            document.getElementById('projDueDateInput').value = addDaysStr(t, 7);
+        }
+
+        // =====================================================================
+        //  CAPA DE DATOS EN TIEMPO REAL
+        //  - Con FIREBASE_DB_URL configurada: todos los usuarios comparten los
+        //    mismos datos y ven los cambios al instante.
+        //  - Sin URL: los datos se guardan en este navegador (modo local).
+        // =====================================================================
+        const BASE_USERS = JSON.parse(JSON.stringify(USERS_DB));
+        const LOCAL_KEY = 'fdw_db_v1';
+        const CLOUD_MODE = !!(FIREBASE_DB_URL && FIREBASE_DB_URL.trim());
+
+        const COLLECTIONS = [
+            { path: 'duties',   get: () => teamDuties,    set: v => { teamDuties = v; },    sort: (a, b) => a.id - b.id, render: () => renderTeamDuties() },
+            { path: 'projects', get: () => projects,      set: v => { projects = v; },      sort: (a, b) => a.id - b.id, render: () => renderProjects() },
+            { path: 'logs',     get: () => workLogs,      set: v => { workLogs = v; },      sort: (a, b) => b.id - a.id, render: () => renderWorkLogs() },
+            { path: 'meetings', get: () => meetings,      set: v => { meetings = v; },      sort: (a, b) => (String(a.date) + ' ' + (a.time || '')).localeCompare(String(b.date) + ' ' + (b.time || '')) || a.id - b.id, render: () => renderMeetings() },
+            { path: 'coupons',  get: () => claimedCoupons, set: v => { claimedCoupons = v; }, sort: (a, b) => b.id - a.id, render: () => { renderCouponsHistory(); renderCronogram(); } },
+            { path: 'warnings', get: () => warnings,      set: v => { warnings = v; },      sort: (a, b) => b.id - a.id, render: () => renderWarningsFeed() },
+            { path: 'events',   get: () => customEvents,  set: v => { customEvents = v; },  sort: (a, b) => a.id - b.id, render: () => renderCronogram() }
+        ];
+
+        let mirror = {};                 // copia de lo que hay en la base de datos
+        let syncedFlat = new Map();      // clave -> versión canónica ya sincronizada
+        let dataReady = false;
+        const opQueue = [];              // escrituras pendientes (modo nube)
+        let queueRunning = false;
+        let syncTimer = null;
+        let evtSource = null;
+
+        // Normaliza un valor igual que lo hace la base de datos (sin vacíos / null) y con claves ordenadas
+        function clean(v) {
+            if (Array.isArray(v)) {
+                const a = v.map(clean).filter(x => x !== undefined);
+                return a.length ? a : undefined;
+            }
+            if (v && typeof v === 'object') {
+                const o = {};
+                Object.keys(v).sort().forEach(k => { const c = clean(v[k]); if (c !== undefined) o[k] = c; });
+                return Object.keys(o).length ? o : undefined;
+            }
+            if (v === null || v === undefined) return undefined;
+            if (typeof v === 'number' && !isFinite(v)) return undefined;
+            return v;
+        }
+        function canon(v) { const j = JSON.stringify(clean(v)); return j === undefined ? 'null' : j; }
+        function canonMap(flat) { const m = new Map(); flat.forEach((v, k) => m.set(k, canon(v))); return m; }
+
+        function profileOf(u) {
+            return { name: u.name || '', role: u.role || '', age: Number(u.age) || 0, phone: u.phone || '', avatar: u.avatar || '' };
+        }
+
+        // Estado local -> mapa plano "ruta" -> valor
+        function flattenLocal() {
+            const out = new Map();
+            COLLECTIONS.forEach(c => c.get().forEach(it => {
+                const v = clean(it);
+                if (v && it.id !== undefined) out.set(`${c.path}/${it.id}`, v);
+            }));
+            Object.keys(personalChecklists).forEach(em => (personalChecklists[em] || []).forEach(it => {
+                const v = clean(it);
+                if (v) out.set(`checklists/${em}/${it.id}`, v);
+            }));
+            Object.keys(USERS_DB).forEach(em => {
+                const p = profileOf(USERS_DB[em]);
+                if (canon(p) !== canon(profileOf(BASE_USERS[em]))) out.set(`profiles/${em}`, clean(p));
+            });
+            if (publicMasterNote !== DEFAULT_NOTE) out.set('meta/masterNote', publicMasterNote);
+            return out;
+        }
+
+        // Estado remoto (mirror) -> mapa plano
+        function flattenRemote(m) {
+            const out = new Map();
+            COLLECTIONS.forEach(c => {
+                const o = m[c.path];
+                if (o && typeof o === 'object') Object.keys(o).forEach(k => { if (o[k] && typeof o[k] === 'object') out.set(`${c.path}/${k}`, o[k]); });
+            });
+            const ch = m.checklists;
+            if (ch && typeof ch === 'object') Object.keys(ch).forEach(em => {
+                const items = ch[em];
+                if (items && typeof items === 'object') Object.keys(items).forEach(k => { if (items[k] && typeof items[k] === 'object') out.set(`checklists/${em}/${k}`, items[k]); });
+            });
+            const pr = m.profiles;
+            if (pr && typeof pr === 'object') Object.keys(pr).forEach(em => { if (pr[em] && typeof pr[em] === 'object') out.set(`profiles/${em}`, pr[em]); });
+            if (m.meta && typeof m.meta.masterNote === 'string') out.set('meta/masterNote', m.meta.masterNote);
+            return out;
+        }
+
+        function setPath(obj, parts, val) {
+            if (!parts.length) return;
+            let o = obj;
+            for (let i = 0; i < parts.length - 1; i++) {
+                const p = parts[i];
+                if (!o[p] || typeof o[p] !== 'object') {
+                    if (val === null || val === undefined) return;
+                    o[p] = {};
+                }
+                o = o[p];
+            }
+            const last = parts[parts.length - 1];
+            if (val === null || val === undefined) delete o[last]; else o[last] = val;
+        }
+
+        function restoreItem(v, k) {
+            if (!v || typeof v !== 'object') return null;
+            const id = Number(v.id !== undefined ? v.id : k);
+            return { ...v, id };
+        }
+
+        // Detecta lo que cambió localmente y lo envía (solo los registros modificados)
+        function syncDirty() {
+            if (!dataReady) return;
+            const local = flattenLocal();
+            const localCanon = canonMap(local);
+            let changed = false;
+
+            localCanon.forEach((cv, k) => {
+                if (syncedFlat.get(k) !== cv) {
+                    const v = local.get(k);
+                    setPath(mirror, k.split('/'), v);
+                    pushOp(k, v);
+                    syncedFlat.set(k, cv);
+                    changed = true;
+                }
+            });
+            Array.from(syncedFlat.keys()).forEach(k => {
+                if (!localCanon.has(k)) {
+                    setPath(mirror, k.split('/'), null);
+                    pushOp(k, null);
+                    syncedFlat.delete(k);
+                    changed = true;
+                }
+            });
+            if (changed && !CLOUD_MODE) saveLocal();
+        }
+
+        function scheduleSync() {
+            clearTimeout(syncTimer);
+            syncTimer = setTimeout(syncDirty, 80);
+        }
+
+        function pushOp(key, val) {
+            if (!CLOUD_MODE) return;
+            opQueue.push({ key, val });
+            runQueue();
+        }
+
+        function dbUrl(key) {
+            const base = FIREBASE_DB_URL.trim().replace(/\/+$/, '');
+            const p = key ? '/' + key.split('/').map(encodeURIComponent).join('/') : '';
+            return `${base}/${DB_ROOT}${p}.json`;
+        }
+
+        async function runQueue() {
+            if (queueRunning) return;
+            queueRunning = true;
+            while (opQueue.length) {
+                const op = opQueue[0];
+                try {
+                    const res = await fetch(dbUrl(op.key), {
+                        method: op.val === null ? 'DELETE' : 'PUT',
+                        body: op.val === null ? undefined : JSON.stringify(op.val),
+                        keepalive: true
+                    });
+                    if (!res.ok) {
+                        const err = new Error('HTTP ' + res.status);
+                        err.status = res.status;
+                        throw err;
+                    }
+                    opQueue.shift();
+                    setSyncStatus('online');
+                } catch (e) {
+                    setSyncStatus(e.status === 401 || e.status === 403 ? 'denied' : 'retry');
+                    await new Promise(r => setTimeout(r, 3000));
+                }
+            }
+            queueRunning = false;
+        }
+
+        // Reconstruye el estado local a partir de lo que hay en la base de datos
+        function rebuildFromMirror() {
+            const changed = new Set();
+
+            COLLECTIONS.forEach(c => {
+                const o = mirror[c.path] || {};
+                const arr = Object.keys(o).map(k => restoreItem(o[k], k)).filter(Boolean).sort(c.sort);
+                if (canon(arr) !== canon(c.get())) { c.set(arr); changed.add(c.path); }
+            });
+
+            const newCL = {};
+            const ch = mirror.checklists || {};
+            Object.keys(ch).forEach(em => {
+                const arr = Object.keys(ch[em] || {}).map(k => restoreItem(ch[em][k], k)).filter(Boolean).sort((a, b) => a.id - b.id);
+                if (arr.length) newCL[em] = arr;
+            });
+            if (canon(newCL) !== canon(personalChecklists)) { personalChecklists = newCL; changed.add('checklists'); }
+
+            let profChanged = false;
+            Object.keys(USERS_DB).forEach(em => {
+                const rp = mirror.profiles && mirror.profiles[em];
+                const merged = profileOf({ ...profileOf(BASE_USERS[em]), ...(rp && typeof rp === 'object' ? rp : {}) });
+                if (canon(merged) !== canon(profileOf(USERS_DB[em]))) {
+                    USERS_DB[em] = { ...USERS_DB[em], ...merged };
+                    profChanged = true;
+                }
+            });
+            if (profChanged && currentUser) Object.assign(currentUser, profileOf(USERS_DB[currentUser.email]));
+
+            const note = (mirror.meta && typeof mirror.meta.masterNote === 'string') ? mirror.meta.masterNote : DEFAULT_NOTE;
+            if (note !== publicMasterNote) { publicMasterNote = note; changed.add('note'); }
+
+            if (!currentUser) return;
+
+            if (profChanged) {
+                populateDropdownUsers();
+                refreshHeader();
+                renderAll();
+            } else {
+                COLLECTIONS.forEach(c => { if (changed.has(c.path)) c.render(); });
+                if (changed.has('checklists')) renderPersonalChecklist();
+            }
+            if (changed.has('note')) document.getElementById('ifordaNoteDisplay').innerText = publicMasterNote;
+        }
+
+        function renderAll() {
+            renderTeamDuties();
+            renderPersonalChecklist();
+            renderProjects();
+            renderWorkLogs();
+            renderMeetings();
+            renderCouponsHistory();
+            renderWarningsFeed();
+            renderCronogram();
+        }
+
+        function refreshHeader() {
+            if (!currentUser) return;
+            document.getElementById('navAvatar').src = currentUser.avatar;
+            document.getElementById('navUserName').innerText = currentUser.name;
+            document.getElementById('navUserRole').innerText = currentUser.role;
+            document.getElementById('ifordaAvatar').src = currentUser.avatar;
+            document.getElementById('ifordaName').innerText = currentUser.name;
+            document.getElementById('ifordaRole').innerText = currentUser.role;
+        }
+
+        // Se llama cada vez que llegan datos nuevos desde la base de datos
+        function applyRemote() {
+            if (dataReady) syncDirty();           // primero empuja lo que el usuario cambió
+            rebuildFromMirror();
+            syncedFlat = canonMap(flattenRemote(mirror));
+            if (!dataReady) {
+                dataReady = true;
+                onDataReady();
+            }
+        }
+
+        function onDataReady() {
+            setLoginConn('', false);
+            setLoginEnabled(true);
+            tryRestoreSession();
+        }
+
+        // ---------- Transporte: Firebase Realtime Database (REST + streaming) ----------
+        function startCloud() {
+            setSyncStatus('retry');
+            setLoginConn('Conectando con la base de datos…', false);
+            setTimeout(() => {
+                if (!dataReady) setLoginConn('No se pudo conectar con la base de datos. Verifica tu internet…', true);
+            }, 10000);
+            openStream();
+        }
+
+        function openStream() {
+            if (evtSource) { try { evtSource.close(); } catch (e) {} }
+            const es = new EventSource(dbUrl(''));
+            evtSource = es;
+
+            const onMsg = type => ev => {
+                let payload;
+                try { payload = JSON.parse(ev.data); } catch (e) { return; }
+                if (!payload) return;
+                const parts = String(payload.path || '/').split('/').filter(Boolean);
+                if (type === 'put') {
+                    if (!parts.length) {
+                        mirror = (payload.data && typeof payload.data === 'object') ? payload.data : {};
+                        opQueue.forEach(op => setPath(mirror, op.key.split('/'), op.val));   // conserva lo pendiente
+                    } else {
+                        setPath(mirror, parts, payload.data);
+                    }
+                } else {
+                    const d = payload.data || {};
+                    Object.keys(d).forEach(k => setPath(mirror, parts.concat(k.split('/').filter(Boolean)), d[k]));
+                }
+                applyRemote();
+                if (!opQueue.length) setSyncStatus('online');
+            };
+
+            es.addEventListener('put', onMsg('put'));
+            es.addEventListener('patch', onMsg('patch'));
+            es.addEventListener('cancel', () => {
+                setSyncStatus('denied');
+                setLoginConn('Sin permiso para leer la base de datos. Revisa las reglas de Firebase.', true);
+            });
+            es.addEventListener('auth_revoked', () => setSyncStatus('denied'));
+            es.onopen = () => { if (!opQueue.length) setSyncStatus('online'); };
+            es.onerror = () => {
+                setSyncStatus('retry');
+                if (es.readyState === 2) {
+                    es.close();
+                    setTimeout(openStream, 3000);
+                }
+            };
+        }
+
+        // ---------- Transporte: modo local (localStorage) ----------
+        function saveLocal() {
+            try { localStorage.setItem(LOCAL_KEY, JSON.stringify(mirror)); }
+            catch (e) { showToast('No se pudo guardar en este equipo (almacenamiento lleno)', 'error'); }
+        }
+
+        function startLocal() {
+            try {
+                const raw = localStorage.getItem(LOCAL_KEY);
+                mirror = raw ? (JSON.parse(raw) || {}) : {};
+            } catch (e) { mirror = {}; }
+            setSyncStatus('local');
+            applyRemote();
+            window.addEventListener('storage', e => {
+                if (e.key === LOCAL_KEY && e.newValue) {
+                    try { mirror = JSON.parse(e.newValue) || {}; applyRemote(); } catch (err) {}
+                }
+            });
+        }
+
+        // ---------- Indicadores de estado ----------
+        function setSyncStatus(st) {
+            const map = {
+                online: ['bg-emerald-400', 'En vivo', 'Sincronizado en tiempo real con todo el equipo'],
+                local:  ['bg-amber-400', 'Solo este equipo', 'Modo local: los datos se guardan solo en este navegador'],
+                retry:  ['bg-rose-400 animate-pulse', 'Reconectando…', 'Sin conexión: los cambios se enviarán al reconectar'],
+                denied: ['bg-rose-500', 'Sin permiso', 'La base de datos rechazó la conexión. Revisa las reglas de Firebase']
+            };
+            const m = map[st] || map.retry;
+            const dot = document.getElementById('syncDot');
+            if (!dot) return;
+            dot.className = 'w-2 h-2 rounded-full ' + m[0];
+            document.getElementById('syncText').innerText = m[1];
+            document.getElementById('syncStatus').title = m[2];
+        }
+
+        function setLoginConn(msg, isErr) {
+            const el = document.getElementById('loginConn');
+            if (!el) return;
+            el.innerText = msg;
+            el.className = 'text-center text-[11px] min-h-[1rem] ' + (isErr ? 'text-rose-400' : 'text-slate-500');
+        }
+
+        function setLoginEnabled(on) {
+            const btn = document.getElementById('loginSubmitBtn');
+            if (!btn) return;
+            btn.disabled = !on;
+            btn.classList.toggle('opacity-50', !on);
+            btn.classList.toggle('cursor-not-allowed', !on);
+        }
+
+        // =====================================================================
+        //  SESIÓN
+        // =====================================================================
+        // onlyUntouched = true: solo limpia los campos que el usuario aún no ha tocado
+        function clearLoginForm(onlyUntouched) {
+            const f = document.getElementById('loginForm');
+            if (f && !onlyUntouched) f.reset();
+            ['loginEmail', 'loginPassword'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (onlyUntouched && !el.hasAttribute('readonly')) return;
+                el.value = '';
+                el.setAttribute('readonly', '');
+            });
+        }
+
+        function closeAllModals() {
+            ['projectModal', 'newDutyModal', 'newMeetingModal', 'newWarningModal', 'cronogramExamModal']
+                .forEach(id => document.getElementById(id).classList.add('hidden'));
+        }
+
+        function enterApp(email, silent) {
+            currentUser = { email, ...USERS_DB[email] };
+            try { sessionStorage.setItem('fdw_session', email); } catch (e) {}
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainDashboard').classList.remove('hidden');
+            clearLoginForm();
+            initUserDashboard();
+            switchTab('dashboard');
+            restoreTimer();
+            if (!silent) showToast(`Bienvenida(o), ${currentUser.name}`, 'success');
+        }
+
+        function tryRestoreSession() {
+            let em = null;
+            try { em = sessionStorage.getItem('fdw_session'); } catch (e) {}
+            if (em && USERS_DB[em] && !currentUser) enterApp(em, true);
+        }
+
+        // =====================================================================
+        //  ARRANQUE
+        // =====================================================================
+        function initApp() {
+            clearLoginForm();
+            setTimeout(() => clearLoginForm(true), 150);
+            setTimeout(() => clearLoginForm(true), 700);
+
+            buildMonthOptions('filterLogMonth', 'Mostrar Todos los Meses');
+            buildMonthOptions('filterCouponsMonth', 'Historial Completo');
+            setDefaultDates();
+            cronogramToday();
+            setLoginEnabled(false);
+
+            ['click', 'change', 'submit', 'keyup'].forEach(ev => document.addEventListener(ev, scheduleSync, true));
+            window.addEventListener('beforeunload', syncDirty);
+            window.addEventListener('pagehide', syncDirty);
+            setInterval(syncDirty, 2500);
+
+            if (CLOUD_MODE) startCloud(); else startLocal();
+        }
+    </script>
+</body>
+</html>
