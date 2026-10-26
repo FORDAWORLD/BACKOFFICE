@@ -68,6 +68,8 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+            @keyframes fdwShake { 0%,100%{transform:translate(0,0)} 10%{transform:translate(-12px,-6px)} 20%{transform:translate(12px,6px)} 30%{transform:translate(-12px,6px)} 40%{transform:translate(12px,-6px)} 50%{transform:translate(-10px,-4px)} 60%{transform:translate(10px,4px)} 70%{transform:translate(-8px,4px)} 80%{transform:translate(8px,-4px)} 90%{transform:translate(-4px,0)} }
+        .fdw-buzz { animation: fdwShake .7s ease-in-out 2; }
     </style>
 </head>
 <body class="h-full flex flex-col font-sans bg-slate-950 text-slate-100 overflow-x-hidden select-none">
@@ -154,6 +156,7 @@
                                 <option value="cuponera">🎟️ Cuponera Fordaworld</option>
                                 <option value="cronograma">🗓️ Cronograma Mensual</option>
                                 <option value="llamadas">⚠️ Llamadas de Atención</option>
+                                <option value="usuarios">🟢 Usuarios Activos</option>
                                 <option value="perfil">👤 Mi Perfil</option>
                             </select>
                         </div>
@@ -208,6 +211,9 @@
                         </button>
                         <button onclick="switchTab('llamadas')" id="tab-btn-llamadas" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-rose-400 hover:bg-rose-950/40 border border-rose-500/20">
                             <i class="fas fa-triangle-exclamation"></i> <span>Llamadas de Atención</span>
+                        </button>
+                        <button onclick="switchTab('usuarios')" id="tab-btn-usuarios" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
+                            <i class="fas fa-users"></i> <span>Usuarios Activos</span>
                         </button>
                         <button onclick="switchTab('perfil')" id="tab-btn-perfil" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
                             <i class="fas fa-user-gear"></i> <span>Mi Perfil</span>
@@ -293,6 +299,24 @@
                                                 <span class="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-800 px-1.5 py-0.5 rounded">PÚBLICO</span>
                                             </div>
                                             <p id="ifordaNoteDisplay" class="text-slate-200 font-medium italic break-words">Espacio disponible para notas u observaciones públicas del administrador master.</p>
+                                        </div>
+
+                                        <!-- Cuadro público: amonestaciones / notas / zumbidos -->
+                                        <div id="ifordaBoard" class="bg-slate-900/90 rounded-xl p-3 border border-cyan-500/30 text-xs space-y-2">
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-[10px] font-bold text-cyan-400 uppercase"><i class="fas fa-note-sticky mr-1"></i> Novedades y Notas (Público):</span>
+                                                <span class="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-800 px-1.5 py-0.5 rounded">PÚBLICO</span>
+                                            </div>
+                                            <div id="ifordaBoardList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
+                                            <div class="flex flex-wrap gap-1.5 pt-1 border-t border-slate-800/80">
+                                                <select id="boardType" onchange="toggleBoardType()" class="hidden bg-slate-950 border border-cyan-500/40 rounded-lg px-1.5 py-1 text-[11px] text-slate-100">
+                                                    <option value="nota">Nota</option>
+                                                    <option value="amonestacion">Amonestación</option>
+                                                </select>
+                                                <select id="boardTarget" class="hidden bg-slate-950 border border-rose-500/50 rounded-lg px-1.5 py-1 text-[11px] text-slate-100"></select>
+                                                <input type="text" id="boardInput" onkeydown="if(event.key==='Enter')postBoard()" placeholder="Escribe una nota o estado..." class="flex-1 min-w-[120px] bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-[11px] text-slate-100 focus:outline-none focus:border-cyan-400">
+                                                <button onclick="postBoard()" class="bg-cyan-500 text-slate-950 px-2.5 py-1 rounded-lg text-[11px] font-bold hover:bg-cyan-400 transition">Publicar</button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -601,6 +625,17 @@
                         </div>
 
                         <!-- Claimed Coupons History -->
+                        <div id="masterCouponDeletePanel" class="hidden bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+                            <span class="text-xs font-bold text-rose-300 flex items-center space-x-2">
+                                <i class="fas fa-shield-halved"></i>
+                                <span>ACCIONES EXCLUSIVAS DE MASTER (FORDWORLD@FORDAWORLD):</span>
+                            </span>
+                            <div class="flex space-x-2">
+                                <button onclick="masterDeleteCoupons('month')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Borrar Historial Mensual</button>
+                                <button onclick="masterDeleteCoupons('year')" class="bg-rose-700 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Borrar Todo el Año Completo</button>
+                            </div>
+                        </div>
+
                         <div class="pt-4 border-t border-slate-800 space-y-3">
                             <div class="flex justify-between items-center">
                                 <h3 class="text-sm font-bold text-slate-200">Historial de Cupones y Solicitudes</h3>
@@ -683,6 +718,20 @@
                         <div class="space-y-3" id="warningsListFeed">
                             <!-- Dynamically rendered -->
                         </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB: USUARIOS ACTIVOS ================= -->
+                <section id="view-usuarios" class="tab-view hidden space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+                        <div class="border-b border-slate-800 pb-4">
+                            <h2 class="text-xl font-bold text-cyan-300 flex items-center space-x-2">
+                                <i class="fas fa-users text-cyan-400"></i>
+                                <span>USUARIOS ACTIVOS</span>
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-1">Quién está conectado ahora. Envía un zumbido 👋 a quien esté en línea.</p>
+                        </div>
+                        <div id="activeUsersList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
                     </div>
                 </section>
 
@@ -963,6 +1012,9 @@
         let claimedCoupons = [];
         let warnings = [];
         let customEvents = [];
+        let boardNotes = [];
+        let presence = [];
+        let currentTab = 'dashboard';
 
         // INIT
         window.onload = initApp;
@@ -994,6 +1046,7 @@
             if (!currentUser) return;
             // Si había un cronómetro en curso, se guarda antes de salir
             if (activeTimer || timerSeconds > 0) stopTimer(); else resetTimerState();
+            beat(false);
             syncDirty();
             currentUser = null;
             try { sessionStorage.removeItem('fdw_session'); } catch (e) {}
@@ -1019,12 +1072,18 @@
             const masterCtrl = document.getElementById('masterStatusControl');
             const masterLogDel = document.getElementById('masterLogDeletePanel');
             
+            const masterCpnDel = document.getElementById('masterCouponDeletePanel');
             if (currentUser.isMaster) {
                 masterCtrl.classList.remove('hidden');
                 masterLogDel.classList.remove('hidden');
+                masterCpnDel.classList.remove('hidden');
+                document.getElementById('boardType').classList.remove('hidden');
             } else {
                 masterCtrl.classList.add('hidden');
                 masterLogDel.classList.add('hidden');
+                masterCpnDel.classList.add('hidden');
+                document.getElementById('boardType').classList.add('hidden');
+                document.getElementById('boardTarget').classList.add('hidden');
             }
 
             populateDropdownUsers();
@@ -1037,6 +1096,8 @@
             renderCouponsHistory();
             renderCronogram();
             renderWarningsFeed();
+            renderBoard();
+            renderUsersPanel();
             loadProfileFormData();
         }
 
@@ -1047,6 +1108,7 @@
             document.getElementById('projOwnerInput').innerHTML = userOptions;
             document.getElementById('newDutyUser').innerHTML = userOptions;
             document.getElementById('warnTargetUser').innerHTML = userEmailOptions;
+            document.getElementById('boardTarget').innerHTML = userEmailOptions;
         }
 
         function switchTab(tabId) {
@@ -1065,6 +1127,8 @@
             }
 
             document.getElementById('globalNavSelect').value = tabId;
+            currentTab = tabId;
+            updateBadges();
         }
 
         function updateDashboardMetrics() {
@@ -1553,14 +1617,16 @@
                                 <span class="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950 border border-cyan-800 px-2 py-0.5 rounded-md">
                                     ${esc(m.date)} - ${esc(m.time)}
                                 </span>
-                                <button onclick="deleteMeeting(${esc(m.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar libremente">
+                                ${currentUser.isMaster ? `<button onclick="deleteMeeting(${esc(m.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar reunión (Master)">
                                     <i class="fas fa-trash-can text-xs"></i>
-                                </button>
+                                </button>` : ''}
                             </div>
                             <h3 class="font-bold text-slate-100 text-sm mt-2">${esc(m.title)}</h3>
                             <p class="text-[11px] text-cyan-300 font-mono mt-1 truncate"><i class="fas fa-location-dot mr-1"></i> ${esc(m.link || 'Lugar por definir')}</p>
                             <p class="text-[10px] text-slate-500 mt-0.5">Organiza: ${esc(USERS_DB[m.organizer]?.name || m.organizer)}</p>
                         </div>
+
+                        ${meetingStatusHtml(m)}
 
                         <!-- Response options per user -->
                         <div class="pt-2 border-t border-slate-800/80 space-y-1">
@@ -1577,6 +1643,27 @@
             }).join('');
 
             renderCronogram();
+        }
+
+        function meetingStatusHtml(m) {
+            const res = m.responses || {};
+            const emails = Object.keys(USERS_DB).filter(e => !USERS_DB[e].isMaster || res[e]);
+            const groups = [
+                ['Confirmado', 'text-emerald-300 bg-emerald-950 border-emerald-800'],
+                ['Por Confirmar', 'text-amber-300 bg-amber-950 border-amber-800'],
+                ['No Podré', 'text-rose-300 bg-rose-950 border-rose-800'],
+                ['Concluido', 'text-sky-300 bg-sky-950 border-sky-800']
+            ];
+            const organizerDone = res[m.organizer] === 'Concluido' || Object.keys(res).some(e => USERS_DB[e] && USERS_DB[e].isMaster && res[e] === 'Concluido');
+            const rows = groups.map(([label, cls]) => {
+                const who = emails.filter(e => (res[e] || 'Por Confirmar') === label).map(e => USERS_DB[e].name);
+                if (!who.length) return '';
+                return `<p class="text-[10px] text-slate-400"><span class="font-bold border px-1.5 py-0.5 rounded-full mr-1 ${cls}">${label} (${who.length})</span>${who.map(esc).join(', ')}</p>`;
+            }).join('');
+            return `<div class="pt-2 border-t border-slate-800/80 space-y-1">
+                <div class="flex items-center justify-between"><label class="block text-[9px] font-bold uppercase text-slate-400">Estado del equipo:</label>
+                ${organizerDone ? '<span class="text-[9px] font-bold text-sky-300 bg-sky-950 border border-sky-800 px-2 py-0.5 rounded-full">REUNIÓN CONCLUIDA</span>' : ''}</div>
+                ${rows}</div>`;
         }
 
         function updateMeetingResponse(id, responseVal) {
@@ -1620,6 +1707,10 @@
         }
 
         function deleteMeeting(id) {
+            if (!currentUser.isMaster) {
+                showToast('Solo la cuenta master fordaworld@fordaworld puede eliminar reuniones', 'error');
+                return;
+            }
             meetings = meetings.filter(item => item.id !== id);
             renderMeetings();
             showToast('Reunión eliminada libremente', 'info');
@@ -1754,6 +1845,7 @@
                             <span class="text-[10px] uppercase font-bold border px-2.5 py-1 rounded-full ${esc(badgeClass)}">
                                 ${esc(c.status)}
                             </span>
+                            ${currentUser.isMaster ? `<button onclick="deleteCoupon(${esc(c.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar registro (Master)"><i class="fas fa-trash-can text-xs"></i></button>` : ''}
 
                             ${currentUser.isMaster ? `
                                 <select onchange="updateCouponStatus(${esc(c.id)}, this.value)" class="bg-slate-900 border border-slate-700 text-[10px] rounded-lg px-2 py-1 text-slate-200 focus:outline-none">
@@ -1766,6 +1858,41 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        function couponMonthOf(c) { return c.month || String(c.date || '').slice(0, 7); }
+
+        function deleteCoupon(id) {
+            if (!currentUser.isMaster) {
+                showToast('Acción restringida únicamente para la cuenta master fordaworld@fordaworld', 'error');
+                return;
+            }
+            if (!confirm('¿Eliminar este registro de la cuponera?')) return;
+            claimedCoupons = claimedCoupons.filter(c => c.id !== id);
+            renderCouponsHistory();
+            renderCronogram();
+            showToast('Registro de cuponera eliminado por Master', 'info');
+        }
+
+        function masterDeleteCoupons(type) {
+            if (!currentUser.isMaster) {
+                showToast('Acción restringida únicamente para la cuenta master fordaworld@fordaworld', 'error');
+                return;
+            }
+            const sel = document.getElementById('filterCouponsMonth').value;
+            const ref = (sel && sel !== 'ALL') ? sel : todayLocal().slice(0, 7);
+            if (type === 'month') {
+                if (!confirm(`¿Borrar TODO el historial de la cuponera de ${ref}? Esta acción no se puede deshacer.`)) return;
+                claimedCoupons = claimedCoupons.filter(c => couponMonthOf(c) !== ref);
+                showToast(`Historial de cuponera de ${ref} eliminado por Master`, 'info');
+            } else {
+                const yr = ref.slice(0, 4);
+                if (!confirm(`¿Borrar TODO el historial de la cuponera del año ${yr}? Esta acción no se puede deshacer.`)) return;
+                claimedCoupons = claimedCoupons.filter(c => !couponMonthOf(c).startsWith(yr));
+                showToast(`Historial de cuponera del año ${yr} eliminado por Master`, 'info');
+            }
+            renderCouponsHistory();
+            renderCronogram();
         }
 
         function updateCouponStatus(id, newStatus) {
@@ -2016,6 +2143,7 @@
 
         // NUEVA SECCIÓN: LLAMADAS DE ATENCIÓN Y AMONESTACIONES
         function renderWarningsFeed() {
+            renderBoard();
             const container = document.getElementById('warningsListFeed');
             
             if (warnings.length === 0) {
@@ -2129,6 +2257,202 @@
             warnings = warnings.filter(item => item.id !== id);
             renderWarningsFeed();
             showToast('Registro eliminado', 'info');
+        }
+
+        // ================= iFORDA: NOTAS / AMONESTACIONES / ZUMBIDOS =================
+        function toggleBoardType() {
+            const isWarn = document.getElementById('boardType').value === 'amonestacion';
+            document.getElementById('boardTarget').classList.toggle('hidden', !isWarn);
+        }
+
+        function renderBoard() {
+            const box = document.getElementById('ifordaBoardList');
+            if (!box || !currentUser) return;
+            const nameOf = e => (USERS_DB[e] ? USERS_DB[e].name : e);
+            const xBtn = (call) => `<button onclick="${call}" class="text-slate-500 hover:text-rose-400 shrink-0 px-1" title="Eliminar"><i class="fas fa-xmark text-[11px]"></i></button>`;
+
+            const warns = warnings.filter(w => w.type === 'Amonestación Oficial').map(w => `
+                <div class="flex items-start justify-between gap-1 bg-rose-950/60 border border-rose-600 rounded-lg px-2 py-1.5">
+                    <p class="text-[11px] text-rose-100 break-words"><span class="font-extrabold text-rose-300">⚠️ AMONESTACIÓN</span> a <span class="font-bold">@${esc(nameOf(w.targetUser))}</span>: ${esc(w.reason)}</p>
+                    ${currentUser.isMaster ? xBtn(`deleteWarning(${Number(w.id)})`) : ''}
+                </div>`);
+            const notes = boardNotes.slice(0, 10).map(n => {
+                const body = n.kind === 'zumbido'
+                    ? `👋 <span class="font-bold text-cyan-300">${esc(nameOf(n.by))}</span> ha saludado a <span class="font-bold text-cyan-300">${esc(nameOf(n.target))}</span>`
+                    : `<span class="font-bold text-cyan-300">${esc(nameOf(n.by))}:</span> ${esc(n.text)}`;
+                return `<div class="flex items-start justify-between gap-1 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5">
+                    <p class="text-[11px] text-slate-200 break-words">${body}</p>${xBtn(`deleteBoardNote(${Number(n.id)})`)}</div>`;
+            });
+            const all = warns.concat(notes);
+            box.innerHTML = all.length ? all.join('') : '<p class="text-[11px] text-slate-500 italic">Sin novedades. Escribe aquí una nota o estado.</p>';
+        }
+
+        function postBoard() {
+            const inp = document.getElementById('boardInput');
+            const text = inp.value.trim();
+            if (!text) return;
+            const kind = currentUser.isMaster ? document.getElementById('boardType').value : 'nota';
+            if (kind === 'amonestacion') {
+                warnings.unshift({ id: Date.now(), type: 'Amonestación Oficial', targetUser: document.getElementById('boardTarget').value, createdBy: currentUser.email, reason: text, date: todayLocal() });
+                renderWarningsFeed();
+                showToast('Amonestación publicada en el iForda y en Llamadas de Atención', 'success');
+            } else {
+                boardNotes.unshift({ id: Date.now(), kind: 'nota', by: currentUser.email, text, date: todayLocal() });
+                renderBoard();
+                showToast('Nota publicada', 'success');
+            }
+            inp.value = '';
+        }
+
+        function deleteBoardNote(id) {
+            boardNotes = boardNotes.filter(n => n.id !== id);
+            renderBoard();
+        }
+
+        // ================= USUARIOS ACTIVOS + ZUMBIDO =================
+        const PRESENCE_TTL = 60000;
+        let buzzInit = false;
+        const buzzSeen = new Set();
+        const lastBuzzSent = {};
+
+        function presenceId(email) { return Object.keys(USERS_DB).indexOf(email) + 1; }
+
+        function beat(on) {
+            if (!currentUser) return;
+            const rec = { id: presenceId(currentUser.email), email: currentUser.email, ts: on === false ? 0 : Date.now() };
+            const i = presence.findIndex(p => p.id === rec.id);
+            if (i >= 0) presence[i] = rec; else presence.push(rec);
+        }
+
+        function isOnline(email) {
+            if (currentUser && currentUser.email === email) return true;
+            const p = presence.find(x => x.email === email);
+            return !!(p && p.ts && Date.now() - p.ts < PRESENCE_TTL);
+        }
+
+        function renderUsersPanel() {
+            const box = document.getElementById('activeUsersList');
+            if (!box || !currentUser) return;
+            box.innerHTML = Object.keys(USERS_DB).map(em => {
+                const u = USERS_DB[em];
+                const on = isOnline(em);
+                const me = em === currentUser.email;
+                return `<div class="flex items-center justify-between p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
+                    <div class="flex items-center space-x-3">
+                        <img src="${esc(u.avatar)}" class="w-10 h-10 rounded-full border border-cyan-400/50 object-cover">
+                        <div>
+                            <p class="font-bold text-slate-200">${esc(u.name)}${me ? ' <span class="text-[10px] text-slate-500">(tú)</span>' : ''}</p>
+                            <p class="text-[10px] text-cyan-400">${esc(u.role)}</p>
+                            <p class="text-[10px] font-semibold ${on ? 'text-emerald-400' : 'text-slate-500'}"><span class="inline-block w-2 h-2 rounded-full mr-1 ${on ? 'bg-emerald-400' : 'bg-slate-600'}"></span>${on ? 'En línea' : 'Desconectado'}</p>
+                        </div>
+                    </div>
+                    ${me ? '' : `<button onclick="sendBuzz('${esc(em)}')" title="Enviar zumbido" class="text-xl p-2 rounded-xl border border-slate-800 ${on ? 'hover:bg-cyan-500/20' : 'opacity-40'} transition">👋</button>`}
+                </div>`;
+            }).join('');
+        }
+
+        function sendBuzz(email) {
+            if (!isOnline(email)) { showToast(`${USERS_DB[email].name} no está conectado(a) en este momento`, 'info'); return; }
+            if (Date.now() - (lastBuzzSent[email] || 0) < 5000) { showToast('Espera unos segundos para enviar otro zumbido', 'info'); return; }
+            lastBuzzSent[email] = Date.now();
+            boardNotes.unshift({ id: Date.now(), kind: 'zumbido', by: currentUser.email, target: email, date: todayLocal() });
+            renderBoard();
+            showToast(`Zumbido enviado a ${USERS_DB[email].name} 👋`, 'success');
+        }
+
+        function checkBuzz() {
+            if (!currentUser) return;
+            boardNotes.forEach(n => {
+                if (n.kind !== 'zumbido' || buzzSeen.has(n.id)) return;
+                buzzSeen.add(n.id);
+                if (buzzInit && n.target === currentUser.email && Date.now() - n.id < 30000) doBuzz(n.by);
+            });
+            buzzInit = true;
+        }
+
+        function doBuzz(fromEmail) {
+            const el = document.body;
+            el.classList.remove('fdw-buzz'); void el.offsetWidth; el.classList.add('fdw-buzz');
+            setTimeout(() => el.classList.remove('fdw-buzz'), 1500);
+            try {
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                [0, 0.18, 0.36].forEach(t => {
+                    const o = ctx.createOscillator(), g = ctx.createGain();
+                    o.type = 'square'; o.frequency.value = 160; o.connect(g); g.connect(ctx.destination);
+                    g.gain.setValueAtTime(0.15, ctx.currentTime + t); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.15);
+                    o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.16);
+                });
+            } catch (e) {}
+            showToast(`👋 ${(USERS_DB[fromEmail] || {}).name || 'Alguien'} te ha enviado un zumbido`, 'info');
+        }
+
+        // ================= NOTIFICACIONES EN PESTAÑAS =================
+        let seenStore = {};
+        function seenKey() { return 'fdw_seen_' + (currentUser ? currentUser.email : ''); }
+        function saveSeen() { try { localStorage.setItem(seenKey(), JSON.stringify(seenStore)); } catch (e) {} }
+
+        function tabsFor(k, v) {
+            const p = k.split('/')[0];
+            const me = currentUser ? currentUser.email : '';
+            if (p === 'duties') return ['dashboard'];
+            if (p === 'notes') return v && v.kind === 'zumbido' && v.target === me ? ['dashboard', 'usuarios'] : ['dashboard'];
+            if (p === 'warnings') return v && v.type === 'Amonestación Oficial' ? ['llamadas', 'dashboard'] : ['llamadas'];
+            if (p === 'projects') return ['proyectos'];
+            if (p === 'logs') return ['horarios'];
+            if (p === 'meetings') return ['reuniones'];
+            if (p === 'coupons') return ['cuponera'];
+            if (p === 'events') return ['cronograma'];
+            return [];
+        }
+
+        function markSeenLocal(k, cv, v) {
+            tabsFor(k, v).forEach(t => { seenStore[t + '|' + k] = cv; });
+        }
+
+        function initSeen(baseline) {
+            let raw = null;
+            try { raw = localStorage.getItem(seenKey()); } catch (e) {}
+            seenStore = raw ? (JSON.parse(raw) || {}) : {};
+            if (!raw || baseline) {
+                const local = flattenLocal();
+                canonMap(local).forEach((cv, k) => markSeenLocal(k, cv, local.get(k)));
+                saveSeen();
+            }
+        }
+
+        function updateBadges() {
+            if (!currentUser || !dataReady) return;
+            const local = flattenLocal();
+            const counts = {};
+            let dirty = false;
+            canonMap(local).forEach((cv, k) => {
+                tabsFor(k, local.get(k)).forEach(t => {
+                    const sk = t + '|' + k;
+                    if (seenStore[sk] === cv) return;
+                    if (t === currentTab) { seenStore[sk] = cv; dirty = true; }
+                    else counts[t] = (counts[t] || 0) + 1;
+                });
+            });
+            if (dirty) saveSeen();
+            const labels = { dashboard: '📱 Dashboard / iForda', proyectos: '🚀 Control de Proyectos', horarios: '⏱️ Registro de Horarios', reuniones: '📅 Reuniones y Agenda', cuponera: '🎟️ Cuponera Fordaworld', cronograma: '🗓️ Cronograma Mensual', llamadas: '⚠️ Llamadas de Atención', usuarios: '🟢 Usuarios Activos', perfil: '👤 Mi Perfil' };
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+                const t = btn.id.replace('tab-btn-', '');
+                let b = btn.querySelector('.nav-badge');
+                if (!b) {
+                    b = document.createElement('span');
+                    b.className = 'nav-badge hidden bg-rose-600 text-white text-[10px] font-extrabold rounded-full min-w-[18px] h-[18px] px-1 items-center justify-center shadow';
+                    btn.appendChild(b);
+                }
+                const n = counts[t] || 0;
+                b.textContent = n > 99 ? '99+' : n;
+                b.classList.toggle('hidden', !n);
+                b.classList.toggle('inline-flex', !!n);
+            });
+            document.querySelectorAll('#globalNavSelect option').forEach(o => {
+                const n = counts[o.value] || 0;
+                if (labels[o.value]) o.textContent = labels[o.value] + (n ? ` (${n})` : '');
+            });
         }
 
         // PROFILE EDIT & AVATAR REMOVAL
@@ -2254,6 +2578,8 @@
             { path: 'meetings', get: () => meetings,      set: v => { meetings = v; },      sort: (a, b) => (String(a.date) + ' ' + (a.time || '')).localeCompare(String(b.date) + ' ' + (b.time || '')) || a.id - b.id, render: () => renderMeetings() },
             { path: 'coupons',  get: () => claimedCoupons, set: v => { claimedCoupons = v; }, sort: (a, b) => b.id - a.id, render: () => { renderCouponsHistory(); renderCronogram(); } },
             { path: 'warnings', get: () => warnings,      set: v => { warnings = v; },      sort: (a, b) => b.id - a.id, render: () => renderWarningsFeed() },
+            { path: 'notes',    get: () => boardNotes,   set: v => { boardNotes = v; },   sort: (a, b) => b.id - a.id, render: () => { renderBoard(); checkBuzz(); } },
+            { path: 'presence', get: () => presence,      set: v => { presence = v; },      sort: (a, b) => a.id - b.id, render: () => renderUsersPanel() },
             { path: 'events',   get: () => customEvents,  set: v => { customEvents = v; },  sort: (a, b) => a.id - b.id, render: () => renderCronogram() }
         ];
 
@@ -2358,6 +2684,7 @@
                     setPath(mirror, k.split('/'), v);
                     pushOp(k, v);
                     syncedFlat.set(k, cv);
+                    if (currentUser && !k.startsWith('presence/')) { markSeenLocal(k, cv, v); }
                     changed = true;
                 }
             });
@@ -2369,6 +2696,7 @@
                     changed = true;
                 }
             });
+            if (changed && currentUser) saveSeen();
             if (changed && !CLOUD_MODE) saveLocal();
         }
 
@@ -2458,6 +2786,7 @@
                 if (changed.has('checklists')) renderPersonalChecklist();
             }
             if (changed.has('note')) document.getElementById('ifordaNoteDisplay').innerText = publicMasterNote;
+            updateBadges();
         }
 
         function renderAll() {
@@ -2468,6 +2797,8 @@
             renderMeetings();
             renderCouponsHistory();
             renderWarningsFeed();
+            renderBoard();
+            renderUsersPanel();
             renderCronogram();
         }
 
@@ -2628,6 +2959,10 @@
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainDashboard').classList.remove('hidden');
             clearLoginForm();
+            buzzInit = false;
+            beat(true);
+            checkBuzz();
+            initSeen(false);
             initUserDashboard();
             switchTab('dashboard');
             restoreTimer();
@@ -2656,7 +2991,9 @@
 
             ['click', 'change', 'submit', 'keyup'].forEach(ev => document.addEventListener(ev, scheduleSync, true));
             window.addEventListener('beforeunload', syncDirty);
-            window.addEventListener('pagehide', syncDirty);
+            window.addEventListener('pagehide', () => { beat(false); syncDirty(); });
+            setInterval(() => { if (currentUser) { beat(true); syncDirty(); renderUsersPanel(); } }, 20000);
+            setInterval(() => { if (currentUser) renderUsersPanel(); }, 10000);
             setInterval(syncDirty, 2500);
 
             if (CLOUD_MODE) startCloud(); else startLocal();
