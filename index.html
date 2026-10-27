@@ -156,6 +156,7 @@
                                 <option value="cuponera">🎟️ Cuponera Fordaworld</option>
                                 <option value="cronograma">🗓️ Cronograma Mensual</option>
                                 <option value="progreso">📈 Progreso de Proyectos</option>
+                                <option value="historial">📁 Historial</option>
                                 <option value="llamadas">⚠️ Llamadas de Atención</option>
                                 <option value="usuarios">🟢 Usuarios Activos</option>
                                 <option value="perfil">👤 Mi Perfil</option>
@@ -213,6 +214,9 @@
                         <button onclick="switchTab('progreso')" id="tab-btn-progreso" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
                             <i class="fas fa-chart-gantt"></i> <span>Progreso</span>
                         </button>
+                        <button onclick="switchTab('historial')" id="tab-btn-historial" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
+                            <i class="fas fa-folder-open"></i> <span>Historial</span>
+                        </button>
                         <button onclick="switchTab('llamadas')" id="tab-btn-llamadas" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-rose-400 hover:bg-rose-950/40 border border-rose-500/20">
                             <i class="fas fa-triangle-exclamation"></i> <span>Llamadas de Atención</span>
                         </button>
@@ -260,7 +264,7 @@
                             </div>
                             <div>
                                 <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Estado Global</p>
-                                <p id="metricEstadoGlobal" class="text-sm font-extrabold text-emerald-400">Óptimo (100%)</p>
+                                <p id="metricEstadoGlobal" class="text-sm font-extrabold text-emerald-400">—</p>
                             </div>
                         </div>
 
@@ -274,6 +278,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <div id="teamScorePanel" class="hidden bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-4 space-y-2 shadow-lg"></div>
 
                     <!-- PEARPAD / iFORDA CYAN SECTION -->
                     <div class="flex justify-center my-4">
@@ -632,6 +638,43 @@
                             </div>
                         </div>
 
+                        <!-- CRÉDITO AHORRADO -->
+                        <div id="creditSection" class="bg-slate-950 border border-amber-500/40 rounded-3xl p-5 space-y-4 shadow-xl">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <h3 class="font-extrabold text-sm text-amber-300"><i class="fas fa-piggy-bank mr-2"></i>CRÉDITO AHORRADO</h3>
+                                <span id="creditStatusBadge" class="text-[10px] font-bold px-2.5 py-1 rounded-full border"></span>
+                            </div>
+                            <div id="creditUserCard" class="space-y-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div class="bg-slate-900 border border-amber-500/30 rounded-2xl p-3"><p class="text-[10px] uppercase text-slate-400">Saldo disponible</p><p id="creditBalance" class="text-2xl font-black text-amber-300 font-mono">S/ 0.00</p></div>
+                                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3"><p class="text-[10px] uppercase text-slate-400">Acumulado este mes</p><p id="creditMonth" class="text-lg font-black text-cyan-300 font-mono">S/ 0.00</p></div>
+                                    <div class="bg-slate-900 border border-purple-500/30 rounded-2xl p-3"><p class="text-[10px] uppercase text-slate-400">Mérito:</p><p id="creditMerit" class="text-lg font-black text-purple-300 font-mono">S/ 0.00</p></div>
+                                </div>
+                                <p class="text-[10px] text-slate-500">+S/ 0.01 por cada día que ingresas · +S/ 0.10 por proyecto concretado como integrante (S/ 0.20 si eres líder) · −S/ 0.05 por amonestación oficial. El Mérito lo habilita la cuenta master.</p>
+                                <div id="creditMoves" class="space-y-1 max-h-64 overflow-y-auto pr-1"></div>
+                            </div>
+                            <div id="creditMasterTools" class="hidden space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-4 space-y-2">
+                                        <p class="text-xs font-bold text-emerald-300"><i class="fas fa-paper-plane mr-1"></i>TRANSFERENCIA (S/ 0.00 – S/ 4444)</p>
+                                        <select id="crTarget" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs"></select>
+                                        <input type="number" id="crAmount" min="0" max="4444" step="0.01" placeholder="Monto (S/)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-mono text-emerald-300">
+                                        <select id="crDest" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs"><option value="credit">Acreditar a Crédito ahorrado</option><option value="merit">Habilitar como Mérito</option></select>
+                                        <input type="text" id="crDesc" placeholder="Descripción (opcional)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs">
+                                        <button onclick="masterTransfer()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2 rounded-xl text-xs">Transferir</button>
+                                    </div>
+                                    <div class="bg-slate-900 border border-rose-500/30 rounded-2xl p-4 space-y-2">
+                                        <p class="text-xs font-bold text-rose-300"><i class="fas fa-minus-circle mr-1"></i>DESCUENTO AUTOMÁTICO</p>
+                                        <select id="dcTarget" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs"></select>
+                                        <input type="number" id="dcAmount" min="0" step="0.01" placeholder="Monto a descontar (S/)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-mono text-rose-300">
+                                        <input type="text" id="dcDesc" placeholder="Descripción del descuento (opcional)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs">
+                                        <button onclick="masterDiscount()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 rounded-xl text-xs">Descontar</button>
+                                    </div>
+                                </div>
+                                <div id="creditTeamRows" class="space-y-2"></div>
+                            </div>
+                        </div>
+
                         <!-- Claimed Coupons History -->
                         <div id="masterCouponDeletePanel" class="hidden bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
                             <span class="text-xs font-bold text-rose-300 flex items-center space-x-2">
@@ -709,7 +752,7 @@
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
                             <div>
                                 <h2 class="text-xl font-bold text-cyan-300 flex items-center gap-2"><i class="fas fa-chart-gantt"></i><span>PROGRESO DE PROYECTOS</span></h2>
-                                <p class="text-xs text-slate-400 mt-1">Historial de avances por fecha y hora, independiente del cronograma de entregas.</p>
+                                <p class="text-xs text-slate-400 mt-1">Historial de actualizaciones oficiales publicadas (fecha, hora y detalle). Toca un día para leerlo completo.</p>
                             </div>
                             <div class="flex items-center gap-2">
                                 <button onclick="shiftProgressMonth(-1)" class="bg-slate-950 border border-slate-700 text-cyan-300 w-8 h-8 rounded-lg"><i class="fas fa-chevron-left"></i></button>
@@ -754,6 +797,21 @@
                 </section>
 
                 <!-- ================= TAB 7: NUEVA SECCIÓN - LLAMADAS DE ATENCIÓN ================= -->
+                <section id="view-historial" class="tab-view hidden space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-5">
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                            <div><h2 class="text-xl font-bold text-cyan-300"><i class="fas fa-folder-open mr-2"></i>HISTORIAL DE PROYECTOS</h2>
+                            <p class="text-xs text-slate-400 mt-1">Los proyectos marcados como Completado se archivan aquí como carpetas <span id="historyCount" class="text-cyan-300 font-bold"></span></p></div>
+                            <select id="filterHistoryMonth" onchange="renderHistory()" class="bg-slate-950 border border-slate-800 text-xs rounded-xl px-3 py-1 text-cyan-300"></select>
+                        </div>
+                        <div id="historyMasterPanel" class="hidden bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+                            <span class="text-xs font-bold text-rose-300"><i class="fas fa-shield-halved mr-2"></i>MASTER: borrar historial según el mes elegido arriba</span>
+                            <div class="flex space-x-2"><button onclick="histDeleteBulk('month')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Borrar mes</button><button onclick="histDeleteBulk('year')" class="bg-rose-700 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Borrar año completo</button></div>
+                        </div>
+                        <div id="historyList" class="space-y-3"></div>
+                    </div>
+                </section>
+
                 <section id="view-llamadas" class="tab-view hidden space-y-6">
                     <div class="bg-slate-900 border border-rose-500/40 rounded-3xl p-6 shadow-2xl space-y-6 relative overflow-hidden">
                         
@@ -790,6 +848,59 @@
                             <p class="text-xs text-slate-400 mt-1">Quién está conectado ahora. Envía un zumbido 👋 a quien esté en línea.</p>
                         </div>
                         <div id="activeUsersList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                        <p id="masterUsersHint" class="hidden text-[10px] text-slate-500"><i class="fas fa-lock mr-1"></i>Master: toca un usuario para ver su historial de ingreso.</p>
+                    </div>
+
+                    <!-- PANEL DE USUARIOS (solo Master) -->
+                    <div id="masterUsersPanel" class="hidden bg-slate-900 border border-rose-500/30 rounded-3xl p-6 shadow-xl space-y-5">
+                        <div class="border-b border-slate-800 pb-4">
+                            <h2 class="text-xl font-bold text-rose-300 flex items-center space-x-2">
+                                <i class="fas fa-user-gear text-rose-400"></i>
+                                <span>PANEL DE USUARIOS</span>
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-1">Exclusivo de la cuenta master. Selecciona un perfil para ver y modificar sus datos, usuario y contraseña, o crea una nueva cuenta de acceso.</p>
+                        </div>
+                        <div id="panelProfilesList" class="flex flex-wrap gap-2"></div>
+                        <form id="panelUserForm" onsubmit="saveManagedUser(event)" class="hidden space-y-4 bg-slate-950/70 border border-slate-800 rounded-2xl p-4">
+                            <input type="hidden" id="panelUserKey">
+                            <h3 id="panelUserFormTitle" class="text-sm font-bold text-cyan-300"></h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Nombre Completo</label>
+                                    <input type="text" id="panelName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Cargo / Rol</label>
+                                    <input type="text" id="panelRole" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Edad</label>
+                                    <input type="number" id="panelAge" min="0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Teléfono</label>
+                                    <input type="text" id="panelPhone" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-rose-300 mb-1">Usuario de ingreso</label>
+                                    <input type="text" id="panelLogin" required autocomplete="off" autocapitalize="none" placeholder="nombre@fordaworld" class="w-full bg-slate-950 border border-rose-500/40 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-rose-300 mb-1">Contraseña</label>
+                                    <input type="text" id="panelPassword" required autocomplete="off" class="w-full bg-slate-950 border border-rose-500/40 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Foto de Perfil (URL o archivo del dispositivo)</label>
+                                <input type="url" id="panelAvatarUrl" placeholder="https://..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                                <input type="file" id="panelAvatarFile" accept="image/*" onchange="handlePanelAvatarFile(event)" class="w-full mt-2 text-xs text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-cyan-500 file:px-3 file:py-2 file:text-xs file:font-bold file:text-slate-950">
+                            </div>
+                            <p id="panelFormHint" class="text-[10px] text-slate-500"></p>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="closeManagedForm()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2.5 rounded-xl text-xs font-bold">Cancelar</button>
+                                <button type="submit" id="panelSaveBtn" class="flex-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition"></button>
+                            </div>
+                        </form>
                     </div>
                 </section>
 
@@ -863,9 +974,50 @@
         </div>
     </div>
 
+
+    <!-- MODAL: HISTORIAL DE INGRESO (solo Master) -->
+    <div id="userAccessModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeUserAccess()">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-2xl p-5 max-w-sm w-full space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between"><h3 class="font-bold text-cyan-300">Historial de ingreso</h3><button onclick="closeUserAccess()" class="text-slate-400 hover:text-white"><i class="fas fa-xmark"></i></button></div>
+            <div id="userAccessContent" class="space-y-3 text-sm"></div>
+            <div class="text-right"><button onclick="closeUserAccess()" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 text-xs">Cerrar</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL: PUBLICAR ACTUALIZACIÓN OFICIAL DE PROYECTO -->
+    <div id="publishUpdateModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4" onclick="if(event.target===this)closePublishUpdateModal()">
+        <div class="bg-slate-900 border border-emerald-500/40 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between"><h3 class="font-bold text-lg text-emerald-300"><i class="fas fa-bullhorn mr-2"></i>Publicar actualización</h3><button onclick="closePublishUpdateModal()" class="text-slate-400 hover:text-white"><i class="fas fa-xmark"></i></button></div>
+            <input type="hidden" id="updProjectId">
+            <p class="text-xs text-slate-400">Proyecto: <strong id="updProjectName" class="text-cyan-300"></strong></p>
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Título (opcional)</label>
+                <input type="text" id="updTitleInput" maxlength="120" placeholder="Ej: Entrega de diseño aprobada" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-400">
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Descripción de los cambios (opcional)</label>
+                <textarea id="updDescInput" maxlength="1000" placeholder="Detalla qué se cambió o avanzó..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 h-28 focus:outline-none focus:border-emerald-400"></textarea>
+            </div>
+            <p class="text-[10px] text-slate-500">Si dejas ambos campos vacíos, se publicará solo la fecha, la hora y “Proyecto actualizado”.</p>
+            <div class="flex gap-2 pt-1">
+                <button onclick="closePublishUpdateModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2 rounded-xl text-xs font-bold">Cancelar</button>
+                <button onclick="publishProjectUpdate()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-2 rounded-xl text-xs font-bold">Publicar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DETALLE COMPLETO DEL DÍA (calendarios de proyectos) -->
+    <div id="projectDayModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[65] hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeProjectDayDetail()">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl p-5 max-w-xl w-full max-h-[88vh] flex flex-col shadow-2xl">
+            <div class="flex items-center justify-between gap-3 pb-3 border-b border-slate-800"><h3 id="projectDayTitle" class="font-bold text-cyan-300 capitalize"></h3><button onclick="closeProjectDayDetail()" class="text-slate-400 hover:text-white"><i class="fas fa-xmark"></i></button></div>
+            <div id="projectDayContent" class="overflow-y-auto space-y-3 pt-3 pr-1"></div>
+            <div class="text-right pt-3"><button onclick="closeProjectDayDetail()" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 text-xs">Cerrar</button></div>
+        </div>
+    </div>
+
     <!-- MODAL: REGISTRAR / EDITAR PROYECTO -->
     <div id="projectModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 max-w-md w-full space-y-4">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 max-w-lg w-full max-h-[92vh] overflow-y-auto space-y-4">
             <h3 id="projectModalTitle" class="font-bold text-lg text-cyan-300">Crear Proyecto</h3>
             <input type="hidden" id="editProjId">
             
@@ -898,7 +1050,7 @@
             </div>
             <div>
                 <label class="block text-[10px] text-slate-400 uppercase mb-1">Descripción</label>
-                <textarea id="projDescInput" placeholder="Descripción breve..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 h-16"></textarea>
+                <textarea id="projDescInput" placeholder="Descripción completa del proyecto..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 h-44 resize-y"></textarea>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
@@ -1007,6 +1159,10 @@
                     <option value="Amonestación Oficial">Amonestación Oficial (Exclusivo Master)</option>
                 </select>
                 <p id="warnMasterNotice" class="hidden text-[10px] text-rose-400 mt-1">* Solo se guardará si estás conectado con la cuenta master.</p>
+                <div id="warnDiscountWrap" class="hidden mt-2">
+                    <label class="block text-[10px] text-slate-400 uppercase mb-1">Descuento de Crédito Ahorrado (S/) — por defecto 0.05</label>
+                    <input type="number" id="warnDiscount" min="0" step="0.01" value="0.05" class="w-full bg-slate-950 border border-rose-500/40 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono">
+                </div>
             </div>
 
             <div>
@@ -1061,11 +1217,14 @@
         // =====================================================================
         //  CONFIGURACIÓN DE LA BASE DE DATOS COMPARTIDA (TIEMPO REAL)
         //  Pega aquí la URL de tu Firebase Realtime Database, por ejemplo:
-        //  "https://fordaworld-default-rtdb.firebaseio.com"
+        //  "https://backoffice-fdw-default-rtdb.firebaseio.com"  (ya configurada abajo)
         //  Si se deja vacío, los datos se guardan solo en este navegador.
         // =====================================================================
-        const FIREBASE_DB_URL = "";
+        const FIREBASE_DB_URL = "https://backoffice-fdw-default-rtdb.firebaseio.com";
         const DB_ROOT = "fordaworld";
+
+        // Estado de créditos e historial (se sincroniza con Firebase)
+        let creditLedger = [], creditStatus = [], historyItems = [];
 
         // Database of users
         const USERS_DB = {
@@ -1119,8 +1278,9 @@
                 return;
             }
 
-            if (USERS_DB[email] && USERS_DB[email].password === pass) {
-                enterApp(email, false);
+            const userKey = Object.keys(USERS_DB).find(k => String(USERS_DB[k].login || k).toLowerCase() === email);
+            if (userKey && USERS_DB[userKey].password === pass) {
+                enterApp(userKey, false);
             } else {
                 document.getElementById('loginPassword').value = '';
                 showToast('Credenciales incorrectas. Intenta de nuevo.', 'error');
@@ -1185,6 +1345,7 @@
             renderWarningsFeed();
             renderBoard();
             renderUsersPanel();
+            renderCredits(); renderHistory();
             loadProfileFormData();
         }
 
@@ -1218,6 +1379,8 @@
             currentTab = tabId;
             updateBadges();
             if (tabId === 'progreso') renderProjectProgress();
+            if (tabId === 'historial') renderHistory();
+            if (tabId === 'cuponera') renderCredits();
         }
 
         function updateDashboardMetrics() {
@@ -1233,7 +1396,7 @@
 
             const pendingDutiesCount = teamDuties.filter(d => d.status === 'Pendiente' || d.status === 'En curso').length;
             document.getElementById('metricPendientes').innerText = pendingDutiesCount;
-            document.getElementById('metricEstadoGlobal').innerText = "Óptimo (100%)";
+            renderGlobalStatus();
             document.getElementById('metricProyectosActivos').innerText = projects.length;
         }
 
@@ -1469,11 +1632,12 @@
                 const canEdit = master || (currentUser && (p.owner === currentUser.name || (p.createdBy === currentUser.email)));
                 return `<div class="bg-slate-950/80 border rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-lg hover:border-cyan-400 transition" style="border-color:${esc(color)}80;border-left:4px solid ${esc(color)}">
                     <div><div class="flex justify-between items-start mb-2 gap-2"><h3 class="font-bold text-slate-100 text-sm">${esc(p.title)}</h3><span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-500/40">${esc(p.status)}</span></div>
-                    <p class="text-xs text-slate-400 line-clamp-2">${esc(p.desc || 'Sin descripción')}</p><div class="mt-2 text-[10px] font-mono text-slate-400 space-y-0.5">
+                    <p class="text-xs text-slate-300 whitespace-pre-wrap break-words">${esc(p.desc || 'Sin descripción')}</p><div class="mt-2 text-[10px] font-mono text-slate-400 space-y-0.5">
                     <p>👤 Responsable: <span class="text-cyan-300 font-extrabold">${esc(p.owner)}</span></p><p>👥 Equipo: <span class="text-slate-300">${esc((p.team || []).join(', ') || 'Sin integrantes adicionales')}</span></p>
                     <p>📅 Fecha Límite: <span class="text-cyan-300 font-bold">${esc(p.dueDate)}</span></p><p>Creado el: <span class="text-yellow-400 font-bold">${esc(p.createdAt || '—')}</span></p></div></div>
                     <div class="space-y-2"><div class="flex justify-between text-[11px] font-mono text-cyan-400"><span>Avance:</span><span class="font-bold">${esc(p.progress)}%</span></div><div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800"><div class="h-full transition-all duration-300" style="width:${Math.max(0,Math.min(100,Number(p.progress)||0))}%;background:${esc(color)}"></div></div>
                     <div class="pt-2 flex items-center space-x-2">${canEdit ? `<input type="range" min="0" max="100" value="${esc(p.progress)}" onchange="updateProjectProgress(${esc(p.id)}, this.value)" class="w-full cursor-pointer" style="accent-color:${esc(color)}">` : ''}
+                    ${canPublishUpdate(p) ? `<button onclick="openPublishUpdateModal(${esc(p.id)})" title="Publicar actualización oficial" class="bg-emerald-950/80 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 border border-emerald-500/40 p-2 rounded-xl"><i class="fas fa-bullhorn text-xs"></i></button>` : ''}
                     ${canEdit ? `<button onclick="openEditProjectModal(${esc(p.id)})" title="Modificar Proyecto" class="bg-cyan-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 p-2 rounded-xl"><i class="fas fa-pen-to-square text-xs"></i></button>` : ''}
                     ${(master || (currentUser && p.createdBy === currentUser.email)) ? `<button onclick="deleteProject(${esc(p.id)})" title="Eliminar Proyecto" class="bg-rose-950/60 hover:bg-rose-600 text-rose-300 border border-rose-500/40 p-2 rounded-xl"><i class="fas fa-trash-can text-xs"></i></button>` : ''}</div></div></div>`;
             }).join('');
@@ -1484,9 +1648,8 @@
             const p = projects.find(item => item.id === id);
             if (p) {
                 p.progress = parseInt(val);
-                recordProjectProgress(p, 'Porcentaje actualizado');
                 renderProjects();
-                showToast('Progreso de proyecto actualizado', 'info');
+                showToast('Avance guardado. Usa “Publicar actualización” para registrarlo en el historial oficial.', 'info');
             }
         }
 
@@ -1562,8 +1725,7 @@
                 const p = projects.find(item => item.id == editId);
                 if (p) {
                     if (!master && p.createdBy !== currentUser.email && p.owner !== currentUser.name) { showToast('No tienes permiso para modificar este proyecto.', 'error'); return; }
-                    const changed = p.status !== status || Number(p.progress) !== Number(progress) || p.dueDate !== dueDate || p.createdAt !== requestedCreatedAt || p.owner !== owner || p.team !== team;
-                    const oldDueDate = p.dueDate; const oldCreatedAt = p.createdAt;
+                    logProjectChanges(p, { title, owner, desc, progress, dueDate: master ? dueDate : p.dueDate, status, team, createdAt: master ? requestedCreatedAt : p.createdAt });
                     p.title = title;
                     p.owner = owner;
                     p.desc = desc;
@@ -1573,7 +1735,7 @@
                     p.team = team;
                     p.color = color;
                     if (master) p.createdAt = requestedCreatedAt;
-                    if (changed) recordProjectProgress(p, `Proyecto actualizado${oldCreatedAt !== p.createdAt ? ' · fecha de creación modificada' : ''}${oldDueDate !== p.dueDate ? ' · fecha límite modificada' : ''}`);
+                    if (status === 'Completado') { completeProject(p); closeProjectModal(); renderProjects(); return; }
                 }
                 showToast('Proyecto modificado con éxito', 'success');
             } else {
@@ -1590,9 +1752,10 @@
                     status,
                     team,
                     color,
-                    history: [{ at: Date.now(), date: todayLocal(), time: formatClock12(Date.now()), status, progress, note: 'Proyecto creado' }]
+                    updates: []
                 });
                 showToast('Proyecto registrado y añadido al cronograma', 'success');
+                if (status === 'Completado') { completeProject(projects[projects.length - 1]); }
             }
 
             closeProjectModal();
@@ -1618,7 +1781,7 @@
             calendar.innerHTML = days.map(d => {
                 const key = dateKey(d), isToday = key === todayLocal();
                 const active = projects.filter(p => (p.createdAt || todayLocal()) <= key && (p.dueDate || p.createdAt || todayLocal()) >= key && !['Completado','Aprobado'].includes(p.status));
-                return `<div class="min-h-28 rounded-xl border ${isToday?'border-cyan-400 bg-cyan-950/20':'border-slate-800 bg-slate-950/70'} p-3 space-y-2"><div class="flex items-center justify-between gap-1"><span class="text-[10px] uppercase font-black ${isToday?'text-cyan-300':'text-slate-400'}">${d.toLocaleDateString('es-PE',{weekday:'long'})}</span><span class="text-xs font-mono font-bold ${isToday?'text-cyan-300':'text-slate-200'}">${d.getDate()}</span></div><p class="text-[9px] text-slate-600">${fmt(d)}</p><div class="space-y-1">${active.length?active.map(p=>`<div class="rounded-md px-2 py-1 text-[9px] font-bold truncate" title="${esc(p.title)} · ${esc(p.owner)}" style="background:${esc(p.color||'#38bdf8')}22;border-left:3px solid ${esc(p.color||'#38bdf8')};color:${esc(p.color||'#38bdf8')}">${esc(p.title)}</div>`).join(''):'<span class="text-[9px] text-slate-700">Sin proyectos activos</span>'}</div></div>`;
+                return `<div role="button" tabindex="0" onkeydown="dayCellKey(event)" onclick="openProjectDayDetail('${key}')" class="cursor-pointer hover:border-cyan-300 transition min-h-28 rounded-xl border ${isToday?'border-cyan-400 bg-cyan-950/20':'border-slate-800 bg-slate-950/70'} p-3 space-y-2"><div class="flex items-center justify-between gap-1"><span class="text-[10px] uppercase font-black ${isToday?'text-cyan-300':'text-slate-400'}">${d.toLocaleDateString('es-PE',{weekday:'long'})}</span><span class="text-xs font-mono font-bold ${isToday?'text-cyan-300':'text-slate-200'}">${d.getDate()}</span></div><p class="text-[9px] text-slate-600">${fmt(d)}</p><div class="space-y-1">${active.length?active.map(p=>`<div class="rounded-md px-2 py-1 text-[10px] font-bold break-words leading-snug" title="${esc(p.title)} · ${esc(p.owner)}" style="background:${esc(p.color||'#38bdf8')}22;border-left:3px solid ${esc(p.color||'#38bdf8')};color:${esc(p.color||'#38bdf8')}">${esc(p.title)}</div>`).join(''):'<span class="text-[9px] text-slate-700">Sin proyectos activos</span>'}</div></div>`;
             }).join('');
             const span = Math.max(1, end.getTime() - start.getTime() + 86400000);
             gantt.innerHTML = projects.length ? projects.slice().sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||''))).map(p=>{
@@ -1635,17 +1798,101 @@
         // PROGRESO DE PROYECTOS: historial cronológico por fecha y hora.
         let progressAnchor = new Date();
         let progressViewMode = 'week';
-        function recordProjectProgress(project, note) {
-            if (!project) return;
-            if (!Array.isArray(project.history)) project.history = [];
-            const now = Date.now();
-            const last = project.history[project.history.length - 1];
-            if (!last || last.status !== project.status || Number(last.progress) !== Number(project.progress) || note) {
-                project.history.push({ at: now, date: todayLocal(), time: formatClock12(now), status: project.status,
-                    progress: Number(project.progress) || 0, note: note || 'Avance actualizado', owner: project.owner,
-                    team: Array.isArray(project.team) ? project.team.slice() : [] });
-            }
+        // ---------------------------------------------------------------------
+        // ACTUALIZACIONES OFICIALES DE PROYECTO
+        // Solo se registran cuando el usuario pulsa "Publicar actualización".
+        // Ninguna otra acción (mover el avance, editar, guardar) crea historial.
+        // ---------------------------------------------------------------------
+        const MASTER_EMAIL = 'fordaworld@fordaworld';
+        const DEFAULT_UPDATE_TITLE = 'Proyecto actualizado';
+        function isMasterUser() { return !!(currentUser && currentUser.email === MASTER_EMAIL); }
+        function getProjectUpdates(p) {
+            const raw = p && p.updates;
+            const arr = Array.isArray(raw) ? raw : (raw && typeof raw === 'object' ? Object.values(raw) : []);
+            return arr.filter(u => u && typeof u === 'object').sort((a, b) => (a.at || 0) - (b.at || 0));
         }
+        function canPublishUpdate(p) {
+            return !!(currentUser && p && (isMasterUser() || p.owner === currentUser.name || p.createdBy === currentUser.email || (p.team || []).includes(currentUser.name)));
+        }
+        function openPublishUpdateModal(projectId) {
+            const p = projects.find(x => x.id == projectId); if (!p) return;
+            if (!canPublishUpdate(p)) { showToast('No tienes permiso para publicar actualizaciones en este proyecto.', 'error'); return; }
+            document.getElementById('updProjectId').value = p.id;
+            document.getElementById('updProjectName').textContent = p.title;
+            document.getElementById('updTitleInput').value = '';
+            document.getElementById('updDescInput').value = '';
+            document.getElementById('publishUpdateModal').classList.remove('hidden');
+            document.getElementById('updTitleInput').focus();
+        }
+        function closePublishUpdateModal() { document.getElementById('publishUpdateModal').classList.add('hidden'); }
+        function publishProjectUpdate() {
+            const id = document.getElementById('updProjectId').value;
+            const p = projects.find(x => x.id == id); if (!p) return;
+            if (!canPublishUpdate(p)) { showToast('No tienes permiso para publicar actualizaciones en este proyecto.', 'error'); return; }
+            const title = document.getElementById('updTitleInput').value.trim();
+            const desc = document.getElementById('updDescInput').value.trim();
+            const now = Date.now();
+            const list = getProjectUpdates(p);
+            list.push({
+                id: now, at: now, date: todayLocal(), time: formatClock12(now),
+                title: title || DEFAULT_UPDATE_TITLE,
+                desc: desc || '',
+                custom: !!(title || desc),
+                by: currentUser.email, byName: currentUser.name || currentUser.email,
+                status: p.status, progress: Number(p.progress) || 0
+            });
+            p.updates = list;
+            closePublishUpdateModal();
+            renderProjects();
+            showToast('Actualización oficial publicada', 'success');
+        }
+        function deleteProjectUpdate(projectId, updateId) {
+            if (!isMasterUser()) { showToast('Solo la cuenta master fordaworld@fordaworld puede eliminar actualizaciones oficiales.', 'error'); return; }
+            const p = projects.find(x => x.id == projectId); if (!p) return;
+            const u = getProjectUpdates(p).find(x => x.id == updateId); if (!u) return;
+            if (!confirm(`¿Eliminar la actualización “${u.title || DEFAULT_UPDATE_TITLE}” del ${u.date} ${u.time || ''}?`)) return;
+            p.updates = getProjectUpdates(p).filter(x => x.id != updateId);
+            renderProjects();
+            const dm = document.getElementById('projectDayModal');
+            if (dm && !dm.classList.contains('hidden') && dayDetailState) openProjectDayDetail(dayDetailState.key, dayDetailState.projectId);
+            showToast('Actualización eliminada por Master', 'success');
+        }
+        function updateEntryHtml(p, u, withDelete) {
+            const color = p.color || '#38bdf8';
+            const delBtn = (withDelete && isMasterUser()) ? `<button onclick="deleteProjectUpdate(${esc(p.id)}, ${esc(u.id)})" title="Eliminar actualización (solo Master)" class="shrink-0 text-[10px] bg-rose-950 hover:bg-rose-700 border border-rose-500/40 text-rose-300 px-2 py-1 rounded-lg"><i class="fas fa-trash-can"></i></button>` : '';
+            return `<div class="flex items-start justify-between gap-2 border-l-2 pl-3 py-1.5" style="border-color:${esc(color)}"><div class="min-w-0 space-y-0.5"><p class="text-[10px] font-mono text-slate-400">${esc(u.date)} · ${esc(u.time || '')}</p><p class="text-xs font-bold text-slate-100 break-words">${esc(u.title || DEFAULT_UPDATE_TITLE)}</p>${u.desc ? `<p class="text-[11px] text-slate-300 whitespace-pre-wrap break-words">${esc(u.desc)}</p>` : ''}<p class="text-[10px] text-slate-500">${esc(u.byName || '')}${u.progress !== undefined ? ` · ${esc(u.status || '')} · ${esc(u.progress)}%` : ''}</p></div>${delBtn}</div>`;
+        }
+
+        // ---------------------------------------------------------------------
+        // DETALLE COMPLETO DE UN DÍA (al tocar un casillero del calendario)
+        // ---------------------------------------------------------------------
+        let dayDetailState = null;
+        function projectsActiveOn(key) {
+            return projects.filter(p => (p.createdAt || todayLocal()) <= key && (p.dueDate || p.createdAt || todayLocal()) >= key && !['Completado','Aprobado'].includes(p.status));
+        }
+        function openProjectDayDetail(key, onlyProjectId) {
+            dayDetailState = { key, projectId: onlyProjectId || null };
+            const d = new Date(key + 'T00:00:00');
+            document.getElementById('projectDayTitle').textContent = d.toLocaleDateString('es-PE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            let list = projectsActiveOn(key);
+            if (onlyProjectId) list = projects.filter(p => p.id == onlyProjectId);
+            const html = list.map(p => {
+                const color = p.color || '#38bdf8';
+                const ups = getProjectUpdates(p).filter(u => u.date === key).reverse();
+                return `<article class="rounded-2xl border bg-slate-950/70 p-4 space-y-2" style="border-color:${esc(color)}70;border-left:4px solid ${esc(color)}">
+                    <h4 class="text-sm font-black break-words" style="color:${esc(color)}">${esc(p.title)}</h4>
+                    <div class="flex flex-wrap gap-1.5 text-[10px]"><span class="px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-500/40 font-bold">${esc(p.status)}</span><span class="px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 text-slate-200 font-mono">${esc(p.progress)}%</span></div>
+                    <p class="text-[11px] text-slate-300 whitespace-pre-wrap break-words">${esc(p.desc || 'Sin descripción')}</p>
+                    <div class="text-[11px] text-slate-400 space-y-0.5"><p>👤 Responsable: <strong class="text-cyan-300">${esc(p.owner)}</strong></p><p>👥 Equipo: <span class="text-slate-300">${esc((p.team || []).join(', ') || 'Sin integrantes adicionales')}</span></p><p>📅 ${esc(p.createdAt || '—')} → <strong class="text-cyan-300">${esc(p.dueDate || '—')}</strong></p></div>
+                    <div class="pt-2 border-t border-slate-800 space-y-2"><p class="text-[10px] uppercase font-bold text-slate-500">Actualizaciones oficiales de este día</p>${ups.length ? ups.map(u => updateEntryHtml(p, u, true)).join('') : '<p class="text-[10px] text-slate-600">Sin actualizaciones oficiales este día.</p>'}</div>
+                </article>`;
+            }).join('');
+            document.getElementById('projectDayContent').innerHTML = html || '<p class="text-xs text-slate-500 text-center py-6">No hay proyectos activos ni actualizaciones en esta fecha.</p>';
+            document.getElementById('projectDayModal').classList.remove('hidden');
+        }
+        function closeProjectDayDetail() { document.getElementById('projectDayModal').classList.add('hidden'); dayDetailState = null; }
+        function dayCellKey(e) { /* teclado accesible */ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.currentTarget.click(); } }
+
         function setProgressView(mode) {
             progressViewMode = mode;
             document.getElementById('btnProgressWeek').className = mode === 'week' ? 'bg-cyan-500 px-3 py-2 rounded-lg text-xs font-bold text-slate-950' : 'bg-slate-950 border border-slate-700 px-3 py-2 rounded-lg text-xs text-slate-300';
@@ -1676,9 +1923,9 @@
                 const inMonth = day.getMonth() === month;
                 const isToday = key === todayLocal();
                 const active = projects.filter(p => (p.createdAt || todayLocal()) <= key && (p.dueDate || p.createdAt || todayLocal()) >= key && !['Completado','Aprobado'].includes(p.status));
-                cells.push(`<div class="min-h-20 sm:min-h-24 rounded-lg border ${isToday?'border-cyan-400 bg-cyan-950/30':inMonth?'border-slate-800 bg-slate-950/70':'border-slate-900 bg-slate-950/30'} p-1 sm:p-2 overflow-hidden">
+                cells.push(`<div role="button" tabindex="0" onkeydown="dayCellKey(event)" onclick="openProjectDayDetail('${key}')" class="cursor-pointer hover:border-cyan-300 transition min-h-20 sm:min-h-24 rounded-lg border ${isToday?'border-cyan-400 bg-cyan-950/30':inMonth?'border-slate-800 bg-slate-950/70':'border-slate-900 bg-slate-950/30'} p-1 sm:p-2 overflow-hidden">
                     <div class="text-right text-[10px] font-bold ${isToday?'text-cyan-300':inMonth?'text-slate-300':'text-slate-700'}">${day.getDate()}</div>
-                    <div class="mt-1 space-y-1">${active.length ? active.map(p=>`<div title="${esc(p.title)} · Responsable: ${esc(p.owner)}" class="rounded px-1 py-1 text-[8px] sm:text-[9px] font-bold truncate" style="background:${esc(p.color||'#38bdf8')}22;border-left:2px solid ${esc(p.color||'#38bdf8')};color:${esc(p.color||'#38bdf8')}">${esc(p.title)}</div>`).join('') : ''}</div>
+                    <div class="mt-1 space-y-1">${active.length ? active.map(p=>`<div title="${esc(p.title)} · Responsable: ${esc(p.owner)}" class="rounded px-1 py-1 text-[9px] sm:text-[10px] font-bold leading-tight break-words" style="background:${esc(p.color||'#38bdf8')}22;border-left:2px solid ${esc(p.color||'#38bdf8')};color:${esc(p.color||'#38bdf8')}">${esc(p.title)}</div>`).join('') : ''}</div>
                 </div>`);
             }
             calendar.innerHTML = cells.join('');
@@ -1709,11 +1956,11 @@
                 return `<div class="grid grid-cols-[minmax(100px,1fr)_minmax(180px,3fr)] gap-3 items-center py-1.5 border-b border-slate-900"><div class="min-w-0"><p class="text-[11px] font-bold truncate" style="color:${esc(p.color||'#38bdf8')}">${esc(p.title)}</p><p class="text-[9px] ${active?'text-emerald-300':'text-slate-500'}">${active?'ACTIVO':'Fuera del período / cerrado'} · ${esc(p.progress)}%</p></div><div class="relative h-6 bg-slate-900 rounded-md overflow-hidden border border-slate-800"><div title="${esc(p.createdAt||'—')} → ${esc(p.dueDate||'—')}" class="absolute top-1 bottom-1 rounded-sm" style="left:${left}%;width:${width}%;background:${esc(p.color||'#38bdf8')};opacity:.9"></div></div></div>`;
             }).join('');
             container.innerHTML = projects.map(p=>{
-                const color=p.color||'#38bdf8'; const hist=Array.isArray(p.history)?p.history.slice().sort((a,b)=>a.at-b.at):[];
+                const color=p.color||'#38bdf8'; const hist=getProjectUpdates(p);
                 const events=hist.filter(h=>{const d=new Date(h.at);return d>=start&&d<=new Date(end.getFullYear(),end.getMonth(),end.getDate(),23,59,59,999);});
-                const dayCells=days.map(d=>{const key=dateKey(d);const ev=events.filter(h=>h.date===key);const latest=ev[ev.length-1];const today=key===todayLocal();return `<div class="min-w-10 flex-1 border-l ${today?'border-cyan-400 bg-cyan-950/20':'border-slate-800'} px-1 py-2 text-center" title="${esc(ev.map(h=>`${h.time}: ${h.status} (${h.progress}%)`).join('\n')||'Sin cambios')}"><div class="text-[9px] ${today?'text-cyan-300 font-black':'text-slate-500'}">${d.toLocaleDateString('es-PE',{weekday:'short'}).toUpperCase()}</div><div class="text-[10px] text-slate-300">${d.getDate()}</div><div class="h-2 mt-2 rounded bg-slate-800 overflow-hidden"><div class="h-full" style="width:${latest?Math.max(0,Math.min(100,Number(latest.progress)||0)):0}%;background:${esc(color)}"></div></div>${latest?`<div class="text-[9px] mt-1" style="color:${esc(color)}">${esc(latest.progress)}%</div>`:'<div class="text-[9px] text-slate-700 mt-1">—</div>'}</div>`;}).join('');
+                const dayCells=days.map(d=>{const key=dateKey(d);const ev=events.filter(h=>h.date===key);const latest=ev[ev.length-1];const today=key===todayLocal();return `<div role="button" tabindex="0" onkeydown="dayCellKey(event)" onclick="openProjectDayDetail('${key}', ${esc(p.id)})" class="cursor-pointer hover:bg-slate-800/60 min-w-10 flex-1 border-l ${today?'border-cyan-400 bg-cyan-950/20':'border-slate-800'} px-1 py-2 text-center" title="${esc(ev.map(h=>`${h.time}: ${h.title||DEFAULT_UPDATE_TITLE}`).join('\n')||'Sin actualizaciones')}"><div class="text-[9px] ${today?'text-cyan-300 font-black':'text-slate-500'}">${d.toLocaleDateString('es-PE',{weekday:'short'}).toUpperCase()}</div><div class="text-[10px] text-slate-300">${d.getDate()}</div><div class="h-2 mt-2 rounded bg-slate-800 overflow-hidden"><div class="h-full" style="width:${latest?Math.max(0,Math.min(100,Number(latest.progress)||0)):0}%;background:${esc(color)}"></div></div>${latest?`<div class="text-[9px] mt-1" style="color:${esc(color)}">${esc(latest.progress)}%</div><div class="text-[8px] mt-0.5 text-slate-400">● ${ev.length}</div>`:'<div class="text-[9px] text-slate-700 mt-1">—</div>'}</div>`;}).join('');
                 const master = currentUser && currentUser.email==='fordaworld@fordaworld';
-                return `<article class="bg-slate-950/70 border rounded-2xl p-4 space-y-3" style="border-color:${esc(color)}70"><div class="flex flex-col md:flex-row md:items-center justify-between gap-2"><div class="min-w-0"><h3 class="text-sm font-black" style="color:${esc(color)}">${esc(p.title)}</h3><p class="text-[11px] text-slate-300">Responsable: <strong class="text-white bg-cyan-950/70 px-1.5 py-0.5 rounded">${esc(p.owner)}</strong> · Equipo: ${esc((p.team||[]).join(', ')||'Sin integrantes adicionales')}</p><p class="text-[10px] mt-1">Creación: <strong class="text-yellow-400">${esc(p.createdAt||'—')}</strong> · Fecha límite: <strong class="text-cyan-300">${esc(p.dueDate||'—')}</strong></p></div><div class="text-xs text-slate-300">${esc(p.status)} · <strong style="color:${esc(color)}">${esc(p.progress)}%</strong> ${master?`<button onclick="openEditProjectModal(${esc(p.id)})" class="ml-2 text-[10px] px-2 py-1 rounded bg-slate-800 text-cyan-300">Editar fechas</button>`:''}</div></div><div class="flex overflow-x-auto border border-slate-800 rounded-xl">${dayCells}</div><div class="space-y-1"><p class="text-[10px] uppercase font-bold text-slate-500">Cambios registrados</p>${events.length?events.slice().reverse().map(h=>`<div class="flex flex-wrap gap-x-3 gap-y-1 text-[10px] border-l-2 pl-2 py-1" style="border-color:${esc(color)}"><span class="text-slate-400">${esc(h.date)} ${esc(h.time||'')}</span><span style="color:${esc(color)}">${esc(h.status)}</span><span class="text-slate-200">${esc(h.progress)}%</span><span class="text-slate-500">${esc(h.note||'Avance actualizado')}</span></div>`).join(''):'<p class="text-[10px] text-slate-600">Sin cambios registrados en este período.</p>'}</div></article>`;
+                return `<article class="bg-slate-950/70 border rounded-2xl p-4 space-y-3" style="border-color:${esc(color)}70"><div class="flex flex-col md:flex-row md:items-center justify-between gap-2"><div class="min-w-0"><h3 class="text-sm font-black" style="color:${esc(color)}">${esc(p.title)}</h3><p class="text-[11px] text-slate-300">Responsable: <strong class="text-white bg-cyan-950/70 px-1.5 py-0.5 rounded">${esc(p.owner)}</strong> · Equipo: ${esc((p.team||[]).join(', ')||'Sin integrantes adicionales')}</p><p class="text-[10px] mt-1">Creación: <strong class="text-yellow-400">${esc(p.createdAt||'—')}</strong> · Fecha límite: <strong class="text-cyan-300">${esc(p.dueDate||'—')}</strong></p><p class="text-[11px] text-slate-300 whitespace-pre-wrap break-words mt-2">${esc(p.desc||'Sin descripción')}</p></div><div class="text-xs text-slate-300">${esc(p.status)} · <strong style="color:${esc(color)}">${esc(p.progress)}%</strong> ${master?`<button onclick="openEditProjectModal(${esc(p.id)})" class="ml-2 text-[10px] px-2 py-1 rounded bg-slate-800 text-cyan-300">Editar fechas</button>`:''}</div></div><div class="flex overflow-x-auto border border-slate-800 rounded-xl">${dayCells}</div><div class="space-y-1"><div class="flex items-center justify-between gap-2"><p class="text-[10px] uppercase font-bold text-slate-500">Actualizaciones oficiales</p>${canPublishUpdate(p)?`<button onclick="openPublishUpdateModal(${esc(p.id)})" class="text-[10px] px-2 py-1 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300 font-bold"><i class="fas fa-bullhorn mr-1"></i>Publicar actualización</button>`:''}</div>${events.length?events.slice().reverse().map(h=>updateEntryHtml(p,h,true)).join(''):'<p class="text-[10px] text-slate-600">Sin actualizaciones oficiales en este período.</p>'}</div></article>`;
             }).join('');
         }
 
@@ -2029,51 +2276,38 @@
 
         function renderCouponsHistory() {
             const container = document.getElementById('claimedCouponsList');
-            const filterMonth = document.getElementById('filterCouponsMonth')?.value || 'ALL';
-
-            let filtered = claimedCoupons;
-            if (filterMonth !== 'ALL') {
-                filtered = claimedCoupons.filter(c => c.month === filterMonth);
-            }
-
-            if (filtered.length === 0) {
-                container.innerHTML = '<p class="text-xs text-slate-500 italic">No hay solicitudes registradas para este período.</p>';
-                return;
-            }
-
-            container.innerHTML = filtered.map(c => {
-                const userObj = USERS_DB[c.email] || { name: c.email };
-                let badgeClass = "bg-amber-950 text-amber-300 border-amber-800";
-                if (c.status === 'aprobado') badgeClass = "bg-emerald-950 text-emerald-300 border-emerald-800";
-                if (c.status === 'rechazado') badgeClass = "bg-rose-950 text-rose-300 border-rose-800";
-
-                return `
-                    <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
-                        <div class="flex items-center space-x-3">
-                            <span class="text-xl">${c.type.includes('Día Libre') ? '🏖️' : '💵'}</span>
-                            <div>
-                                <p class="font-bold text-slate-200">${esc(c.type)} ${c.amount ? `(S/ ${esc(c.amount)})` : ''} - <span class="text-cyan-400">${esc(userObj.name)}</span></p>
-                                <p class="text-[10px] text-slate-500">Fecha: ${esc(c.date)} ${c.reason ? `| Motivo: ${esc(c.reason)}` : ''}</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center space-x-2">
-                            <span class="text-[10px] uppercase font-bold border px-2.5 py-1 rounded-full ${esc(badgeClass)}">
-                                ${esc(c.status)}
-                            </span>
-                            ${currentUser.isMaster ? `<button onclick="deleteCoupon(${esc(c.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar registro (Master)"><i class="fas fa-trash-can text-xs"></i></button>` : ''}
-
-                            ${currentUser.isMaster ? `
-                                <select onchange="updateCouponStatus(${esc(c.id)}, this.value)" class="bg-slate-900 border border-slate-700 text-[10px] rounded-lg px-2 py-1 text-slate-200 focus:outline-none">
-                                    <option value="solicitado" ${c.status === 'solicitado' ? 'selected' : ''}>Solicitado</option>
-                                    <option value="aprobado" ${c.status === 'aprobado' ? 'selected' : ''}>Aprobar</option>
-                                    <option value="rechazado" ${c.status === 'rechazado' ? 'selected' : ''}>Rechazar</option>
-                                </select>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
+            if (!container || !currentUser) return;
+            const fm = document.getElementById('filterCouponsMonth')?.value || 'ALL';
+            const list = claimedCoupons.filter(c => fm === 'ALL' || couponMonthOf(c) === fm);
+            if (!list.length) { container.innerHTML = '<p class="text-xs text-slate-500 italic">No hay solicitudes registradas para este período.</p>'; return; }
+            const M = currentUser.isMaster;
+            const row = c => {
+                const u = USERS_DB[c.email] || { name: c.email };
+                let bc = 'bg-amber-950 text-amber-300 border-amber-800';
+                if (c.status === 'aprobado') bc = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+                if (c.status === 'rechazado') bc = 'bg-rose-950 text-rose-300 border-rose-800';
+                const btn = (st, label, cls) => c.status === st ? '' : `<button onclick="updateCouponStatus(${esc(c.id)}, '${st}')" class="text-[10px] font-bold px-2.5 py-1 rounded-lg ${cls}">${label}</button>`;
+                return `<div class="flex flex-wrap items-center justify-between gap-2 p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
+                    <div class="flex items-center space-x-3 min-w-0"><span class="text-xl">${String(c.type).includes('Día Libre') ? '🏖️' : '💵'}</span>
+                    <div class="min-w-0"><p class="font-bold text-slate-200 break-words">${esc(c.type)} ${c.amount ? `(S/ ${esc(c.amount)})` : ''}${M ? '' : ` - <span class="text-cyan-400">${esc(u.name)}</span>`}</p>
+                    <p class="text-[10px] text-slate-500 whitespace-pre-wrap break-words">Fecha: ${esc(c.date)}${c.reason ? ` | Motivo: ${esc(c.reason)}` : ''}${c.desc ? ` | ${esc(c.desc)}` : ''}</p></div></div>
+                    <div class="flex items-center space-x-2"><span class="text-[10px] uppercase font-bold border px-2.5 py-1 rounded-full ${bc}">${esc(c.status)}</span>
+                    ${M ? btn('aprobado', '✓ Aprobar', 'bg-emerald-600 hover:bg-emerald-500 text-white') + btn('rechazado', '✗ Rechazar', 'bg-rose-700 hover:bg-rose-600 text-white') + `<button onclick="deleteCoupon(${esc(c.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar registro"><i class="fas fa-trash-can text-xs"></i></button>` : ''}</div></div>`;
+            };
+            if (!M) { container.innerHTML = list.map(row).join(''); return; }
+            container.innerHTML = Object.keys(USERS_DB).filter(em => list.some(c => c.email === em)).map(em => {
+                const mine = list.filter(c => c.email === em), u = USERS_DB[em], pend = mine.filter(c => c.status === 'solicitado').length;
+                return `<div class="space-y-2 border border-slate-800 rounded-2xl p-3 bg-slate-900/50"><div class="flex flex-wrap items-center justify-between gap-2"><p class="text-sm font-black text-cyan-300">👤 ${esc(u.name)} <span class="text-[10px] font-semibold text-slate-400">· ${mine.length} canje(s) · <span class="${pend ? 'text-amber-300' : 'text-slate-500'}">${pend} por aprobar</span></span></p>
+                <button onclick="masterDeleteProfileCoupons('${esc(em)}')" class="text-[10px] bg-rose-950 hover:bg-rose-700 border border-rose-500/40 text-rose-300 px-2 py-1 rounded-lg">Borrar del mes</button></div>${mine.map(row).join('')}</div>`;
             }).join('');
+        }
+
+        function masterDeleteProfileCoupons(em) {
+            if (!currentUser.isMaster) return;
+            const sel = document.getElementById('filterCouponsMonth').value, ref = (sel && sel !== 'ALL') ? sel : todayLocal().slice(0, 7);
+            if (!confirm(`¿Borrar los canjes de ${(USERS_DB[em] || {}).name || em} de ${ref}?`)) return;
+            claimedCoupons = claimedCoupons.filter(c => !(c.email === em && couponMonthOf(c) === ref));
+            renderCouponsHistory(); renderCronogram();
         }
 
         function couponMonthOf(c) { return c.month || String(c.date || '').slice(0, 7); }
@@ -2427,6 +2661,7 @@
 
         function toggleWarnTypeNotice() {
             const type = document.getElementById('warnType').value;
+            document.getElementById('warnDiscountWrap').classList.toggle('hidden', !(type === 'Amonestación Oficial' && currentUser && currentUser.isMaster));
             const notice = document.getElementById('warnMasterNotice');
             if (type === 'Amonestación Oficial') {
                 notice.classList.remove('hidden');
@@ -2459,14 +2694,13 @@
 
             const todayStr = todayLocal();
 
-            warnings.unshift({
-                id: Date.now(),
-                type,
-                targetUser,
-                createdBy: currentUser.email,
-                reason,
-                date: todayStr
-            });
+            const warnId = Date.now();
+            warnings.unshift({ id: warnId, type, targetUser, createdBy: currentUser.email, reason, date: todayStr });
+            if (type === 'Amonestación Oficial' && currentUser.isMaster && !(USERS_DB[targetUser] || {}).isMaster) {
+                const d = parseFloat(document.getElementById('warnDiscount').value);
+                const disc = isNaN(d) ? 0.05 : Math.max(0, d);
+                if (disc > 0) addCredit(targetUser, -disc, 'warning', 'Amonestación oficial: ' + reason.slice(0, 80), { warnId });
+            }
 
             closeNewWarningModal();
             document.getElementById('warnReason').value = '';
@@ -2483,6 +2717,7 @@
             }
 
             warnings = warnings.filter(item => item.id !== id);
+            creditLedger = creditLedger.filter(l => l.warnId !== id);
             renderWarningsFeed();
             showToast('Registro eliminado', 'info');
         }
@@ -2544,10 +2779,51 @@
         const buzzSeen = new Set();
         const lastBuzzSent = {};
 
-        function presenceId(email) { return Object.keys(USERS_DB).indexOf(email) + 1; }
+        function presenceId(email) {
+            const b = Object.keys(BASE_USERS).indexOf(email);
+            if (b >= 0) return b + 1;
+            const customs = Object.keys(USERS_DB).filter(k => !BASE_USERS[k]).sort((a, c) => (USERS_DB[a].createdAt || 0) - (USERS_DB[c].createdAt || 0) || a.localeCompare(c));
+            return 100 + customs.indexOf(email) + 1;
+        }
+
+        // Historial de ingreso por usuario (solo lo muestra la cuenta master)
+        let accessLog = {};
+        function touchAccess(isLogin) {
+            if (!currentUser) return;
+            const k = currentUser.email, now = Date.now();
+            const r = { ...(accessLog[k] || {}) };
+            if (isLogin) { r.first = r.first || now; r.lastLogin = now; r.logins = (Number(r.logins) || 0) + 1; }
+            r.lastSeen = now;
+            accessLog[k] = r;
+        }
+        function fmtAccess(ts) {
+            if (!ts) return '—';
+            const d = new Date(ts);
+            return `${d.toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' })} · ${formatClock12(ts)}`;
+        }
+        function openUserAccess(key) {
+            if (!isMasterUser()) return;
+            const u = USERS_DB[key]; if (!u) return;
+            const r = accessLog[key];
+            const on = isOnline(key);
+            const row = (label, val) => `<div class="bg-slate-950 border border-slate-800 rounded-xl p-3"><p class="text-[10px] uppercase text-slate-500">${label}</p><p class="text-xs font-semibold text-slate-100">${val}</p></div>`;
+            let body;
+            if (!r || !r.first) {
+                body = `<div class="bg-slate-950 border border-amber-500/30 rounded-xl p-4 text-center"><p class="text-sm font-bold text-amber-300">Nunca ha entrado</p><p class="text-[11px] text-slate-500 mt-1">Aún no tiene inicios de sesión registrados.</p></div>`;
+            } else {
+                body = row('Última conexión', on ? '<span class="text-emerald-400">En línea ahora</span>' : esc(fmtAccess(r.lastSeen || r.lastLogin)))
+                     + row('Último inicio de sesión', esc(fmtAccess(r.lastLogin)))
+                     + row('Primer ingreso', esc(fmtAccess(r.first)))
+                     + row('Inicios de sesión', esc(r.logins || 1));
+            }
+            document.getElementById('userAccessContent').innerHTML = `<div class="flex items-center space-x-3"><img src="${esc(u.avatar)}" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" class="w-12 h-12 rounded-full border border-cyan-400/50 object-cover"><div><p class="font-bold text-slate-100">${esc(u.name)}</p><p class="text-[11px] text-cyan-400">${esc(u.role)}</p></div></div>${body}`;
+            document.getElementById('userAccessModal').classList.remove('hidden');
+        }
+        function closeUserAccess() { document.getElementById('userAccessModal').classList.add('hidden'); }
 
         function beat(on) {
             if (!currentUser) return;
+            touchAccess(false);
             const rec = { id: presenceId(currentUser.email), email: currentUser.email, ts: on === false ? 0 : Date.now() };
             const i = presence.findIndex(p => p.id === rec.id);
             if (i >= 0) presence[i] = rec; else presence.push(rec);
@@ -2566,7 +2842,8 @@
                 const u = USERS_DB[em];
                 const on = isOnline(em);
                 const me = em === currentUser.email;
-                return `<div class="flex items-center justify-between p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
+                const mst = isMasterUser();
+                return `<div ${mst ? `onclick="openUserAccess('${esc(em)}')" title="Ver historial de ingreso"` : ''} class="flex flex-wrap items-center justify-between gap-y-2 p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs ${mst ? 'cursor-pointer hover:border-cyan-500/50 transition' : ''}">
                     <div class="flex items-center space-x-3">
                         <img src="${esc(u.avatar)}" class="w-10 h-10 rounded-full border border-cyan-400/50 object-cover">
                         <div>
@@ -2575,9 +2852,118 @@
                             <p class="text-[10px] font-semibold ${on ? 'text-emerald-400' : 'text-slate-500'}"><span class="inline-block w-2 h-2 rounded-full mr-1 ${on ? 'bg-emerald-400' : 'bg-slate-600'}"></span>${on ? 'En línea' : 'Desconectado'}</p>
                         </div>
                     </div>
-                    ${me ? '' : `<button onclick="sendBuzz('${esc(em)}')" title="Enviar zumbido" class="text-xl p-2 rounded-xl border border-slate-800 ${on ? 'hover:bg-cyan-500/20' : 'opacity-40'} transition">👋</button>`}
+                    ${me ? '' : `<button onclick="event.stopPropagation();sendBuzz('${esc(em)}')" title="Enviar zumbido" class="text-xl p-2 rounded-xl border border-slate-800 ${on ? 'hover:bg-cyan-500/20' : 'opacity-40'} transition">👋</button>`}
+                    ${(mst || me) && !(u.isMaster) ? creditBlock(em, mst) : ''}
                 </div>`;
             }).join('');
+            const hint = document.getElementById('masterUsersHint');
+            if (hint) hint.classList.toggle('hidden', !isMasterUser());
+            renderManageProfiles();
+        }
+
+        // =====================================================================
+        //  PANEL DE USUARIOS (solo cuenta master)
+        // =====================================================================
+        const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150';
+        let panelAvatarData = '';
+        function renderManageProfiles() {
+            const panel = document.getElementById('masterUsersPanel');
+            if (!panel) return;
+            const master = isMasterUser();
+            panel.classList.toggle('hidden', !master);
+            if (!master) return;
+            const sel = document.getElementById('panelUserKey').value;
+            const chips = Object.keys(USERS_DB).map(k => {
+                const u = USERS_DB[k], on = sel === k;
+                return `<button type="button" onclick="selectManagedUser('${esc(k)}')" class="flex items-center space-x-2 px-3 py-2 rounded-xl border text-xs font-bold transition ${on ? 'border-cyan-400 bg-cyan-950/40 text-cyan-300' : 'border-slate-800 bg-slate-950 text-slate-300 hover:border-cyan-500/50'}"><img src="${esc(u.avatar)}" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" class="w-6 h-6 rounded-full object-cover"><span>${esc(u.name)}</span></button>`;
+            }).join('');
+            const nw = sel === '__new__';
+            document.getElementById('panelProfilesList').innerHTML = chips + `<button type="button" onclick="openNewAccountForm()" class="flex items-center space-x-2 px-3 py-2 rounded-xl border text-xs font-bold transition ${nw ? 'border-emerald-400 bg-emerald-950/40 text-emerald-300' : 'border-emerald-500/40 bg-slate-950 text-emerald-300 hover:bg-emerald-950/40'}"><i class="fas fa-user-plus"></i><span>Nueva cuenta</span></button>`;
+        }
+        function selectManagedUser(key) {
+            if (!isMasterUser()) return;
+            const u = USERS_DB[key]; if (!u) return;
+            panelAvatarData = '';
+            document.getElementById('panelUserKey').value = key;
+            document.getElementById('panelUserFormTitle').textContent = `Datos de ${u.name}`;
+            document.getElementById('panelName').value = u.name || '';
+            document.getElementById('panelRole').value = u.role || '';
+            document.getElementById('panelAge').value = u.age || '';
+            document.getElementById('panelPhone').value = u.phone || '';
+            document.getElementById('panelLogin').value = u.login || key;
+            document.getElementById('panelPassword').value = u.password || '';
+            document.getElementById('panelAvatarUrl').value = u.avatar && !String(u.avatar).startsWith('data:') ? u.avatar : '';
+            document.getElementById('panelAvatarFile').value = '';
+            document.getElementById('panelFormHint').textContent = 'Si dejas la foto vacía se usará la imagen predeterminada.';
+            document.getElementById('panelSaveBtn').textContent = 'GUARDAR CAMBIOS';
+            document.getElementById('panelUserForm').classList.remove('hidden');
+            renderManageProfiles();
+        }
+        function openNewAccountForm() {
+            if (!isMasterUser()) return;
+            panelAvatarData = '';
+            document.getElementById('panelUserKey').value = '__new__';
+            document.getElementById('panelUserFormTitle').textContent = 'Nueva cuenta de acceso';
+            ['panelName', 'panelRole', 'panelAge', 'panelPhone', 'panelLogin', 'panelPassword', 'panelAvatarUrl'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('panelAvatarFile').value = '';
+            document.getElementById('panelFormHint').textContent = 'El usuario de ingreso solo admite letras minúsculas, números, @, guion y guion bajo (sin espacios ni puntos). Ej: nombre@fordaworld';
+            document.getElementById('panelSaveBtn').textContent = 'CREAR CUENTA';
+            document.getElementById('panelUserForm').classList.remove('hidden');
+            renderManageProfiles();
+        }
+        function closeManagedForm() {
+            document.getElementById('panelUserKey').value = '';
+            document.getElementById('panelUserForm').classList.add('hidden');
+            panelAvatarData = '';
+            renderManageProfiles();
+        }
+        function handlePanelAvatarFile(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) { showToast('Selecciona un archivo de imagen válido', 'error'); event.target.value = ''; return; }
+            if (file.size > 2 * 1024 * 1024) { showToast('La imagen debe pesar 2 MB o menos para sincronizarse correctamente', 'error'); event.target.value = ''; return; }
+            const reader = new FileReader();
+            reader.onload = () => { panelAvatarData = String(reader.result || ''); document.getElementById('panelAvatarUrl').value = ''; showToast('Imagen cargada. Pulsa guardar para aplicarla.', 'success'); };
+            reader.onerror = () => showToast('No se pudo leer la imagen seleccionada', 'error');
+            reader.readAsDataURL(file);
+        }
+        function saveManagedUser(e) {
+            e.preventDefault();
+            if (!isMasterUser()) { showToast('Acción restringida únicamente a la cuenta master fordaworld@fordaworld', 'error'); return; }
+            const key = document.getElementById('panelUserKey').value;
+            const isNew = key === '__new__';
+            if (!isNew && !USERS_DB[key]) return;
+            const name = document.getElementById('panelName').value.trim();
+            const role = document.getElementById('panelRole').value.trim();
+            const age = parseInt(document.getElementById('panelAge').value) || 0;
+            const phone = document.getElementById('panelPhone').value.trim();
+            const login = document.getElementById('panelLogin').value.trim().toLowerCase();
+            const password = document.getElementById('panelPassword').value.trim();
+            const urlAvatar = document.getElementById('panelAvatarUrl').value.trim();
+            if (!name || !role) { showToast('Nombre y cargo son obligatorios', 'error'); return; }
+            if (!/^[a-z0-9_@-]+$/.test(login)) { showToast('Usuario inválido: usa solo minúsculas, números, @, guion o guion bajo (sin espacios ni puntos).', 'error'); return; }
+            if (password.length < 4) { showToast('La contraseña debe tener al menos 4 caracteres', 'error'); return; }
+            const others = Object.keys(USERS_DB).filter(k => k !== key);
+            if (others.some(k => String(USERS_DB[k].login || k).toLowerCase() === login || k.toLowerCase() === login)) { showToast('Ese usuario de ingreso ya existe', 'error'); return; }
+            if (others.some(k => String(USERS_DB[k].name || '').trim().toLowerCase() === name.toLowerCase())) { showToast('Ya existe una cuenta con ese nombre', 'error'); return; }
+
+            let avatar = panelAvatarData || urlAvatar;
+            if (!avatar) avatar = isNew ? DEFAULT_AVATAR : (document.getElementById('panelAvatarUrl').value.trim() === '' && !String(USERS_DB[key].avatar || '').startsWith('data:') ? DEFAULT_AVATAR : USERS_DB[key].avatar);
+
+            if (isNew) {
+                USERS_DB[login] = { login, password, name, role, age, phone, avatar, createdAt: Date.now(), createdBy: currentUser.email };
+                showToast(`Cuenta creada: ${name}`, 'success');
+            } else {
+                USERS_DB[key] = { ...USERS_DB[key], login, password, name, role, age, phone, avatar };
+                if (currentUser && currentUser.email === key) Object.assign(currentUser, { login, password, name, role, age, phone, avatar });
+                showToast(`Datos de ${name} actualizados`, 'success');
+            }
+            syncDirty();
+            populateDropdownUsers();
+            refreshHeader();
+            if (currentUser) loadProfileFormData();
+            renderAll();
+            closeManagedForm();
         }
 
         function sendBuzz(email) {
@@ -2623,6 +3009,7 @@
 
         function tabsFor(k, v) {
             const p = k.split('/')[0];
+            if (p === 'history') return ['historial'];
             const me = currentUser ? currentUser.email : '';
             if (p === 'duties') return ['dashboard'];
             if (p === 'notes') return v && v.kind === 'zumbido' && v.target === me ? ['dashboard', 'usuarios'] : ['dashboard'];
@@ -2664,7 +3051,7 @@
                 });
             });
             if (dirty) saveSeen();
-            const labels = { dashboard: '📱 Dashboard / iForda', proyectos: '🚀 Control de Proyectos', horarios: '⏱️ Registro de Horarios', reuniones: '📅 Reuniones y Agenda', cuponera: '🎟️ Cuponera Fordaworld', cronograma: '🗓️ Cronograma Mensual', llamadas: '⚠️ Llamadas de Atención', usuarios: '🟢 Usuarios Activos', perfil: '👤 Mi Perfil' };
+            const labels = { dashboard: '📱 Dashboard / iForda', proyectos: '🚀 Control de Proyectos', historial: '📁 Historial', horarios: '⏱️ Registro de Horarios', reuniones: '📅 Reuniones y Agenda', cuponera: '🎟️ Cuponera Fordaworld', cronograma: '🗓️ Cronograma Mensual', llamadas: '⚠️ Llamadas de Atención', usuarios: '🟢 Usuarios Activos', perfil: '👤 Mi Perfil' };
             document.querySelectorAll('.nav-tab-btn').forEach(btn => {
                 const t = btn.id.replace('tab-btn-', '');
                 let b = btn.querySelector('.nav-badge');
@@ -2735,7 +3122,7 @@
             if (enteredAvatar) currentUser.avatar = enteredAvatar;
             else if (!document.getElementById('profileAvatarFile').files.length && !String(currentUser.avatar || '').startsWith('data:')) currentUser.avatar = '';
 
-            USERS_DB[currentUser.email] = { ...USERS_DB[currentUser.email], ...currentUser };
+            USERS_DB[currentUser.email] = { ...USERS_DB[currentUser.email], name: currentUser.name, role: currentUser.role, age: currentUser.age, phone: currentUser.phone, avatar: currentUser.avatar };
             initUserDashboard();
             showToast('Perfil de usuario actualizado correctamente', 'success');
         }
@@ -2832,6 +3219,9 @@
             { path: 'warnings', get: () => warnings,      set: v => { warnings = v; },      sort: (a, b) => b.id - a.id, render: () => renderWarningsFeed() },
             { path: 'notes',    get: () => boardNotes,   set: v => { boardNotes = v; },   sort: (a, b) => b.id - a.id, render: () => { renderBoard(); checkBuzz(); } },
             { path: 'presence', get: () => presence,      set: v => { presence = v; },      sort: (a, b) => a.id - b.id, render: () => renderUsersPanel() },
+            { path: 'credits',  get: () => creditLedger, set: v => { creditLedger = v; }, sort: (a, b) => String(b.date || '').localeCompare(String(a.date || '')) || b.id - a.id, render: () => { renderCredits(); renderUsersPanel(); } },
+            { path: 'creditStatus', get: () => creditStatus, set: v => { creditStatus = v; }, sort: (a, b) => a.id - b.id, render: () => { renderCredits(); renderUsersPanel(); } },
+            { path: 'history',  get: () => historyItems, set: v => { historyItems = v; }, sort: (a, b) => b.id - a.id, render: () => renderHistory() },
             { path: 'events',   get: () => customEvents,  set: v => { customEvents = v; },  sort: (a, b) => a.id - b.id, render: () => renderCronogram() }
         ];
 
@@ -2862,6 +3252,7 @@
         function canonMap(flat) { const m = new Map(); flat.forEach((v, k) => m.set(k, canon(v))); return m; }
 
         function profileOf(u) {
+            u = u || {};
             return { name: u.name || '', role: u.role || '', age: Number(u.age) || 0, phone: u.phone || '', avatar: u.avatar || '' };
         }
 
@@ -2879,7 +3270,12 @@
             Object.keys(USERS_DB).forEach(em => {
                 const p = profileOf(USERS_DB[em]);
                 if (canon(p) !== canon(profileOf(BASE_USERS[em]))) out.set(`profiles/${em}`, clean(p));
+                // Cuentas: credenciales modificadas por Master y cuentas nuevas
+                const u = USERS_DB[em], b = BASE_USERS[em], lg = u.login || em;
+                if (!b) out.set(`accounts/${em}`, clean({ custom: true, login: lg, password: u.password || '', createdAt: u.createdAt || 0, createdBy: u.createdBy || '' }));
+                else if (lg !== em || u.password !== b.password) out.set(`accounts/${em}`, clean({ login: lg, password: u.password }));
             });
+            Object.keys(accessLog).forEach(k => { const v = clean(accessLog[k]); if (v) out.set(`access/${k}`, v); });
             if (publicMasterNote !== DEFAULT_NOTE) out.set('meta/masterNote', publicMasterNote);
             return out;
         }
@@ -2898,6 +3294,10 @@
             });
             const pr = m.profiles;
             if (pr && typeof pr === 'object') Object.keys(pr).forEach(em => { if (pr[em] && typeof pr[em] === 'object') out.set(`profiles/${em}`, pr[em]); });
+            ['accounts', 'access'].forEach(g => {
+                const o = m[g];
+                if (o && typeof o === 'object') Object.keys(o).forEach(k => { if (o[k] && typeof o[k] === 'object') out.set(`${g}/${k}`, o[k]); });
+            });
             if (m.meta && typeof m.meta.masterNote === 'string') out.set('meta/masterNote', m.meta.masterNote);
             return out;
         }
@@ -3014,9 +3414,31 @@
             if (canon(newCL) !== canon(personalChecklists)) { personalChecklists = newCL; changed.add('checklists'); }
 
             let profChanged = false;
+            // Cuentas (credenciales y cuentas nuevas creadas por Master)
+            const acc = (mirror.accounts && typeof mirror.accounts === 'object') ? mirror.accounts : {};
+            Object.keys(acc).filter(k => acc[k] && acc[k].custom && !USERS_DB[k]).sort((a, b) => (acc[a].createdAt || 0) - (acc[b].createdAt || 0) || a.localeCompare(b)).forEach(k => {
+                USERS_DB[k] = { login: k, password: '', name: '', role: '', age: 0, phone: '', avatar: '', createdAt: acc[k].createdAt || 0, createdBy: acc[k].createdBy || '' };
+                profChanged = true;
+            });
+            Object.keys(USERS_DB).forEach(k => {
+                const a = acc[k], b = BASE_USERS[k];
+                if (!a && !b) return;
+                const lg = (a && a.login) || k;
+                const pw = (a && a.password !== undefined) ? String(a.password) : (b ? b.password : USERS_DB[k].password);
+                if (USERS_DB[k].login !== lg || USERS_DB[k].password !== pw) {
+                    USERS_DB[k] = { ...USERS_DB[k], login: lg, password: pw };
+                    if (currentUser && currentUser.email === k) { currentUser.login = lg; currentUser.password = pw; }
+                    profChanged = true;
+                }
+            });
+            // Historial de ingreso
+            const newAccess = {};
+            const ac = (mirror.access && typeof mirror.access === 'object') ? mirror.access : {};
+            Object.keys(ac).forEach(k => { if (ac[k] && typeof ac[k] === 'object') newAccess[k] = { ...ac[k] }; });
+            if (canon(newAccess) !== canon(accessLog)) { accessLog = newAccess; changed.add('access'); }
             Object.keys(USERS_DB).forEach(em => {
                 const rp = mirror.profiles && mirror.profiles[em];
-                const merged = profileOf({ ...profileOf(BASE_USERS[em]), ...(rp && typeof rp === 'object' ? rp : {}) });
+                const merged = profileOf({ ...profileOf(BASE_USERS[em] || USERS_DB[em]), ...(rp && typeof rp === 'object' ? rp : {}) });
                 if (canon(merged) !== canon(profileOf(USERS_DB[em]))) {
                     USERS_DB[em] = { ...USERS_DB[em], ...merged };
                     profChanged = true;
@@ -3036,6 +3458,7 @@
             } else {
                 COLLECTIONS.forEach(c => { if (changed.has(c.path)) c.render(); });
                 if (changed.has('checklists')) renderPersonalChecklist();
+                if (changed.has('access')) renderUsersPanel();
             }
             if (changed.has('note')) document.getElementById('ifordaNoteDisplay').innerText = publicMasterNote;
             updateBadges();
@@ -3052,6 +3475,7 @@
             renderBoard();
             renderUsersPanel();
             renderCronogram();
+            renderCredits(); renderHistory();
         }
 
         function refreshHeader() {
@@ -3201,7 +3625,7 @@
         }
 
         function closeAllModals() {
-            ['projectModal', 'newDutyModal', 'newMeetingModal', 'newWarningModal', 'cronogramExamModal', 'workLogDetailModal']
+            ['projectModal', 'newDutyModal', 'newMeetingModal', 'newWarningModal', 'cronogramExamModal', 'workLogDetailModal', 'userAccessModal', 'publishUpdateModal', 'projectDayModal']
                 .forEach(id => document.getElementById(id).classList.add('hidden'));
         }
 
@@ -3212,9 +3636,12 @@
             document.getElementById('mainDashboard').classList.remove('hidden');
             clearLoginForm();
             buzzInit = false;
+            if (!silent) touchAccess(true);
             beat(true);
+            if (!silent) syncDirty();
             checkBuzz();
             initSeen(false);
+            awardDailyLogin();
             initUserDashboard();
             switchTab('dashboard');
             restoreTimer();
@@ -3237,6 +3664,7 @@
 
             buildMonthOptions('filterLogMonth', 'Mostrar Todos los Meses');
             buildMonthOptions('filterCouponsMonth', 'Historial Completo');
+            buildMonthOptions('filterHistoryMonth', 'Todo el historial'); document.getElementById('filterHistoryMonth').value = 'ALL';
             setDefaultDates();
             cronogramToday();
             projectWeekToday();
@@ -3252,5 +3680,258 @@
             if (CLOUD_MODE) startCloud(); else startLocal();
         }
     </script>
+<script>
+// =====================================================================
+//  CRÉDITO AHORRADO · PUNTAJE PERSONAL · HISTORIAL DE PROYECTOS
+//  (todo se guarda en Firebase mediante las colecciones credits, creditStatus e history)
+// =====================================================================
+const byId = id => document.getElementById(id);
+const toArr = x => Array.isArray(x) ? x : (x && typeof x === 'object' ? Object.values(x) : []);
+const mkId = () => Date.now() * 1000 + 500 + Math.floor(Math.random() * 500);
+const r2 = n => Math.round(n * 100) / 100;
+const money = n => (n < 0 ? '−' : '') + 'S/ ' + Math.abs(r2(n)).toFixed(2);
+const workers = () => Object.keys(USERS_DB).filter(k => !USERS_DB[k].isMaster);
+const emailOfName = n => Object.keys(USERS_DB).find(k => USERS_DB[k].name === n);
+const curMonth = () => todayLocal().slice(0, 7);
+function nextMonthStr(m) { let [y, mo] = m.split('-').map(Number); mo++; if (mo > 12) { mo = 1; y++; } return `${y}-${pad2(mo)}`; }
+
+function addCredit(email, amount, kind, desc, extra) {
+    const t = todayLocal();
+    creditLedger.push(Object.assign({ id: mkId(), email, amount: r2(amount), kind, desc: desc || '', date: t, month: t.slice(0, 7), by: currentUser ? currentUser.email : '' }, extra || {}));
+    renderCredits(); renderUsersPanel(); scheduleSync();
+}
+const creditBal = em => r2(creditLedger.filter(l => l.email === em && l.kind !== 'merit').reduce((a, l) => a + (Number(l.amount) || 0), 0));
+const creditMerit = em => r2(creditLedger.filter(l => l.email === em && l.kind === 'merit').reduce((a, l) => a + (Number(l.amount) || 0), 0));
+const creditMonthAmt = (em, m) => r2(creditLedger.filter(l => l.email === em && l.kind !== 'merit' && l.month === m).reduce((a, l) => a + (Number(l.amount) || 0), 0));
+function creditStatusOf(em) {
+    const rec = creditStatus.find(s => s.email === em && s.month === curMonth());
+    return (rec && creditBal(em) <= 0.004) ? 'PAGADO' : 'ACUMULANDO';
+}
+function awardDailyLogin() {
+    if (!currentUser || currentUser.isMaster) return;
+    const t = todayLocal(), id = Number(t.replace(/-/g, '')) * 1000 + presenceId(currentUser.email);   // id fijo: 1 vez por día
+    if (creditLedger.some(l => l.id === id)) return;
+    creditLedger.push({ id, email: currentUser.email, amount: 0.01, kind: 'login', desc: 'Ingreso diario a la plataforma', date: t, month: t.slice(0, 7), by: currentUser.email });
+    scheduleSync();
+}
+
+function statusBadge(st) {
+    return st === 'PAGADO' ? 'bg-emerald-950 text-emerald-300 border-emerald-700' : 'bg-amber-950 text-amber-300 border-amber-700';
+}
+function creditBlock(em, btns) {
+    const st = creditStatusOf(em), sc = performanceScore(em), lb = scoreLabel(sc.score);
+    return `<div class="w-full pt-2 border-t border-slate-800 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10px]" onclick="event.stopPropagation()">
+        <span class="font-mono font-bold text-amber-300">💰 ${money(creditBal(em))}</span>
+        <span class="font-mono text-purple-300">⭐ Mérito: ${money(creditMerit(em))}</span>
+        <span class="font-bold ${lb.cls}">📊 ${sc.score}%</span>
+        <span class="font-bold border px-2 py-0.5 rounded-full ${statusBadge(st)}">${st}</span>
+        ${btns ? `<button onclick="creditPay('${esc(em)}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-lg">PAGAR</button><button onclick="creditCarry('${esc(em)}')" class="bg-sky-700 hover:bg-sky-600 text-white font-bold px-2.5 py-1 rounded-lg">TRASPASAR</button>` : ''}
+    </div>`;
+}
+function creditPay(em) {
+    if (!isMasterUser()) return;
+    const b = creditBal(em), u = USERS_DB[em];
+    if (b <= 0.004) { showToast('Este usuario no tiene saldo por pagar.', 'error'); return; }
+    if (!confirm(`¿Confirmas que ${u.name} ya fue pagado por ${money(b)}? (El pago se realiza fuera de la plataforma)`)) return;
+    addCredit(em, -b, 'paid', `Pagado por Master (${money(b)})`);
+    const m = curMonth(), id = Number(m.replace('-', '')) * 1000 + presenceId(em);
+    const rec = { id, email: em, month: m, status: 'PAGADO', amount: b, ts: Date.now() };
+    const i = creditStatus.findIndex(s => s.id === id);
+    if (i >= 0) creditStatus[i] = rec; else creditStatus.push(rec);
+    renderCredits(); renderUsersPanel(); scheduleSync();
+    showToast(`${u.name}: PAGADO ${money(b)}. El crédito comienza de nuevo.`, 'success');
+}
+function creditCarry(em) {
+    if (!isMasterUser()) return;
+    const m = curMonth(), nm = nextMonthStr(m), amt = creditMonthAmt(em, m);
+    if (amt <= 0.004) { showToast('No hay monto de este mes para traspasar.', 'error'); return; }
+    if (!confirm(`¿Traspasar ${money(amt)} de ${m} a ${nm} para ${USERS_DB[em].name}?`)) return;
+    const base = { email: em, kind: 'carry', by: currentUser.email, date: todayLocal() };
+    creditLedger.push({ ...base, id: mkId(), amount: -amt, month: m, desc: `Traspaso hacia ${nm}` });
+    creditLedger.push({ ...base, id: mkId() + 1, amount: amt, month: nm, desc: `Traspaso recibido de ${m}` });
+    renderCredits(); renderUsersPanel(); scheduleSync();
+    showToast(`Monto de ${money(amt)} traspasado a ${nm}. Sigue ACUMULANDO.`, 'success');
+}
+function masterTransfer() {
+    if (!isMasterUser()) return;
+    const em = byId('crTarget').value, amt = parseFloat(byId('crAmount').value), dest = byId('crDest').value, d = byId('crDesc').value.trim();
+    if (!em) { showToast('Selecciona un usuario.', 'error'); return; }
+    if (isNaN(amt) || amt <= 0 || amt > 4444) { showToast('El monto debe estar entre S/ 0.01 y S/ 4444.', 'error'); return; }
+    if (dest === 'merit') addCredit(em, amt, 'merit', 'Mérito habilitado por Master' + (d ? ' – ' + d : ''));
+    else addCredit(em, amt, 'transfer', 'Transferencia de Master' + (d ? ' – ' + d : ''));
+    byId('crAmount').value = ''; byId('crDesc').value = '';
+    showToast(`${money(amt)} transferido a ${USERS_DB[em].name}`, 'success');
+}
+function masterDiscount() {
+    if (!isMasterUser()) return;
+    const em = byId('dcTarget').value, amt = parseFloat(byId('dcAmount').value), d = byId('dcDesc').value.trim();
+    if (!em || isNaN(amt) || amt <= 0) { showToast('Selecciona usuario e ingresa un monto mayor a 0.', 'error'); return; }
+    if (amt > creditBal(em) && !confirm(`El descuento supera el saldo (${money(creditBal(em))}). ¿Continuar igualmente?`)) return;
+    addCredit(em, -amt, 'discount', 'Descuento automático' + (d ? ' – ' + d : ''));
+    byId('dcAmount').value = ''; byId('dcDesc').value = '';
+    showToast(`Descuento de ${money(amt)} aplicado a ${USERS_DB[em].name}`, 'success');
+}
+function renderCredits() {
+    if (!byId('creditSection') || !currentUser) return;
+    const M = currentUser.isMaster;
+    byId('creditUserCard').classList.toggle('hidden', M);
+    byId('creditMasterTools').classList.toggle('hidden', !M);
+    byId('creditStatusBadge').classList.toggle('hidden', M);
+    const opts = workers().map(k => `<option value="${esc(k)}">${esc(USERS_DB[k].name)}</option>`).join('');
+    ['crTarget', 'dcTarget'].forEach(id => { const s = byId(id); if (s && s.dataset.sig !== opts) { const v = s.value; s.innerHTML = opts; s.dataset.sig = opts; if (v) s.value = v; } });
+    if (M) {
+        byId('creditTeamRows').innerHTML = workers().map(em => `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-3"><p class="text-xs font-bold text-slate-200">${esc(USERS_DB[em].name)} <span class="text-[10px] text-slate-500">${esc(USERS_DB[em].role)}</span></p>${creditBlock(em, true)}</div>`).join('');
+    } else {
+        const em = currentUser.email, st = creditStatusOf(em), b = byId('creditStatusBadge');
+        b.textContent = st; b.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full border ' + statusBadge(st);
+        byId('creditBalance').textContent = money(creditBal(em));
+        byId('creditMonth').textContent = money(creditMonthAmt(em, curMonth()));
+        byId('creditMerit').textContent = money(creditMerit(em));
+        const mv = creditLedger.filter(l => l.email === em).slice(0, 40);
+        byId('creditMoves').innerHTML = mv.length ? mv.map(l => `<div class="flex justify-between gap-2 text-[11px] bg-slate-900 rounded-lg px-2.5 py-1.5"><span class="text-slate-300 break-words min-w-0"><span class="text-slate-500 font-mono">${esc(l.date)}</span> · ${esc(l.desc)}${l.kind === 'merit' ? ' <span class="text-purple-300">(Mérito)</span>' : ''}</span><span class="font-mono font-bold shrink-0 ${l.amount < 0 ? 'text-rose-400' : 'text-emerald-400'}">${l.amount < 0 ? '' : '+'}${money(l.amount)}</span></div>`).join('') : '<p class="text-[11px] text-slate-500 italic">Aún no hay movimientos.</p>';
+    }
+    renderGlobalStatus();
+}
+
+// ---------------- PUNTAJE PERSONAL (Estado Global) ----------------
+// 40 pts asistencia (días ingresados / días hábiles del mes) + 30 pts tareas (deberes y checklist completados)
+// + 30 pts proyectos (entregados/vigentes sin atraso) − 10 por amonestación oficial − 5 por llamada de atención (mes actual)
+function performanceScore(em) {
+    const name = (USERS_DB[em] || {}).name, today = todayLocal(), mo = today.slice(0, 7);
+    const [y, m, d] = today.split('-').map(Number); let wd = 0;
+    for (let i = 1; i <= d; i++) { const g = new Date(y, m - 1, i).getDay(); if (g !== 0 && g !== 6) wd++; }
+    wd = Math.max(1, wd);
+    const days = new Set(creditLedger.filter(l => l.email === em && l.kind === 'login' && String(l.date).startsWith(mo)).map(l => l.date)).size;
+    const att = Math.min(1, days / wd);
+    const duties = teamDuties.filter(t => t.user === name), cl = (personalChecklists[em] || []).filter(i => !i.mentionDismissed), rs = [];
+    if (duties.length) rs.push(duties.filter(t => t.status === 'Completado').length / duties.length);
+    if (cl.length) rs.push(cl.filter(i => i.done).length / cl.length);
+    const tk = rs.length ? rs.reduce((a, b) => a + b, 0) / rs.length : 1;
+    const inv = p => p.owner === name || toArr(p.team).includes(name);
+    const act = projects.filter(inv).map(p => !(p.dueDate < today && !['Completado', 'Aprobado'].includes(p.status)));
+    const dn = historyItems.filter(h => inv(h) && String(h.completedAt).startsWith(mo)).map(h => !h.dueDate || h.completedAt <= h.dueDate);
+    const all = act.concat(dn), pr = all.length ? all.filter(Boolean).length / all.length : 1;
+    let pen = 0; warnings.filter(w => w.targetUser === em && String(w.date).startsWith(mo)).forEach(w => { pen += w.type === 'Amonestación Oficial' ? 10 : 5; });
+    return { score: Math.max(0, Math.min(100, Math.round(40 * att + 30 * tk + 30 * pr - pen))), att, tk, pr, pen, days, wd };
+}
+function scoreLabel(s) {
+    if (s >= 85) return { t: 'Óptimo', cls: 'text-emerald-400' };
+    if (s >= 70) return { t: 'Bueno', cls: 'text-sky-300' };
+    if (s >= 50) return { t: 'Regular', cls: 'text-amber-300' };
+    return { t: 'Crítico', cls: 'text-rose-400' };
+}
+function scoreDetail(sc) { return `Asistencia ${sc.days}/${sc.wd} días · Tareas ${Math.round(sc.tk * 100)}% · Proyectos ${Math.round(sc.pr * 100)}% · Penalización −${sc.pen}`; }
+function renderGlobalStatus() {
+    const el = byId('metricEstadoGlobal'); if (!el || !currentUser) return;
+    if (currentUser.isMaster) {
+        const ws = workers(), avg = ws.length ? Math.round(ws.reduce((a, e) => a + performanceScore(e).score, 0) / ws.length) : 100, lb = scoreLabel(avg);
+        el.textContent = `Equipo: ${lb.t} (${avg}%)`; el.className = 'text-sm font-extrabold ' + lb.cls;
+    } else {
+        const sc = performanceScore(currentUser.email), lb = scoreLabel(sc.score);
+        el.textContent = `${lb.t} (${sc.score}%)`; el.className = 'text-sm font-extrabold ' + lb.cls; el.title = scoreDetail(sc);
+    }
+    renderTeamScores();
+}
+function renderTeamScores() {
+    const p = byId('teamScorePanel'); if (!p) return;
+    const M = !!(currentUser && currentUser.isMaster); p.classList.toggle('hidden', !M); if (!M) return;
+    p.innerHTML = '<p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Puntaje de desempeño por usuario (mes actual)</p><div class="grid grid-cols-1 md:grid-cols-2 gap-2">' + workers().map(em => {
+        const sc = performanceScore(em), lb = scoreLabel(sc.score);
+        return `<div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs"><div class="flex justify-between"><span class="font-bold text-slate-200">${esc(USERS_DB[em].name)}</span><span class="font-black ${lb.cls}">${sc.score}% · ${lb.t}</span></div><div class="h-1.5 bg-slate-800 rounded mt-1.5 overflow-hidden"><div class="h-full bg-emerald-400" style="width:${sc.score}%"></div></div><p class="text-[9px] text-slate-500 mt-1">${esc(scoreDetail(sc))}</p></div>`;
+    }).join('') + '</div>';
+}
+['renderWarningsFeed', 'renderPersonalChecklist'].forEach(n => { const f = window[n]; window[n] = function () { const r = f.apply(this, arguments); renderGlobalStatus(); return r; }; });
+
+// ---------------- PROYECTOS: bitácora y cierre ----------------
+function logProjectChanges(p, n) {
+    const L = [], f = (lb, a, b) => { if (String(a ?? '') !== String(b ?? '')) L.push(`${lb}: ${a || '—'} → ${b || '—'}`); };
+    f('Título', p.title, n.title); f('Líder', p.owner, n.owner); f('Estado', p.status, n.status); f('Avance', p.progress + '%', n.progress + '%'); f('Fecha límite', p.dueDate, n.dueDate); f('Fecha de creación', p.createdAt, n.createdAt);
+    if (toArr(p.team).join(',') !== n.team.join(',')) L.push('Equipo: ' + (toArr(p.team).join(', ') || '—') + ' → ' + (n.team.join(', ') || '—'));
+    if ((p.desc || '') !== (n.desc || '')) L.push('Descripción actualizada:\n' + (n.desc || '(vacía)'));
+    if (!L.length) return;
+    const now = Date.now(), list = toArr(p.changes);
+    list.push({ id: now, at: now, date: todayLocal(), time: formatClock12(now), by: currentUser.email, byName: currentUser.name, text: L.join('\n') });
+    p.changes = list;
+}
+function completeProject(p) {
+    const now = Date.now();
+    logProjectChanges(p, { title: p.title, owner: p.owner, desc: p.desc, progress: 100, dueDate: p.dueDate, status: 'Completado', createdAt: p.createdAt, team: toArr(p.team) });
+    const rec = { id: p.id, projectId: p.id, title: p.title, owner: p.owner, team: toArr(p.team).filter(n => n !== p.owner), createdAt: p.createdAt || '', dueDate: p.dueDate || '', completedAt: todayLocal(), completedTime: formatClock12(now), completedBy: currentUser.name, desc: p.desc || '', color: p.color || '#38bdf8', progress: 100, updates: getProjectUpdates(p), changes: toArr(p.changes), status: 'CONCLUIDO' };
+    const i = historyItems.findIndex(h => h.id === p.id);
+    if (i >= 0) historyItems[i] = rec; else historyItems.push(rec);
+    projects = projects.filter(x => x.id !== p.id);
+    const give = (em, amt, role) => {
+        if (!em || USERS_DB[em].isMaster) return;
+        const id = Number(p.id) * 1000 + presenceId(em);
+        if (creditLedger.some(l => l.id === id)) return;
+        const t = todayLocal();
+        creditLedger.push({ id, email: em, amount: amt, kind: 'project', desc: `Proyecto concretado: ${p.title} (${role})`, date: t, month: t.slice(0, 7), by: currentUser.email, projectId: p.id });
+    };
+    give(emailOfName(p.owner), 0.20, 'Líder'); rec.team.forEach(n => give(emailOfName(n), 0.10, 'Integrante'));
+    renderProjects(); renderHistory(); renderCredits(); scheduleSync();
+    showToast('Proyecto CONCLUIDO: pasó al Historial y se acreditó el Crédito Ahorrado al equipo', 'success');
+}
+
+// ---------------- HISTORIAL ----------------
+const historyOpen = new Set();
+function histToggle(id, open) { open ? historyOpen.add(String(id)) : historyOpen.delete(String(id)); }
+function histCalendar(h) {
+    const s = h.createdAt || h.completedAt, e = h.completedAt || s; if (!s || !e) return '';
+    const marks = new Set(toArr(h.updates).map(u => u.date).concat(toArr(h.changes).map(c => c.date)));
+    let [y, m] = s.split('-').map(Number); const [ey, em] = e.split('-').map(Number); let out = '', n = 0;
+    while ((y < ey || (y === ey && m <= em)) && n < 36) {
+        const first = new Date(y, m - 1, 1).getDay(), dim = new Date(y, m, 0).getDate(); let cells = '<div></div>'.repeat(first);
+        for (let d = 1; d <= dim; d++) {
+            const k = `${y}-${pad2(m)}-${pad2(d)}`; let c = 'text-slate-600';
+            if (k >= s && k <= e) c = 'bg-cyan-950/70 text-cyan-200'; if (k === s) c = 'bg-emerald-500 text-slate-950 font-black'; if (k === e) c = 'bg-rose-500 text-white font-black'; if (marks.has(k)) c += ' ring-1 ring-yellow-400';
+            cells += `<div class="rounded text-center py-0.5 ${c}">${d}</div>`;
+        }
+        out += `<div class="min-w-[170px] flex-1"><p class="text-[10px] font-bold text-cyan-300 uppercase mb-1">${MONTHS_ES[m - 1]} ${y}</p><div class="grid grid-cols-7 gap-0.5 text-[9px]">${['D', 'L', 'M', 'M', 'J', 'V', 'S'].map(x => `<div class="text-center text-slate-500">${x}</div>`).join('')}${cells}</div></div>`;
+        m++; if (m > 12) { m = 1; y++; } n++;
+    }
+    return `<div class="flex flex-wrap gap-3">${out}</div><p class="text-[9px] text-slate-500 mt-2"><span class="text-emerald-400">■</span> Inicio · <span class="text-rose-400">■</span> Final · <span class="text-cyan-300">■</span> Duración · <span class="text-yellow-400">▢</span> Día con modificación o actualización</p>`;
+}
+function renderHistory() {
+    const box = byId('historyList'); if (!box || !currentUser) return;
+    const f = byId('filterHistoryMonth')?.value || 'ALL', M = isMasterUser();
+    byId('historyMasterPanel').classList.toggle('hidden', !M);
+    const list = historyItems.filter(h => f === 'ALL' || String(h.completedAt || '').slice(0, 7) === f).sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)) || b.id - a.id);
+    byId('historyCount').textContent = `· ${list.length} concluido(s)`;
+    if (!list.length) { box.innerHTML = '<p class="text-xs text-slate-500 italic text-center py-8">Aún no hay proyectos concluidos en este período.</p>'; return; }
+    const box2 = (l, v) => `<div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5"><p class="text-[9px] uppercase text-slate-500">${l}</p><p class="text-xs font-semibold text-slate-100 break-words">${v}</p></div>`;
+    box.innerHTML = list.map(h => {
+        const color = h.color || '#38bdf8', s = h.createdAt || h.completedAt, e = h.completedAt;
+        const dur = Math.round((new Date(e + 'T00:00:00') - new Date(s + 'T00:00:00')) / 864e5) + 1;
+        const chg = toArr(h.changes).sort((a, b) => (a.at || 0) - (b.at || 0)), ups = toArr(h.updates).filter(u => u && typeof u === 'object').sort((a, b) => (a.at || 0) - (b.at || 0));
+        return `<details ${historyOpen.has(String(h.id)) ? 'open' : ''} ontoggle="histToggle('${esc(h.id)}', this.open)" class="rounded-2xl border bg-slate-950/70" style="border-color:${esc(color)}70;border-left:4px solid ${esc(color)}">
+            <summary class="cursor-pointer p-4 flex flex-wrap items-center justify-between gap-2"><span class="font-black text-sm break-words" style="color:${esc(color)}">📁 ${esc(h.title)}</span>
+            <span class="flex items-center gap-2 text-[10px]"><span class="font-mono text-slate-400">${esc(s)} → ${esc(e)}</span><span class="font-bold px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-600">CONCLUIDO</span></span></summary>
+            <div class="p-4 pt-0 space-y-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2">${box2('Líder de equipo', esc(h.owner))}${box2('Integrantes', esc(toArr(h.team).join(', ') || 'Sin integrantes adicionales'))}${box2('Fecha de inicio', esc(s))}${box2('Fecha final', `${esc(e)} · ${esc(h.completedTime || '')}`)}${box2('Duración', dur + ' día(s)')}${box2('Fecha límite original', esc(h.dueDate || '—'))}</div>
+                <div><p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Descripción / detalles</p><p class="text-xs text-slate-200 whitespace-pre-wrap break-words">${esc(h.desc || 'Sin descripción')}</p></div>
+                <div><p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Modificaciones del proyecto (${chg.length})</p>${chg.length ? chg.map(c => `<div class="border-l-2 pl-3 py-1.5 mb-1" style="border-color:${esc(color)}"><p class="text-[10px] font-mono text-slate-400">${esc(c.date)} · ${esc(c.time || '')} · ${esc(c.byName || '')}</p><p class="text-[11px] text-slate-200 whitespace-pre-wrap break-words">${esc(c.text)}</p></div>`).join('') : '<p class="text-[10px] text-slate-600">Sin modificaciones registradas.</p>'}</div>
+                <div><p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Actualizaciones oficiales (${ups.length})</p>${ups.length ? ups.map(u => updateEntryHtml({ id: h.id, color }, u, false)).join('') : '<p class="text-[10px] text-slate-600">Sin actualizaciones oficiales.</p>'}</div>
+                <div><p class="text-[10px] uppercase font-bold text-slate-500 mb-2">Calendario del proyecto</p>${histCalendar(h)}</div>
+                <p class="text-[10px] text-slate-500">Concluido por ${esc(h.completedBy || '—')}</p>
+                ${M ? `<button onclick="histDelete(${esc(h.id)})" class="text-[10px] bg-rose-950 hover:bg-rose-700 border border-rose-500/40 text-rose-300 px-3 py-1.5 rounded-lg"><i class="fas fa-trash-can mr-1"></i>Eliminar esta carpeta (Master)</button>` : ''}
+            </div></details>`;
+    }).join('');
+}
+function histDelete(id) {
+    if (!isMasterUser()) return;
+    const h = historyItems.find(x => x.id === id); if (!h || !confirm(`¿Eliminar la carpeta “${h.title}” del historial?`)) return;
+    historyItems = historyItems.filter(x => x.id !== id); renderHistory(); showToast('Carpeta eliminada por Master', 'info');
+}
+function histDeleteBulk(type) {
+    if (!isMasterUser()) return;
+    const sel = byId('filterHistoryMonth').value, ref = sel !== 'ALL' ? sel : curMonth();
+    const inScope = h => type === 'month' ? String(h.completedAt).slice(0, 7) === ref : String(h.completedAt).slice(0, 4) === ref.slice(0, 4);
+    const n = historyItems.filter(inScope).length;
+    if (!n) { showToast('No hay carpetas en ese período.', 'info'); return; }
+    if (!confirm(`¿Eliminar ${n} carpeta(s) del ${type === 'month' ? 'mes ' + ref : 'año ' + ref.slice(0, 4)}? No se puede deshacer.`)) return;
+    historyItems = historyItems.filter(h => !inScope(h)); renderHistory(); showToast('Historial eliminado por Master', 'info');
+}
+
+</script>
 </body>
 </html>
