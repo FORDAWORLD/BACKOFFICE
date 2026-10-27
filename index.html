@@ -155,6 +155,7 @@
                                 <option value="reuniones">📅 Reuniones y Agenda</option>
                                 <option value="cuponera">🎟️ Cuponera Fordaworld</option>
                                 <option value="cronograma">🗓️ Cronograma Mensual</option>
+                                <option value="progreso">📈 Progreso de Proyectos</option>
                                 <option value="llamadas">⚠️ Llamadas de Atención</option>
                                 <option value="usuarios">🟢 Usuarios Activos</option>
                                 <option value="perfil">👤 Mi Perfil</option>
@@ -208,6 +209,9 @@
                         </button>
                         <button onclick="switchTab('cronograma')" id="tab-btn-cronograma" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
                             <i class="fas fa-calendar-days"></i> <span>Cronograma</span>
+                        </button>
+                        <button onclick="switchTab('progreso')" id="tab-btn-progreso" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
+                            <i class="fas fa-chart-gantt"></i> <span>Progreso</span>
                         </button>
                         <button onclick="switchTab('llamadas')" id="tab-btn-llamadas" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-rose-400 hover:bg-rose-950/40 border border-rose-500/20">
                             <i class="fas fa-triangle-exclamation"></i> <span>Llamadas de Atención</span>
@@ -289,7 +293,9 @@
                                             <h3 id="ifordaName" class="font-black text-base text-cyan-300"></h3>
                                             <p id="ifordaRole" class="text-xs text-slate-400"></p>
                                         </div>
+                                        <button type="button" onclick="toggleProjectTagPanel(event)" aria-label="Ver proyectos asignados" class="ml-auto mr-1 self-center flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300 transition relative" title="Proyectos y líder"><i class="fas fa-tag text-base"></i><span class="absolute text-[9px] font-black text-slate-950 bg-rose-300 rounded-full w-3 h-3 flex items-center justify-center right-1 top-1">@</span></button>
                                     </div>
+                                    <div id="projectTagPanel" class="hidden mt-2 bg-slate-950 border border-rose-500/50 rounded-xl p-3 shadow-xl text-xs space-y-2"></div>
 
                                     <div class="pt-2 border-t border-slate-800 space-y-2">
                                         <!-- Public Notes from Master for Everyone -->
@@ -408,10 +414,12 @@
                                 <p class="text-xs text-slate-400 mt-1">Gestión ilimitada de proyectos con fecha límite manual sincronizada al cronograma</p>
                             </div>
 
-                            <div>
+                            <div class="flex flex-wrap gap-2">
                                 <button onclick="openNewProjectModal()" class="bg-gradient-to-r from-cyan-400 to-sky-500 hover:from-cyan-300 hover:to-sky-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs shadow-lg shadow-cyan-500/20 flex items-center space-x-2">
-                                    <i class="fas fa-plus-circle"></i>
-                                    <span>NUEVO PROYECTO</span>
+                                    <i class="fas fa-plus-circle"></i><span>NUEVOS PROYECTOS</span>
+                                </button>
+                                <button onclick="switchTab('progreso')" class="bg-slate-950 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center space-x-2">
+                                    <i class="fas fa-chart-gantt"></i><span>PROGRESO</span>
                                 </button>
                             </div>
                         </div>
@@ -481,7 +489,7 @@
                         <div id="masterLogDeletePanel" class="hidden bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
                             <span class="text-xs font-bold text-rose-300 flex items-center space-x-2">
                                 <i class="fas fa-shield-halved"></i>
-                                <span>ACCIONES EXCLUSIVAS DE MASTER (FORDWORLD@FORDAWORLD):</span>
+                                <span>ACCIONES EXCLUSIVAS DE MASTER (FORDAWORLD@FORDAWORLD):</span>
                             </span>
                             <div class="flex space-x-2">
                                 <button onclick="masterDeleteSelectedLogs('month')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
@@ -628,7 +636,7 @@
                         <div id="masterCouponDeletePanel" class="hidden bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
                             <span class="text-xs font-bold text-rose-300 flex items-center space-x-2">
                                 <i class="fas fa-shield-halved"></i>
-                                <span>ACCIONES EXCLUSIVAS DE MASTER (FORDWORLD@FORDAWORLD):</span>
+                                <span>ACCIONES EXCLUSIVAS DE MASTER (FORDAWORLD@FORDAWORLD):</span>
                             </span>
                             <div class="flex space-x-2">
                                 <button onclick="masterDeleteCoupons('month')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Borrar Historial Mensual</button>
@@ -692,6 +700,56 @@
                         <div id="cronogramGrid" class="space-y-4">
                             <!-- Populated dynamically -->
                         </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB: PROGRESO DE PROYECTOS ================= -->
+                <section id="view-progreso" class="tab-view hidden space-y-6">
+                    <div class="bg-slate-900 border border-cyan-500/30 rounded-3xl p-6 shadow-xl space-y-5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                            <div>
+                                <h2 class="text-xl font-bold text-cyan-300 flex items-center gap-2"><i class="fas fa-chart-gantt"></i><span>PROGRESO DE PROYECTOS</span></h2>
+                                <p class="text-xs text-slate-400 mt-1">Historial de avances por fecha y hora, independiente del cronograma de entregas.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="shiftProgressMonth(-1)" class="bg-slate-950 border border-slate-700 text-cyan-300 w-8 h-8 rounded-lg"><i class="fas fa-chevron-left"></i></button>
+                                <span id="progressMonthLabel" class="text-xs font-mono font-bold text-cyan-300 min-w-32 text-center"></span>
+                                <button onclick="shiftProgressMonth(1)" class="bg-slate-950 border border-slate-700 text-cyan-300 w-8 h-8 rounded-lg"><i class="fas fa-chevron-right"></i></button>
+                                <button onclick="setProgressView('week')" id="btnProgressWeek" class="bg-cyan-500 px-3 py-2 rounded-lg text-xs font-bold text-slate-950">Semana</button>
+                                <button onclick="setProgressView('month')" id="btnProgressMonth" class="bg-slate-950 border border-slate-700 px-3 py-2 rounded-lg text-xs text-slate-300">Mes</button>
+                            </div>
+                        </div>
+                        <div id="progressWeeklyOverview" class="bg-slate-950/70 border border-cyan-500/20 rounded-2xl p-4 space-y-4">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <h3 class="text-sm font-black text-cyan-300 uppercase"><i class="fas fa-calendar-week mr-2"></i>Calendario semanal de proyectos</h3>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="shiftProjectWeek(-1)" class="bg-slate-900 border border-slate-700 text-cyan-300 w-8 h-8 rounded-lg" aria-label="Semana anterior"><i class="fas fa-chevron-left"></i></button>
+                                    <span id="projectWeekRangeLabel" class="text-[10px] font-bold text-slate-300 text-center min-w-36"></span>
+                                    <button onclick="projectWeekToday()" class="bg-cyan-500 text-slate-950 px-2 py-1.5 rounded-lg text-[10px] font-bold">Esta semana</button>
+                                    <button onclick="shiftProjectWeek(1)" class="bg-slate-900 border border-slate-700 text-cyan-300 w-8 h-8 rounded-lg" aria-label="Semana siguiente"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                            <div id="projectWeekCalendar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2"></div>
+                            <div class="border-t border-slate-800 pt-3 space-y-3">
+                                <div class="flex flex-wrap items-center justify-between gap-2"><h4 class="text-xs font-black text-cyan-300 uppercase"><i class="fas fa-chart-gantt mr-2"></i>Solapamiento de proyectos · Vista semanal</h4><span id="projectWeekGanttRange" class="text-[10px] text-slate-400"></span></div>
+                                <div id="projectWeekGantt" class="space-y-2 overflow-x-auto"></div>
+                            </div>
+                        </div>
+                        <div id="progressMonthlyOverview" class="hidden bg-slate-950/70 border border-cyan-500/20 rounded-2xl p-4 space-y-4">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <h3 class="text-sm font-black text-cyan-300 uppercase"><i class="fas fa-calendar-days mr-2"></i>Calendario mensual de proyectos</h3>
+                                <span id="progressMonthlyRange" class="text-[10px] font-bold text-slate-400"></span>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black uppercase text-slate-500">
+                                <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+                            </div>
+                            <div id="progressMonthCalendar" class="grid grid-cols-7 gap-1"></div>
+                        </div>
+                        <div class="bg-slate-950/70 border border-cyan-500/20 rounded-2xl p-4 space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2"><h3 class="text-sm font-black text-cyan-300 uppercase"><i class="fas fa-chart-gantt mr-2"></i>Cronograma general · Cruces y proyectos activos</h3><span id="progressRangeLabel" class="text-[10px] text-slate-400"></span></div>
+                            <div id="projectGeneralGantt" class="space-y-2 overflow-x-auto"></div>
+                        </div>
+                        <div id="projectProgressBoards" class="space-y-5"></div>
                     </div>
                 </section>
 
@@ -769,13 +827,15 @@
                             </div>
 
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1">Foto de Perfil (URL / Archivo de Imagen)</label>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Foto de Perfil (URL o archivo del dispositivo)</label>
                                 <div class="flex space-x-2">
-                                    <input type="url" id="profileAvatarUrl" required class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                                    <input type="url" id="profileAvatarUrl" placeholder="https://..." class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
                                     <button type="button" onclick="clearProfileAvatar()" class="bg-rose-950 border border-rose-500/40 text-rose-300 px-3 rounded-xl text-xs font-bold hover:bg-rose-900">
                                         Eliminar
                                     </button>
                                 </div>
+                                <input type="file" id="profileAvatarFile" accept="image/*" onchange="handleProfileAvatarFile(event)" class="w-full mt-2 text-xs text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-cyan-500 file:px-3 file:py-2 file:text-xs file:font-bold file:text-slate-950">
+                                <p class="text-[10px] text-slate-500 mt-1">La imagen se guarda en el perfil y se sincroniza con el sistema. Usa una imagen ligera.</p>
                             </div>
 
                             <div class="pt-2">
@@ -791,6 +851,15 @@
                 </section>
 
             </main>
+        </div>
+    </div>
+
+    <!-- MODAL: DETALLE PERSISTENTE DEL REGISTRO DE HORAS -->
+    <div id="workLogDetailModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeWorkLogDetail()">
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-2xl p-5 max-w-lg w-full space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between"><h3 class="font-bold text-cyan-300">Detalle del registro de horas</h3><button onclick="closeWorkLogDetail()" class="text-slate-400 hover:text-white"><i class="fas fa-xmark"></i></button></div>
+            <div id="workLogDetailContent" class="space-y-3 text-sm"></div>
+            <div class="text-right"><button onclick="closeWorkLogDetail()" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 text-xs">Cerrar</button></div>
         </div>
     </div>
 
@@ -812,6 +881,21 @@
                 </select>
             </div>
 
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Personas que se suman al trabajo</label>
+                <select id="projTeamInput" multiple class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 min-h-20"></select>
+                <p class="text-[10px] text-slate-500 mt-1">Puedes seleccionar varias personas además del responsable (mantén pulsado para seleccionar varias).</p>
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase mb-1">Color identificador del proyecto</label>
+                <select id="projColorInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100">
+                    <option value="#ef4444">Rojo</option><option value="#2563eb">Azul</option><option value="#38bdf8">Celeste</option><option value="#22c55e">Verde</option><option value="#eab308">Amarillo</option><option value="#f97316">Naranja</option><option value="#ec4899">Rosado</option><option value="#a855f7">Morado</option><option value="#111827">Negro</option><option value="#f8fafc">Blanco</option><option value="#d6c3a5">Beige</option><option value="#14b8a6">Turquesa</option><option value="#d946ef">Fucsia</option>
+                </select>
+            </div>
+            <div id="masterCreatedDateWrap" class="hidden">
+                <label class="block text-[10px] text-yellow-400 uppercase mb-1">Fecha de creación (solo Master)</label>
+                <input type="date" id="projCreatedAtInput" min="2026-10-01" max="2044-12-31" class="w-full bg-slate-950 border border-yellow-500/40 rounded-xl px-3 py-2 text-xs text-yellow-300">
+            </div>
             <div>
                 <label class="block text-[10px] text-slate-400 uppercase mb-1">Descripción</label>
                 <textarea id="projDescInput" placeholder="Descripción breve..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 h-16"></textarea>
@@ -973,6 +1057,7 @@
 
     <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
+
         // =====================================================================
         //  CONFIGURACIÓN DE LA BASE DE DATOS COMPARTIDA (TIEMPO REAL)
         //  Pega aquí la URL de tu Firebase Realtime Database, por ejemplo:
@@ -1066,6 +1151,8 @@
             document.getElementById('ifordaAvatar').src = currentUser.avatar;
             document.getElementById('ifordaName').innerText = currentUser.name;
             document.getElementById('ifordaRole').innerText = currentUser.role;
+            document.getElementById('masterCreatedDateWrap')?.classList.toggle('hidden', !currentUser.isMaster);
+            renderProjectTagPanel();
 
             document.getElementById('ifordaNoteDisplay').innerText = publicMasterNote;
 
@@ -1106,6 +1193,7 @@
             const userEmailOptions = Object.keys(USERS_DB).map(e => `<option value="${esc(e)}">${esc(USERS_DB[e].name)} (${esc(e)})</option>`).join('');
 
             document.getElementById('projOwnerInput').innerHTML = userOptions;
+            document.getElementById('projTeamInput').innerHTML = userOptions;
             document.getElementById('newDutyUser').innerHTML = userOptions;
             document.getElementById('warnTargetUser').innerHTML = userEmailOptions;
             document.getElementById('boardTarget').innerHTML = userEmailOptions;
@@ -1129,6 +1217,7 @@
             document.getElementById('globalNavSelect').value = tabId;
             currentTab = tabId;
             updateBadges();
+            if (tabId === 'progreso') renderProjectProgress();
         }
 
         function updateDashboardMetrics() {
@@ -1160,43 +1249,38 @@
             showToast('Nota Master pública actualizada para todos los usuarios', 'success');
         }
 
-        // TIMER SYSTEM (basado en reloj real: no se atrasa si la pestaña queda en segundo plano)
-        let timerBase = 0;          // segundos acumulados antes de la corrida actual
-        let timerStartedAt = null;  // marca de tiempo del último "Iniciar"
+        // TIMER SYSTEM: marcas reales de inicio, pausas y fin; duración total incluye pausas.
+        let timerBase = 0;
+        let timerStartedAt = null;
+        let timerSessionStartedAt = null;
+        let timerPauseStartedAt = null;
+        let timerPauses = [];
+        let timerIsPaused = false;
 
         function computeTimerSeconds() {
-            return timerBase + (timerStartedAt ? Math.max(0, Math.floor((Date.now() - timerStartedAt) / 1000)) : 0);
+            return timerSessionStartedAt ? Math.max(0, Math.floor((Date.now() - timerSessionStartedAt) / 1000)) : timerBase;
         }
-
-        function timerStorageKey() {
-            return 'fdw_timer_' + (currentUser ? currentUser.email : '');
-        }
-
+        function timerStorageKey() { return 'fdw_timer_' + (currentUser ? currentUser.email : ''); }
         function persistTimer() {
             if (!currentUser) return;
             try {
-                if (timerBase === 0 && !timerStartedAt) localStorage.removeItem(timerStorageKey());
-                else localStorage.setItem(timerStorageKey(), JSON.stringify({ base: timerBase, startedAt: timerStartedAt }));
+                const data = { base: timerBase, startedAt: timerStartedAt, sessionStartedAt: timerSessionStartedAt,
+                    pauseStartedAt: timerPauseStartedAt, pauses: timerPauses, isPaused: timerIsPaused };
+                if (!timerSessionStartedAt) localStorage.removeItem(timerStorageKey());
+                else localStorage.setItem(timerStorageKey(), JSON.stringify(data));
             } catch (e) {}
         }
-
         function startTimerInterval() {
-            activeTimer = setInterval(() => {
-                timerSeconds = computeTimerSeconds();
-                updateTimerDisplays();
-            }, 1000);
+            if (activeTimer) clearInterval(activeTimer);
+            activeTimer = setInterval(() => { timerSeconds = computeTimerSeconds(); updateTimerDisplays(); }, 1000);
             document.getElementById('topTimerStatus').classList.remove('hidden');
         }
-
         function resetTimerState() {
             if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
-            timerBase = 0;
-            timerStartedAt = null;
-            timerSeconds = 0;
+            timerBase = 0; timerStartedAt = null; timerSessionStartedAt = null;
+            timerPauseStartedAt = null; timerPauses = []; timerIsPaused = false; timerSeconds = 0;
             updateTimerDisplays();
         }
-
-        // Recupera el cronómetro del usuario si recargó la página o volvió a entrar
         function restoreTimer() {
             resetTimerState();
             try {
@@ -1204,68 +1288,61 @@
                 if (!raw) { updateDashboardMetrics(); return; }
                 const t = JSON.parse(raw);
                 timerBase = t.base || 0;
-                if (t.startedAt) {
-                    timerStartedAt = t.startedAt;
-                    startTimerInterval();
-                }
-                timerSeconds = computeTimerSeconds();
-                updateTimerDisplays();
+                timerSessionStartedAt = t.sessionStartedAt || t.startedAt || null;
+                timerStartedAt = t.startedAt || timerSessionStartedAt;
+                timerPauseStartedAt = t.pauseStartedAt || null;
+                timerPauses = Array.isArray(t.pauses) ? t.pauses : [];
+                timerIsPaused = !!t.isPaused;
+                if (timerSessionStartedAt) startTimerInterval();
+                timerSeconds = computeTimerSeconds(); updateTimerDisplays();
                 if (timerSeconds > 0) document.getElementById('topTimerStatus').classList.remove('hidden');
             } catch (e) {}
             updateDashboardMetrics();
         }
-
         function startTimer() {
-            if (activeTimer || !currentUser) return;
-            timerStartedAt = Date.now();
-            startTimerInterval();
-            persistTimer();
-            updateDashboardMetrics();
-            showToast('Reloj de trabajo iniciado', 'info');
-        }
-
-        function pauseTimer() {
-            if (!activeTimer) return;
-            clearInterval(activeTimer);
-            activeTimer = null;
-            timerSeconds = computeTimerSeconds();
-            timerBase = timerSeconds;
-            timerStartedAt = null;
-            persistTimer();
-            updateTimerDisplays();
-            updateDashboardMetrics();
-            showToast('Reloj en pausa', 'info');
-        }
-
-        function stopTimer() {
-            if (activeTimer) {
-                clearInterval(activeTimer);
-                activeTimer = null;
-            }
-            timerSeconds = computeTimerSeconds();
-            timerStartedAt = null;
-            timerBase = 0;
-
-            if (timerSeconds > 0 && currentUser) {
-                const hoursLogged = Math.max(0.01, parseFloat((timerSeconds / 3600).toFixed(2)));
-                workLogs.unshift({
-                    id: Date.now(),
-                    email: currentUser.email,
-                    title: "Sesión de Cronómetro",
-                    date: todayLocal(),
-                    hours: hoursLogged,
-                    desc: "iForda"
-                });
-                renderWorkLogs();
-                showToast(`Guardado automático: ${hoursLogged} hrs registradas.`, 'success');
+            if (!currentUser) return;
+            const now = Date.now();
+            if (!timerSessionStartedAt) {
+                timerSessionStartedAt = now; timerStartedAt = now; timerPauses = []; timerIsPaused = false;
+                startTimerInterval();
+                showToast('Inicio registrado: ' + formatClock12(now), 'success');
+            } else if (timerIsPaused) {
+                if (timerPauseStartedAt) timerPauses.push({ start: timerPauseStartedAt, end: now });
+                timerPauseStartedAt = null; timerIsPaused = false; timerStartedAt = now;
+                if (!activeTimer) startTimerInterval();
+                showToast('Trabajo reanudado: ' + formatClock12(now), 'info');
             } else {
-                showToast('Reloj detenido', 'info');
+                showToast('El registro ya está en curso. Usa Pausar o Fin.', 'info'); return;
             }
-
-            timerSeconds = 0;
-            persistTimer();
-            updateTimerDisplays();
-            updateDashboardMetrics();
+            persistTimer(); updateDashboardMetrics();
+        }
+        function pauseTimer() {
+            if (!timerSessionStartedAt || timerIsPaused) return;
+            timerPauseStartedAt = Date.now(); timerIsPaused = true;
+            timerSeconds = computeTimerSeconds(); persistTimer(); updateTimerDisplays();
+            showToast('Pausa iniciada: ' + formatClock12(timerPauseStartedAt), 'info');
+        }
+        function stopTimer() {
+            if (!currentUser || !timerSessionStartedAt) { showToast('No hay un registro en curso', 'info'); return; }
+            const end = Date.now();
+            if (timerPauseStartedAt) timerPauses.push({ start: timerPauseStartedAt, end });
+            const start = timerSessionStartedAt;
+            const elapsedSeconds = Math.max(1, Math.floor((end - start) / 1000));
+            const hoursLogged = parseFloat((elapsedSeconds / 3600).toFixed(4));
+            const pauseText = timerPauses.map(p => `${formatClock12(p.start)} - ${formatClock12(p.end)}`).join(' | ');
+            workLogs.unshift({ id: Date.now(), email: currentUser.email, title: 'Sesión de Cronómetro',
+                date: todayLocal(), hours: hoursLogged, seconds: elapsedSeconds, startAt: start, endAt: end,
+                pauses: timerPauses.map(p => ({ start: p.start, end: p.end })),
+                desc: `iForda | Inicio ${formatClock12(start)}${pauseText ? ' | Pausas: ' + pauseText : ''} | Fin ${formatClock12(end)}` });
+            resetTimerState(); persistTimer(); renderWorkLogs(); updateDashboardMetrics();
+            showToast(`Registro guardado: ${formatDuration(elapsedSeconds)} (incluye pausas)`, 'success');
+        }
+        function formatClock12(timestamp) {
+            return new Date(timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+        }
+        function formatDuration(seconds) {
+            const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), sec = seconds % 60;
+            return `${h}h ${m}m ${sec}s`;
         }
 
         function updateTimerDisplays() {
@@ -1294,9 +1371,7 @@
                             <option value="En curso" ${d.status === 'En curso' ? 'selected' : ''}>En curso</option>
                             <option value="Completado" ${d.status === 'Completado' ? 'selected' : ''}>Completado</option>
                         </select>
-                        <button onclick="deleteDuty(${esc(d.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar Librely">
-                            <i class="fas fa-trash-can"></i>
-                        </button>
+                        ${(currentUser && (currentUser.email === 'fordaworld@fordaworld' || d.createdBy === currentUser.email)) ? `<button onclick="deleteDuty(${esc(d.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar deber"><i class="fas fa-trash-can"></i></button>` : ''}
                     </div>
                 </div>
             `).join('');
@@ -1312,9 +1387,10 @@
         }
 
         function deleteDuty(id) {
-            teamDuties = teamDuties.filter(d => d.id !== id);
-            renderTeamDuties();
-            showToast('Deber eliminado libremente', 'info');
+            const d = teamDuties.find(x => x.id === id); if (!d) return;
+            if (!currentUser || (currentUser.email !== 'fordaworld@fordaworld' && d.createdBy !== currentUser.email)) { showToast('Solo Master o quien creó el deber puede eliminarlo.', 'error'); return; }
+            if (!confirm(`¿Eliminar el deber “${d.task}”?`)) return;
+            teamDuties = teamDuties.filter(x => x.id !== id); renderTeamDuties(); showToast('Deber eliminado', 'info');
         }
 
         function openNewDutyModal() {
@@ -1329,7 +1405,7 @@
             const user = document.getElementById('newDutyUser').value;
             if (!task) return;
 
-            teamDuties.push({ id: Date.now(), task, user, status: 'Pendiente' });
+            teamDuties.push({ id: Date.now(), task, user, status: 'Pendiente', createdBy: currentUser.email });
             closeNewDutyModal();
             document.getElementById('newDutyTask').value = '';
             renderTeamDuties();
@@ -1338,23 +1414,27 @@
 
         function renderPersonalChecklist() {
             const container = document.getElementById('personalChecklist');
-            const userItems = personalChecklists[currentUser.email] || [];
-            
+            const allUserItems = personalChecklists[currentUser.email] || [];
+            const userItems = allUserItems.filter(i => !i.mentionDismissed);
+            const assigned = projects.filter(p => p.owner === currentUser.name || (p.team || []).includes(currentUser.name));
+            const dismissed = getDismissedMentions();
+            const mentions = assigned.filter(p => !dismissed.includes(String(p.id)));
             const completedCount = userItems.filter(i => i.done).length;
             document.getElementById('checklistCount').innerText = `${esc(completedCount)} completados`;
-
-            container.innerHTML = userItems.map(item => `
-                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/80 text-xs">
-                    <label class="flex items-center space-x-2 cursor-pointer flex-1">
-                        <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleChecklistItem(${esc(item.id)})" class="rounded border-slate-700 bg-slate-900 text-cyan-400 focus:ring-0">
-                        <span class="${item.done ? 'line-through text-slate-500' : 'text-slate-200'} font-medium">${esc(item.text)}</span>
-                    </label>
-                    <button onclick="deleteChecklistItem(${esc(item.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar Tarea">
-                        <i class="fas fa-trash-can"></i>
-                    </button>
-                </div>
-            `).join('');
+            const mentionHtml = mentions.map(p => `<div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-rose-950/30 border border-rose-500/30 text-xs"><div class="min-w-0"><p class="text-rose-300 font-bold">Mención de proyecto: ${esc(p.title)}</p><p class="text-slate-400">Líder: ${esc(p.owner)} · ${esc(p.status)} · ${esc(p.progress)}%</p></div><button onclick="dismissProjectMention('${String(p.id)}')" class="text-slate-400 hover:text-rose-300 p-1" title="Marcar mención como revisada / quitar"><i class="fas fa-xmark"></i></button></div>`).join('');
+            const tasksHtml = userItems.map(item => `<div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/80 text-xs"><label class="flex items-center space-x-2 cursor-pointer flex-1"><input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleChecklistItem(${esc(item.id)})" class="rounded border-slate-700 bg-slate-900 text-cyan-400 focus:ring-0"><span class="${item.done ? 'line-through text-slate-500' : 'text-slate-200'} font-medium">${esc(item.text)}</span></label><button onclick="deleteChecklistItem(${esc(item.id)})" class="text-slate-500 hover:text-rose-400 p-1" title="Eliminar Tarea"><i class="fas fa-trash-can"></i></button></div>`).join('');
+            container.innerHTML = (mentionHtml ? `<p class="text-[10px] font-bold uppercase tracking-wider text-rose-300">Proyectos donde te mencionan</p>${mentionHtml}` : '') + tasksHtml;
+            if (!mentionHtml && !tasksHtml) container.innerHTML = '<p class="text-xs text-slate-500">No tienes tareas ni menciones pendientes.</p>';
         }
+        function getDismissedMentions() { return (personalChecklists[currentUser?.email] || []).filter(i => i.mentionDismissed).map(i => String(i.projectId)); }
+        function dismissProjectMention(id) { if (!currentUser) return; if (!personalChecklists[currentUser.email]) personalChecklists[currentUser.email] = []; const list = personalChecklists[currentUser.email]; if (!list.some(i => i.mentionDismissed && String(i.projectId) === String(id))) list.push({ id: -Math.abs(Number(id)), text: '', done: true, mentionDismissed: true, projectId: String(id) }); renderPersonalChecklist(); renderProjectTagPanel(); }
+        function toggleProjectTagPanel(event) { if (event) event.stopPropagation(); const el = document.getElementById('projectTagPanel'); if (!el) return; el.classList.toggle('hidden'); }
+        function renderProjectTagPanel() {
+            const el = document.getElementById('projectTagPanel'); if (!el || !currentUser) return;
+            const assigned = projects.filter(p => p.owner === currentUser.name || (p.team || []).includes(currentUser.name));
+            el.innerHTML = `<div class="flex justify-between items-center"><span class="font-black text-rose-300 uppercase">Proyectos asignados</span><span class="text-slate-500">${assigned.length}</span></div>` + (assigned.length ? assigned.map(p => `<div class="border-t border-slate-800 pt-2"><p class="font-bold text-slate-100">${esc(p.title)}</p><p class="text-slate-400">Líder: <span class="text-cyan-300 font-bold">${esc(p.owner)}</span></p><p class="text-slate-500">${esc(p.status)} · ${esc(p.progress)}%</p></div>`).join('') : '<p class="text-slate-500">No estás asignado a proyectos actualmente.</p>');
+        }
+        document.addEventListener('click', function(e) { const panel = document.getElementById('projectTagPanel'); if (panel && !panel.classList.contains('hidden') && !panel.contains(e.target) && !e.target.closest('[aria-label="Ver proyectos asignados"]')) panel.classList.add('hidden'); });
 
         function addChecklistItem() {
             const input = document.getElementById('newChecklistItem');
@@ -1383,63 +1463,40 @@
         // CONTROL DE PROYECTOS
         function renderProjects() {
             const container = document.getElementById('projectsGrid');
-            container.innerHTML = projects.map(p => `
-                <div class="bg-slate-950/80 border border-cyan-500/30 rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-lg hover:border-cyan-400 transition">
-                    <div>
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-bold text-slate-100 text-sm">${esc(p.title)}</h3>
-                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-500/40">${esc(p.status)}</span>
-                        </div>
-                        <p class="text-xs text-slate-400 line-clamp-2">${esc(p.desc || 'Sin descripción')}</p>
-                        <div class="mt-2 text-[10px] font-mono text-slate-400 space-y-0.5">
-                            <p>👤 Responsable: <span class="text-cyan-300 font-bold">${esc(p.owner)}</span></p>
-                            <p>📅 Fecha Límite: <span class="text-amber-400 font-bold">${esc(p.dueDate)}</span></p>
-                            <p class="text-slate-500">Creado el: ${esc(p.createdAt)}</p>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-[11px] font-mono text-cyan-400">
-                            <span>Avance:</span>
-                            <span class="font-bold">${esc(p.progress)}%</span>
-                        </div>
-                        <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
-                            <div class="bg-gradient-to-r from-cyan-500 to-sky-400 h-full transition-all duration-300" style="width: ${esc(p.progress)}%"></div>
-                        </div>
-
-                        <div class="pt-2 flex items-center space-x-2">
-                            <input type="range" min="0" max="100" value="${esc(p.progress)}" onchange="updateProjectProgress(${esc(p.id)}, this.value)" 
-                                class="w-full accent-cyan-400 cursor-pointer">
-                            
-                            <button onclick="openEditProjectModal(${esc(p.id)})" title="Modificar Proyecto" class="bg-cyan-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 p-2 rounded-xl transition">
-                                <i class="fas fa-pen-to-square text-xs"></i>
-                            </button>
-
-                            <button onclick="deleteProject(${esc(p.id)})" title="Eliminar Proyecto Libremente" class="bg-rose-950/60 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/40 p-2 rounded-xl transition">
-                                <i class="fas fa-trash-can text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            updateDashboardMetrics();
-            renderCronogram();
+            container.innerHTML = projects.map(p => {
+                const color = p.color || '#06b6d4';
+                const master = !!(currentUser && currentUser.email === 'fordaworld@fordaworld');
+                const canEdit = master || (currentUser && (p.owner === currentUser.name || (p.createdBy === currentUser.email)));
+                return `<div class="bg-slate-950/80 border rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-lg hover:border-cyan-400 transition" style="border-color:${esc(color)}80;border-left:4px solid ${esc(color)}">
+                    <div><div class="flex justify-between items-start mb-2 gap-2"><h3 class="font-bold text-slate-100 text-sm">${esc(p.title)}</h3><span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-500/40">${esc(p.status)}</span></div>
+                    <p class="text-xs text-slate-400 line-clamp-2">${esc(p.desc || 'Sin descripción')}</p><div class="mt-2 text-[10px] font-mono text-slate-400 space-y-0.5">
+                    <p>👤 Responsable: <span class="text-cyan-300 font-extrabold">${esc(p.owner)}</span></p><p>👥 Equipo: <span class="text-slate-300">${esc((p.team || []).join(', ') || 'Sin integrantes adicionales')}</span></p>
+                    <p>📅 Fecha Límite: <span class="text-cyan-300 font-bold">${esc(p.dueDate)}</span></p><p>Creado el: <span class="text-yellow-400 font-bold">${esc(p.createdAt || '—')}</span></p></div></div>
+                    <div class="space-y-2"><div class="flex justify-between text-[11px] font-mono text-cyan-400"><span>Avance:</span><span class="font-bold">${esc(p.progress)}%</span></div><div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800"><div class="h-full transition-all duration-300" style="width:${Math.max(0,Math.min(100,Number(p.progress)||0))}%;background:${esc(color)}"></div></div>
+                    <div class="pt-2 flex items-center space-x-2">${canEdit ? `<input type="range" min="0" max="100" value="${esc(p.progress)}" onchange="updateProjectProgress(${esc(p.id)}, this.value)" class="w-full cursor-pointer" style="accent-color:${esc(color)}">` : ''}
+                    ${canEdit ? `<button onclick="openEditProjectModal(${esc(p.id)})" title="Modificar Proyecto" class="bg-cyan-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 p-2 rounded-xl"><i class="fas fa-pen-to-square text-xs"></i></button>` : ''}
+                    ${(master || (currentUser && p.createdBy === currentUser.email)) ? `<button onclick="deleteProject(${esc(p.id)})" title="Eliminar Proyecto" class="bg-rose-950/60 hover:bg-rose-600 text-rose-300 border border-rose-500/40 p-2 rounded-xl"><i class="fas fa-trash-can text-xs"></i></button>` : ''}</div></div></div>`;
+            }).join('');
+            updateDashboardMetrics(); renderCronogram(); renderProjectProgress(); renderProjectWeekOverview(); renderPersonalChecklist(); renderProjectTagPanel();
         }
 
         function updateProjectProgress(id, val) {
             const p = projects.find(item => item.id === id);
             if (p) {
                 p.progress = parseInt(val);
+                recordProjectProgress(p, 'Porcentaje actualizado');
                 renderProjects();
                 showToast('Progreso de proyecto actualizado', 'info');
             }
         }
 
         function deleteProject(id) {
-            projects = projects.filter(p => p.id !== id);
-            renderProjects();
-            showToast('Proyecto eliminado libremente', 'success');
+            const p = projects.find(x => x.id === id);
+            if (!p) return;
+            const master = currentUser && currentUser.email === 'fordaworld@fordaworld';
+            if (!master && p.createdBy !== currentUser?.email) { showToast('Solo Master o quien creó este proyecto puede eliminarlo.', 'error'); return; }
+            if (!confirm(`¿Eliminar el proyecto “${p.title}”?`)) return;
+            projects = projects.filter(x => x.id !== id); renderProjects(); showToast('Proyecto eliminado', 'success');
         }
 
         function openNewProjectModal() {
@@ -1447,7 +1504,12 @@
             document.getElementById('editProjId').value = "";
             document.getElementById('projTitleInput').value = "";
             document.getElementById('projDescInput').value = "";
+            Array.from(document.getElementById('projTeamInput').options).forEach(o => o.selected = false);
             document.getElementById('projProgressInput').value = 0;
+            document.getElementById('projColorInput').value = '#38bdf8';
+            document.getElementById('projDueDateInput').disabled = false;
+            document.getElementById('projCreatedAtInput').value = todayLocal();
+            document.getElementById('masterCreatedDateWrap').classList.toggle('hidden', !(currentUser && currentUser.email === 'fordaworld@fordaworld'));
             document.getElementById('projDueDateInput').value = addDaysStr(todayLocal(), 7);
             document.getElementById('projStatusInput').value = "En Proceso";
             document.getElementById('projectModal').classList.remove('hidden');
@@ -1462,14 +1524,20 @@
             document.getElementById('projTitleInput').value = p.title;
             document.getElementById('projOwnerInput').value = p.owner;
             document.getElementById('projDescInput').value = p.desc;
+            Array.from(document.getElementById('projTeamInput').options).forEach(o => o.selected = (p.team || []).includes(o.value));
             document.getElementById('projProgressInput').value = p.progress;
             document.getElementById('projDueDateInput').value = p.dueDate;
             document.getElementById('projStatusInput').value = p.status;
+            document.getElementById('projColorInput').value = p.color || '#38bdf8';
+            document.getElementById('projCreatedAtInput').value = p.createdAt || todayLocal();
+            document.getElementById('masterCreatedDateWrap').classList.toggle('hidden', !(currentUser && currentUser.email === 'fordaworld@fordaworld'));
+            document.getElementById('projDueDateInput').disabled = !(currentUser && currentUser.email === 'fordaworld@fordaworld');
             document.getElementById('projectModal').classList.remove('hidden');
         }
 
         function closeProjectModal() {
             document.getElementById('projectModal').classList.add('hidden');
+            document.getElementById('projDueDateInput').disabled = false;
         }
 
         function saveProject() {
@@ -1477,9 +1545,13 @@
             const title = document.getElementById('projTitleInput').value.trim();
             const owner = document.getElementById('projOwnerInput').value;
             const desc = document.getElementById('projDescInput').value.trim();
+            const team = Array.from(document.getElementById('projTeamInput').selectedOptions).map(o => o.value);
             const progress = parseInt(document.getElementById('projProgressInput').value) || 0;
             const dueDate = document.getElementById('projDueDateInput').value;
             const status = document.getElementById('projStatusInput').value;
+            const color = document.getElementById('projColorInput').value || '#38bdf8';
+            const requestedCreatedAt = document.getElementById('projCreatedAtInput').value || todayLocal();
+            const master = currentUser && currentUser.email === 'fordaworld@fordaworld';
 
             if (!title || !dueDate) {
                 showToast('El título y la fecha límite son requeridos', 'error');
@@ -1489,12 +1561,19 @@
             if (editId) {
                 const p = projects.find(item => item.id == editId);
                 if (p) {
+                    if (!master && p.createdBy !== currentUser.email && p.owner !== currentUser.name) { showToast('No tienes permiso para modificar este proyecto.', 'error'); return; }
+                    const changed = p.status !== status || Number(p.progress) !== Number(progress) || p.dueDate !== dueDate || p.createdAt !== requestedCreatedAt || p.owner !== owner || p.team !== team;
+                    const oldDueDate = p.dueDate; const oldCreatedAt = p.createdAt;
                     p.title = title;
                     p.owner = owner;
                     p.desc = desc;
                     p.progress = progress;
-                    p.dueDate = dueDate;
+                    if (master) p.dueDate = dueDate;
                     p.status = status;
+                    p.team = team;
+                    p.color = color;
+                    if (master) p.createdAt = requestedCreatedAt;
+                    if (changed) recordProjectProgress(p, `Proyecto actualizado${oldCreatedAt !== p.createdAt ? ' · fecha de creación modificada' : ''}${oldDueDate !== p.dueDate ? ' · fecha límite modificada' : ''}`);
                 }
                 showToast('Proyecto modificado con éxito', 'success');
             } else {
@@ -1506,14 +1585,136 @@
                     desc,
                     progress,
                     dueDate,
-                    createdAt: todayStr,
-                    status
+                    createdAt: master ? requestedCreatedAt : todayStr,
+                    createdBy: currentUser.email,
+                    status,
+                    team,
+                    color,
+                    history: [{ at: Date.now(), date: todayLocal(), time: formatClock12(Date.now()), status, progress, note: 'Proyecto creado' }]
                 });
                 showToast('Proyecto registrado y añadido al cronograma', 'success');
             }
 
             closeProjectModal();
             renderProjects();
+        }
+
+        // Calendario semanal integrado en Control de Proyectos (semana de lunes a domingo).
+        let projectWeekAnchor = new Date();
+        function projectWeekToday() { projectWeekAnchor = new Date(); renderProjectWeekOverview(); }
+        function shiftProjectWeek(delta) { projectWeekAnchor = new Date(projectWeekAnchor); projectWeekAnchor.setDate(projectWeekAnchor.getDate() + delta * 7); renderProjectWeekOverview(); }
+        function renderProjectWeekOverview() {
+            const calendar = document.getElementById('projectWeekCalendar');
+            const gantt = document.getElementById('projectWeekGantt');
+            if (!calendar || !gantt) return;
+            const start = startOfWeekMonday(projectWeekAnchor);
+            const end = new Date(start); end.setDate(end.getDate() + 6);
+            const fmt = d => d.toLocaleDateString('es-PE',{day:'numeric',month:'short'});
+            const label = document.getElementById('projectWeekLabel');
+            if (label) label.textContent = `${start.toLocaleDateString('es-PE',{day:'numeric',month:'short'})} – ${end.toLocaleDateString('es-PE',{day:'numeric',month:'short',year:'numeric'})}`;
+            const range = document.getElementById('projectWeekGanttRange');
+            if (range) range.textContent = `${start.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'short'})} – ${end.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'short',year:'numeric'})}`;
+            const days = Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d;});
+            calendar.innerHTML = days.map(d => {
+                const key = dateKey(d), isToday = key === todayLocal();
+                const active = projects.filter(p => (p.createdAt || todayLocal()) <= key && (p.dueDate || p.createdAt || todayLocal()) >= key && !['Completado','Aprobado'].includes(p.status));
+                return `<div class="min-h-28 rounded-xl border ${isToday?'border-cyan-400 bg-cyan-950/20':'border-slate-800 bg-slate-950/70'} p-3 space-y-2"><div class="flex items-center justify-between gap-1"><span class="text-[10px] uppercase font-black ${isToday?'text-cyan-300':'text-slate-400'}">${d.toLocaleDateString('es-PE',{weekday:'long'})}</span><span class="text-xs font-mono font-bold ${isToday?'text-cyan-300':'text-slate-200'}">${d.getDate()}</span></div><p class="text-[9px] text-slate-600">${fmt(d)}</p><div class="space-y-1">${active.length?active.map(p=>`<div class="rounded-md px-2 py-1 text-[9px] font-bold truncate" title="${esc(p.title)} · ${esc(p.owner)}" style="background:${esc(p.color||'#38bdf8')}22;border-left:3px solid ${esc(p.color||'#38bdf8')};color:${esc(p.color||'#38bdf8')}">${esc(p.title)}</div>`).join(''):'<span class="text-[9px] text-slate-700">Sin proyectos activos</span>'}</div></div>`;
+            }).join('');
+            const span = Math.max(1, end.getTime() - start.getTime() + 86400000);
+            gantt.innerHTML = projects.length ? projects.slice().sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||''))).map(p=>{
+                const ps = new Date((p.createdAt||todayLocal())+'T00:00:00'), pe = new Date((p.dueDate||p.createdAt||todayLocal())+'T00:00:00');
+                const clipS = Math.max(ps.getTime(),start.getTime()), clipE = Math.min(pe.getTime()+86400000,end.getTime()+86400000);
+                const left = Math.max(0,Math.min(100,(clipS-start.getTime())/span*100));
+                const width = Math.max(0,Math.min(100-left,(clipE-clipS)/span*100));
+                const intersects = pe >= start && ps <= end;
+                const active = intersects && !['Completado','Aprobado'].includes(p.status);
+                return `<div class="grid grid-cols-[minmax(100px,1fr)_minmax(210px,3fr)] gap-3 items-center py-2 border-b border-slate-800"><div class="min-w-0"><p class="text-[10px] font-bold truncate" style="color:${esc(p.color||'#38bdf8')}">${esc(p.title)}</p><p class="text-[9px] text-slate-500 truncate">${esc(p.owner)} · ${esc(p.progress)}% ${active?'· ACTIVO':''}</p></div><div class="relative h-7 bg-slate-950 rounded-md overflow-hidden border border-slate-800"><div class="absolute inset-0 grid grid-cols-7">${days.map(d=>`<div class="border-l border-slate-800/70 ${dateKey(d)===todayLocal()?'bg-cyan-950/30':''}"></div>`).join('')}</div>${intersects?`<div class="absolute top-1 bottom-1 rounded-sm" title="${esc(p.createdAt||'—')} → ${esc(p.dueDate||'—')}" style="left:${left}%;width:${Math.max(1,width)}%;background:${esc(p.color||'#38bdf8')};opacity:.95"></div>`:''}</div></div>`;
+            }).join('') : '<p class="text-xs text-slate-500 py-3">No hay proyectos para mostrar en el cronograma.</p>';
+        }
+
+        // PROGRESO DE PROYECTOS: historial cronológico por fecha y hora.
+        let progressAnchor = new Date();
+        let progressViewMode = 'week';
+        function recordProjectProgress(project, note) {
+            if (!project) return;
+            if (!Array.isArray(project.history)) project.history = [];
+            const now = Date.now();
+            const last = project.history[project.history.length - 1];
+            if (!last || last.status !== project.status || Number(last.progress) !== Number(project.progress) || note) {
+                project.history.push({ at: now, date: todayLocal(), time: formatClock12(now), status: project.status,
+                    progress: Number(project.progress) || 0, note: note || 'Avance actualizado', owner: project.owner,
+                    team: Array.isArray(project.team) ? project.team.slice() : [] });
+            }
+        }
+        function setProgressView(mode) {
+            progressViewMode = mode;
+            document.getElementById('btnProgressWeek').className = mode === 'week' ? 'bg-cyan-500 px-3 py-2 rounded-lg text-xs font-bold text-slate-950' : 'bg-slate-950 border border-slate-700 px-3 py-2 rounded-lg text-xs text-slate-300';
+            document.getElementById('btnProgressMonth').className = mode === 'month' ? 'bg-cyan-500 px-3 py-2 rounded-lg text-xs font-bold text-slate-950' : 'bg-slate-950 border border-slate-700 px-3 py-2 rounded-lg text-xs text-slate-300';
+            renderProjectProgress();
+        }
+        function shiftProgressMonth(delta) {
+            if (progressViewMode === 'week') { const d = new Date(progressAnchor); d.setDate(d.getDate() + delta * 7); progressAnchor = d; }
+            else progressAnchor = new Date(progressAnchor.getFullYear(), progressAnchor.getMonth() + delta, 1);
+            renderProjectProgress();
+        }
+        function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+        function startOfWeekMonday(input) { const d = new Date(input); d.setHours(0,0,0,0); d.setDate(d.getDate() - ((d.getDay()+6)%7)); return d; }
+        function renderProgressMonthCalendar(year, month) {
+            const calendar = document.getElementById('progressMonthCalendar');
+            const rangeLabel = document.getElementById('progressMonthlyRange');
+            if (!calendar) return;
+            const first = new Date(year, month, 1);
+            const last = new Date(year, month + 1, 0);
+            const gridStart = startOfWeekMonday(first);
+            const gridEnd = new Date(last);
+            gridEnd.setDate(gridEnd.getDate() + (6 - ((gridEnd.getDay() + 6) % 7)));
+            if (rangeLabel) rangeLabel.textContent = first.toLocaleDateString('es-PE', {month:'long', year:'numeric'}).toUpperCase();
+            const cells = [];
+            for (let d = new Date(gridStart); d <= gridEnd; d.setDate(d.getDate() + 1)) {
+                const day = new Date(d);
+                const key = dateKey(day);
+                const inMonth = day.getMonth() === month;
+                const isToday = key === todayLocal();
+                const active = projects.filter(p => (p.createdAt || todayLocal()) <= key && (p.dueDate || p.createdAt || todayLocal()) >= key && !['Completado','Aprobado'].includes(p.status));
+                cells.push(`<div class="min-h-20 sm:min-h-24 rounded-lg border ${isToday?'border-cyan-400 bg-cyan-950/30':inMonth?'border-slate-800 bg-slate-950/70':'border-slate-900 bg-slate-950/30'} p-1 sm:p-2 overflow-hidden">
+                    <div class="text-right text-[10px] font-bold ${isToday?'text-cyan-300':inMonth?'text-slate-300':'text-slate-700'}">${day.getDate()}</div>
+                    <div class="mt-1 space-y-1">${active.length ? active.map(p=>`<div title="${esc(p.title)} · Responsable: ${esc(p.owner)}" class="rounded px-1 py-1 text-[8px] sm:text-[9px] font-bold truncate" style="background:${esc(p.color||'#38bdf8')}22;border-left:2px solid ${esc(p.color||'#38bdf8')};color:${esc(p.color||'#38bdf8')}">${esc(p.title)}</div>`).join('') : ''}</div>
+                </div>`);
+            }
+            calendar.innerHTML = cells.join('');
+        }
+
+        function renderProjectProgress() {
+            const label = document.getElementById('progressMonthLabel'), container = document.getElementById('projectProgressBoards'), gantt = document.getElementById('projectGeneralGantt');
+            if (!label || !container) return;
+            const year = progressAnchor.getFullYear(), month = progressAnchor.getMonth();
+            let start, end;
+            if (progressViewMode === 'week') { start = startOfWeekMonday(progressAnchor); end = new Date(start); end.setDate(end.getDate()+6); }
+            else { start = new Date(year,month,1); end = new Date(year,month+1,0); }
+            label.textContent = progressViewMode === 'week' ? `${start.toLocaleDateString('es-PE',{day:'numeric',month:'short'})} – ${end.toLocaleDateString('es-PE',{day:'numeric',month:'short',year:'numeric'})}` : start.toLocaleDateString('es-PE',{month:'long',year:'numeric'}).toUpperCase();
+            const days = []; for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)) days.push(new Date(d));
+            const dateLabel = document.getElementById('progressRangeLabel'); if(dateLabel) dateLabel.textContent = `${start.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'short'})} – ${end.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'short',year:'numeric'})}`;
+            const weeklyOverview = document.getElementById('progressWeeklyOverview');
+            const monthlyOverview = document.getElementById('progressMonthlyOverview');
+            if (weeklyOverview) weeklyOverview.classList.toggle('hidden', progressViewMode !== 'week');
+            if (monthlyOverview) monthlyOverview.classList.toggle('hidden', progressViewMode !== 'month');
+            if (progressViewMode === 'month') renderProgressMonthCalendar(year, month);
+            if (!projects.length) { container.innerHTML='<p class="text-xs text-slate-500 text-center py-8">Los proyectos nuevos aparecerán aquí automáticamente.</p>'; if(gantt)gantt.innerHTML='<p class="text-xs text-slate-500">No hay proyectos registrados.</p>'; return; }
+            // General Gantt: projects across the selected visible period; createdAt to dueDate.
+            if (gantt) gantt.innerHTML = projects.slice().sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||''))).map(p=>{
+                const ps = new Date((p.createdAt||todayLocal())+'T00:00:00'), pe = new Date((p.dueDate||p.createdAt||todayLocal())+'T00:00:00');
+                const total = Math.max(1, end-start+86400000), clippedStart = Math.max(ps.getTime(),start.getTime()), clippedEnd = Math.min(pe.getTime()+86400000,end.getTime()+86400000);
+                const left = Math.max(0,Math.min(100,(clippedStart-start.getTime())/total*100)); const width = Math.max(1,Math.min(100-left,(clippedEnd-clippedStart)/total*100));
+                const active = pe >= start && ps <= end && !['Completado','Aprobado'].includes(p.status);
+                return `<div class="grid grid-cols-[minmax(100px,1fr)_minmax(180px,3fr)] gap-3 items-center py-1.5 border-b border-slate-900"><div class="min-w-0"><p class="text-[11px] font-bold truncate" style="color:${esc(p.color||'#38bdf8')}">${esc(p.title)}</p><p class="text-[9px] ${active?'text-emerald-300':'text-slate-500'}">${active?'ACTIVO':'Fuera del período / cerrado'} · ${esc(p.progress)}%</p></div><div class="relative h-6 bg-slate-900 rounded-md overflow-hidden border border-slate-800"><div title="${esc(p.createdAt||'—')} → ${esc(p.dueDate||'—')}" class="absolute top-1 bottom-1 rounded-sm" style="left:${left}%;width:${width}%;background:${esc(p.color||'#38bdf8')};opacity:.9"></div></div></div>`;
+            }).join('');
+            container.innerHTML = projects.map(p=>{
+                const color=p.color||'#38bdf8'; const hist=Array.isArray(p.history)?p.history.slice().sort((a,b)=>a.at-b.at):[];
+                const events=hist.filter(h=>{const d=new Date(h.at);return d>=start&&d<=new Date(end.getFullYear(),end.getMonth(),end.getDate(),23,59,59,999);});
+                const dayCells=days.map(d=>{const key=dateKey(d);const ev=events.filter(h=>h.date===key);const latest=ev[ev.length-1];const today=key===todayLocal();return `<div class="min-w-10 flex-1 border-l ${today?'border-cyan-400 bg-cyan-950/20':'border-slate-800'} px-1 py-2 text-center" title="${esc(ev.map(h=>`${h.time}: ${h.status} (${h.progress}%)`).join('\n')||'Sin cambios')}"><div class="text-[9px] ${today?'text-cyan-300 font-black':'text-slate-500'}">${d.toLocaleDateString('es-PE',{weekday:'short'}).toUpperCase()}</div><div class="text-[10px] text-slate-300">${d.getDate()}</div><div class="h-2 mt-2 rounded bg-slate-800 overflow-hidden"><div class="h-full" style="width:${latest?Math.max(0,Math.min(100,Number(latest.progress)||0)):0}%;background:${esc(color)}"></div></div>${latest?`<div class="text-[9px] mt-1" style="color:${esc(color)}">${esc(latest.progress)}%</div>`:'<div class="text-[9px] text-slate-700 mt-1">—</div>'}</div>`;}).join('');
+                const master = currentUser && currentUser.email==='fordaworld@fordaworld';
+                return `<article class="bg-slate-950/70 border rounded-2xl p-4 space-y-3" style="border-color:${esc(color)}70"><div class="flex flex-col md:flex-row md:items-center justify-between gap-2"><div class="min-w-0"><h3 class="text-sm font-black" style="color:${esc(color)}">${esc(p.title)}</h3><p class="text-[11px] text-slate-300">Responsable: <strong class="text-white bg-cyan-950/70 px-1.5 py-0.5 rounded">${esc(p.owner)}</strong> · Equipo: ${esc((p.team||[]).join(', ')||'Sin integrantes adicionales')}</p><p class="text-[10px] mt-1">Creación: <strong class="text-yellow-400">${esc(p.createdAt||'—')}</strong> · Fecha límite: <strong class="text-cyan-300">${esc(p.dueDate||'—')}</strong></p></div><div class="text-xs text-slate-300">${esc(p.status)} · <strong style="color:${esc(color)}">${esc(p.progress)}%</strong> ${master?`<button onclick="openEditProjectModal(${esc(p.id)})" class="ml-2 text-[10px] px-2 py-1 rounded bg-slate-800 text-cyan-300">Editar fechas</button>`:''}</div></div><div class="flex overflow-x-auto border border-slate-800 rounded-xl">${dayCells}</div><div class="space-y-1"><p class="text-[10px] uppercase font-bold text-slate-500">Cambios registrados</p>${events.length?events.slice().reverse().map(h=>`<div class="flex flex-wrap gap-x-3 gap-y-1 text-[10px] border-l-2 pl-2 py-1" style="border-color:${esc(color)}"><span class="text-slate-400">${esc(h.date)} ${esc(h.time||'')}</span><span style="color:${esc(color)}">${esc(h.status)}</span><span class="text-slate-200">${esc(h.progress)}%</span><span class="text-slate-500">${esc(h.note||'Avance actualizado')}</span></div>`).join(''):'<p class="text-[10px] text-slate-600">Sin cambios registrados en este período.</p>'}</div></article>`;
+            }).join('');
         }
 
         // WORK LOGS / HORARIOS
@@ -1538,12 +1739,13 @@
                         <td class="p-3 font-semibold text-cyan-300">${esc(userObj.name)}</td>
                         <td class="p-3 font-bold text-slate-200">${esc(log.title || 'Registro de Horas')}</td>
                         <td class="p-3 font-mono text-slate-300">${esc(log.date)}</td>
-                        <td class="p-3 font-mono font-bold text-cyan-400">${esc(log.hours)} hrs</td>
+                        <td class="p-3 font-mono font-bold text-cyan-400">${esc(log.seconds ? formatDuration(log.seconds) : log.hours)}${log.seconds ? '' : ' hrs'}</td>
                         <td class="p-3 text-slate-400 max-w-xs truncate">${esc(log.desc || 'iForda')}</td>
                         <td class="p-3 text-right">
-                            <button onclick="examineLogDetail(${esc(log.id)})" class="text-xs bg-slate-800 hover:bg-slate-700 text-cyan-300 px-2.5 py-1 rounded-lg">
-                                Examine
-                            </button>
+                            <div class="flex justify-end gap-1">
+                                <button onclick="examineLogDetail(${esc(log.id)})" class="text-xs bg-slate-800 hover:bg-slate-700 text-cyan-300 px-2.5 py-1 rounded-lg">Detalle</button>
+                                ${currentUser && currentUser.email === 'fordaworld@fordaworld' ? `<button onclick="masterDeleteSingleLog(${esc(log.id)})" title="Borrar este registro (Master)" class="text-xs bg-rose-950 hover:bg-rose-700 border border-rose-500/40 text-rose-300 px-2.5 py-1 rounded-lg"><i class="fas fa-trash-can"></i></button>` : ''}
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -1579,13 +1781,27 @@
         }
 
         function examineLogDetail(id) {
+            const log = workLogs.find(l => l.id === id); if (!log) return;
+            const pauses = Array.isArray(log.pauses) ? log.pauses : [];
+            const pauseLine = pauses.length ? pauses.map(p => `${formatClock12(p.start)} - ${formatClock12(p.end)}`).join(' | ') : 'Sin pausas registradas';
+            document.getElementById('workLogDetailContent').innerHTML = `<div><p class="text-[10px] uppercase text-slate-500">Usuario</p><p class="font-bold text-slate-100">${esc(USERS_DB[log.email]?.name || log.email)}</p></div><div><p class="text-[10px] uppercase text-slate-500">Actividad</p><p class="font-semibold text-cyan-300">${esc(log.title || 'Registro de horas')}</p><p class="text-xs text-slate-400">${esc(log.date)} · ${esc(log.desc || 'iForda')}</p></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-2"><div class="bg-slate-950 border border-emerald-500/30 rounded-xl p-3"><p class="text-[10px] font-black text-emerald-300">INICIO</p><p class="font-mono text-slate-100">${log.startAt ? esc(formatClock12(log.startAt)) : '—'}</p></div><div class="bg-slate-950 border border-amber-500/30 rounded-xl p-3"><p class="text-[10px] font-black text-amber-300">Pausas</p><p class="font-mono text-slate-100 text-xs break-words">${esc(pauseLine)}</p></div><div class="bg-slate-950 border border-rose-500/30 rounded-xl p-3"><p class="text-[10px] font-black text-rose-300">FIN</p><p class="font-mono text-slate-100">${log.endAt ? esc(formatClock12(log.endAt)) : '—'}</p></div></div><div class="bg-slate-950 rounded-xl p-3"><p class="text-[10px] uppercase text-slate-500">Duración total (incluye pausas)</p><p class="text-xl font-black text-cyan-300">${log.seconds ? esc(formatDuration(log.seconds)) : esc(log.hours + ' h')}</p></div>`;
+            document.getElementById('workLogDetailModal').classList.remove('hidden');
+        }
+        function closeWorkLogDetail() { document.getElementById('workLogDetailModal')?.classList.add('hidden'); }
+
+        function masterDeleteSingleLog(id) {
+            if (!currentUser || currentUser.email !== 'fordaworld@fordaworld') {
+                showToast('Acción restringida únicamente a la cuenta master fordaworld@fordaworld', 'error'); return;
+            }
             const log = workLogs.find(l => l.id === id);
-            if (!log) return;
-            showToast(`Detalle: ${log.title} | ${log.hours}h el ${log.date} | Desc: ${log.desc}`, 'info');
+            if (!log || !confirm(`¿Borrar únicamente el registro "${log.title || 'Registro de horas'}" del ${log.date}?`)) return;
+            workLogs = workLogs.filter(l => l.id !== id);
+            renderWorkLogs();
+            showToast('Registro individual eliminado por Master', 'success');
         }
 
         function masterDeleteSelectedLogs(type) {
-            if (!currentUser.isMaster) {
+            if (!currentUser || currentUser.email !== 'fordaworld@fordaworld') {
                 showToast('Acción restringida únicamente para la cuenta master fordaworld@fordaworld', 'error');
                 return;
             }
@@ -1962,7 +2178,7 @@
 
         function getCronogramItems() {
             return [
-                ...projects.map(p => ({ id: p.id, type: 'project', title: p.title, desc: p.desc, date: p.dueDate, icon: '🚀', color: 'border-cyan-500/50 text-cyan-300 bg-cyan-950/40' })),
+                ...projects.map(p => ({ id: p.id, type: 'project', title: p.title, desc: p.desc, date: p.dueDate, icon: '🚀', color: `border-[${p.color || '#06b6d4'}] text-cyan-300 bg-cyan-950/40` })),
                 ...meetings.map(m => ({ id: m.id, type: 'meeting', title: m.title, desc: `Lugar/Link: ${m.link || 'N/A'}`, date: m.date, icon: '📅', color: 'border-amber-500/50 text-amber-300 bg-amber-950/40' })),
                 ...claimedCoupons.filter(c => c.type === 'Día Libre' && c.status === 'aprobado').map(c => ({ id: c.id, type: 'freeDay', title: `Día Libre: ${USERS_DB[c.email]?.name || c.email}`, desc: c.reason, date: c.date, icon: '🏖️', color: 'border-emerald-500/50 text-emerald-300 bg-emerald-950/40' })),
                 ...customEvents.map(e => ({ id: e.id, type: 'custom', title: e.title, desc: e.desc, date: e.date, icon: '📌', color: 'border-purple-500/50 text-purple-300 bg-purple-950/40' }))
@@ -2052,7 +2268,9 @@
         function examineCronogramItem(type, id) {
             document.getElementById('examItemType').value = type;
             document.getElementById('examItemId').value = id;
-            document.getElementById('examDeleteBtn').classList.toggle('hidden', type !== 'custom');
+            const examItem = type === 'custom' ? customEvents.find(item => item.id === id) : null;
+            const mayDeleteCustom = !!(currentUser && (currentUser.email === 'fordaworld@fordaworld' || (examItem && examItem.createdBy === currentUser.email)));
+            document.getElementById('examDeleteBtn').classList.toggle('hidden', type !== 'custom' || !mayDeleteCustom);
 
             if (type === 'project') {
                 const p = projects.find(item => item.id === id);
@@ -2100,6 +2318,7 @@
         function saveCronogramExamEdits() {
             const type = document.getElementById('examItemType').value;
             const id = parseInt(document.getElementById('examItemId').value);
+            const master = !!(currentUser && currentUser.email === 'fordaworld@fordaworld');
             const newTitle = document.getElementById('examTitle').value.trim();
             const newDesc = document.getElementById('examDesc').value.trim();
             const dateStr = document.getElementById('examDate').value;
@@ -2111,16 +2330,20 @@
 
             if (type === 'project') {
                 const p = projects.find(item => item.id === id);
-                if (p) { p.title = newTitle; p.desc = newDesc; }
+                if (p && (master || p.createdBy === currentUser.email || p.owner === currentUser.name)) { p.title = newTitle; p.desc = newDesc; }
+                else { showToast('No tienes permiso para modificar este proyecto.', 'error'); return; }
             } else if (type === 'meeting') {
                 const m = meetings.find(item => item.id === id);
-                if (m) { m.title = newTitle; m.link = newDesc.replace(/^Enlace\/Lugar:\s*/i, ''); }
+                if (m && (master || m.organizer === currentUser.email)) { m.title = newTitle; m.link = newDesc.replace(/^Enlace\/Lugar:\s*/i, ''); }
+                else { showToast('Solo Master o quien organizó la reunión puede modificarla.', 'error'); return; }
             } else if (type === 'freeDay') {
                 const c = claimedCoupons.find(item => item.id === id);
-                if (c) c.reason = newDesc;
+                if (c && (master || c.email === currentUser.email)) c.reason = newDesc;
+                else { showToast('No tienes permiso para modificar esta solicitud.', 'error'); return; }
             } else if (type === 'custom') {
                 const e = customEvents.find(item => item.id === id);
-                if (e) { e.title = newTitle; e.desc = newDesc; }
+                if (e && (master || e.createdBy === currentUser.email)) { e.title = newTitle; e.desc = newDesc; }
+                else { showToast('Solo Master o quien creó el evento puede modificarlo.', 'error'); return; }
             } else if (type === 'custom-new') {
                 customEvents.push({ id, title: newTitle, desc: newDesc, date: dateStr, createdBy: currentUser.email });
             }
@@ -2135,6 +2358,12 @@
 
         function deleteCustomEvent() {
             const id = parseInt(document.getElementById('examItemId').value);
+            const item = customEvents.find(e => e.id === id);
+            if (!item) return;
+            if (!currentUser || (currentUser.email !== 'fordaworld@fordaworld' && item.createdBy !== currentUser.email)) {
+                showToast('Solo Master o quien creó el evento puede eliminarlo.', 'error'); return;
+            }
+            if (!confirm(`¿Eliminar el evento “${item.title}”?`)) return;
             customEvents = customEvents.filter(e => e.id !== id);
             closeCronogramExamModal();
             renderCronogram();
@@ -2161,7 +2390,7 @@
                 if (isMasterWarning) {
                     canDelete = currentUser.isMaster;
                 } else {
-                    canDelete = true; // Any user can delete regular user warnings
+                    canDelete = currentUser.email === 'fordaworld@fordaworld' || w.createdBy === currentUser.email;
                 }
 
                 return `
@@ -2249,9 +2478,8 @@
             const w = warnings.find(item => item.id === id);
             if (!w) return;
 
-            if (w.type === 'Amonestación Oficial' && !currentUser.isMaster) {
-                showToast('Las amonestaciones oficiales solo pueden ser eliminadas por la cuenta master', 'error');
-                return;
+            if (currentUser.email !== 'fordaworld@fordaworld' && (w.type === 'Amonestación Oficial' || w.createdBy !== currentUser.email)) {
+                showToast('Solo Master o quien creó este registro puede eliminarlo.', 'error'); return;
             }
 
             warnings = warnings.filter(item => item.id !== id);
@@ -2281,7 +2509,7 @@
                     ? `👋 <span class="font-bold text-cyan-300">${esc(nameOf(n.by))}</span> ha saludado a <span class="font-bold text-cyan-300">${esc(nameOf(n.target))}</span>`
                     : `<span class="font-bold text-cyan-300">${esc(nameOf(n.by))}:</span> ${esc(n.text)}`;
                 return `<div class="flex items-start justify-between gap-1 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5">
-                    <p class="text-[11px] text-slate-200 break-words">${body}</p>${xBtn(`deleteBoardNote(${Number(n.id)})`)}</div>`;
+                    <p class="text-[11px] text-slate-200 break-words">${body}</p>${(currentUser.email === 'fordaworld@fordaworld' || n.by === currentUser.email) ? xBtn(`deleteBoardNote(${Number(n.id)})`) : ''}</div>`;
             });
             const all = warns.concat(notes);
             box.innerHTML = all.length ? all.join('') : '<p class="text-[11px] text-slate-500 italic">Sin novedades. Escribe aquí una nota o estado.</p>';
@@ -2305,8 +2533,9 @@
         }
 
         function deleteBoardNote(id) {
-            boardNotes = boardNotes.filter(n => n.id !== id);
-            renderBoard();
+            const n = boardNotes.find(x => x.id === id); if (!n) return;
+            if (!currentUser || (currentUser.email !== 'fordaworld@fordaworld' && n.by !== currentUser.email)) { showToast('Solo Master o quien publicó la nota puede eliminarla.', 'error'); return; }
+            boardNotes = boardNotes.filter(x => x.id !== id); renderBoard();
         }
 
         // ================= USUARIOS ACTIVOS + ZUMBIDO =================
@@ -2459,20 +2688,41 @@
         function loadProfileFormData() {
             document.getElementById('profileTitleName').innerText = currentUser.name;
             document.getElementById('profileTitleRole').innerText = currentUser.role;
-            document.getElementById('profileAvatarPreview').src = currentUser.avatar;
+            const avatar = currentUser.avatar || '';
+            document.getElementById('profileAvatarPreview').src = avatar;
+            document.getElementById('profileAvatarPreview').onerror = function(){ this.onerror=null; this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150'; };
+            ['navAvatar','ifordaAvatar'].forEach(id => { const el=document.getElementById(id); if(el){ el.src=avatar || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150'; el.onerror=function(){this.onerror=null;this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150';}; } });
 
             document.getElementById('profileName').value = currentUser.name;
             document.getElementById('profileRole').value = currentUser.role;
             document.getElementById('profileAge').value = currentUser.age || 25;
             document.getElementById('profilePhone').value = currentUser.phone || '';
-            document.getElementById('profileAvatarUrl').value = currentUser.avatar;
+            document.getElementById('profileAvatarUrl').value = currentUser.avatar && !currentUser.avatar.startsWith('data:') ? currentUser.avatar : '';
         }
 
         function clearProfileAvatar() {
             const placeholder = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150";
-            document.getElementById('profileAvatarUrl').value = placeholder;
+            document.getElementById('profileAvatarUrl').value = '';
+            document.getElementById('profileAvatarFile').value = '';
+            currentUser.avatar = '';
             document.getElementById('profileAvatarPreview').src = placeholder;
-            showToast('Foto de perfil reiniciada', 'info');
+            showToast('Foto de perfil eliminada; se mostrará la imagen predeterminada', 'info');
+        }
+
+        function handleProfileAvatarFile(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) { showToast('Selecciona un archivo de imagen válido', 'error'); event.target.value=''; return; }
+            if (file.size > 2 * 1024 * 1024) { showToast('La imagen debe pesar 2 MB o menos para sincronizarse correctamente', 'error'); event.target.value=''; return; }
+            const reader = new FileReader();
+            reader.onload = () => {
+                currentUser.avatar = String(reader.result || '');
+                document.getElementById('profileAvatarUrl').value = '';
+                document.getElementById('profileAvatarPreview').src = currentUser.avatar;
+                showToast('Imagen cargada. Pulsa ACTUALIZAR MI PERFIL para guardarla.', 'success');
+            };
+            reader.onerror = () => showToast('No se pudo leer la imagen seleccionada', 'error');
+            reader.readAsDataURL(file);
         }
 
         function saveProfile(e) {
@@ -2481,7 +2731,9 @@
             currentUser.role = document.getElementById('profileRole').value.trim();
             currentUser.age = document.getElementById('profileAge').value;
             currentUser.phone = document.getElementById('profilePhone').value.trim();
-            currentUser.avatar = document.getElementById('profileAvatarUrl').value.trim();
+            const enteredAvatar = document.getElementById('profileAvatarUrl').value.trim();
+            if (enteredAvatar) currentUser.avatar = enteredAvatar;
+            else if (!document.getElementById('profileAvatarFile').files.length && !String(currentUser.avatar || '').startsWith('data:')) currentUser.avatar = '';
 
             USERS_DB[currentUser.email] = { ...USERS_DB[currentUser.email], ...currentUser };
             initUserDashboard();
@@ -2949,7 +3201,7 @@
         }
 
         function closeAllModals() {
-            ['projectModal', 'newDutyModal', 'newMeetingModal', 'newWarningModal', 'cronogramExamModal']
+            ['projectModal', 'newDutyModal', 'newMeetingModal', 'newWarningModal', 'cronogramExamModal', 'workLogDetailModal']
                 .forEach(id => document.getElementById(id).classList.add('hidden'));
         }
 
@@ -2987,6 +3239,7 @@
             buildMonthOptions('filterCouponsMonth', 'Historial Completo');
             setDefaultDates();
             cronogramToday();
+            projectWeekToday();
             setLoginEnabled(false);
 
             ['click', 'change', 'submit', 'keyup'].forEach(ev => document.addEventListener(ev, scheduleSync, true));
