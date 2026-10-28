@@ -154,12 +154,14 @@
                                 <option value="horarios">⏱️ Registro de Horarios</option>
                                 <option value="reuniones">📅 Reuniones y Agenda</option>
                                 <option value="cuponera">🎟️ Cuponera Fordaworld</option>
+                                <option value="vouchers">🧾 Vouchers</option>
                                 <option value="cronograma">🗓️ Cronograma Mensual</option>
                                 <option value="progreso">📈 Progreso de Proyectos</option>
                                 <option value="historial">📁 Historial</option>
                                 <option value="llamadas">⚠️ Llamadas de Atención</option>
                                 <option value="usuarios">🟢 Usuarios Activos</option>
                                 <option value="perfil">👤 Mi Perfil</option>
+                                <option value="configuracion" hidden>⚙️ Configuración</option>
                             </select>
                         </div>
                     </div>
@@ -208,6 +210,9 @@
                         <button onclick="switchTab('cuponera')" id="tab-btn-cuponera" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
                             <i class="fas fa-ticket-alt"></i> <span>Cuponera</span>
                         </button>
+                        <button onclick="switchTab('vouchers')" id="tab-btn-vouchers" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
+                            <i class="fas fa-receipt"></i> <span>Vouchers</span>
+                        </button>
                         <button onclick="switchTab('cronograma')" id="tab-btn-cronograma" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
                             <i class="fas fa-calendar-days"></i> <span>Cronograma</span>
                         </button>
@@ -225,6 +230,9 @@
                         </button>
                         <button onclick="switchTab('perfil')" id="tab-btn-perfil" class="nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
                             <i class="fas fa-user-gear"></i> <span>Mi Perfil</span>
+                        </button>
+                        <button onclick="switchTab('configuracion')" id="tab-btn-configuracion" class="hidden nav-tab-btn px-4 py-2 rounded-xl font-bold transition flex items-center space-x-2 text-slate-400 hover:bg-slate-800">
+                            <i class="fas fa-gear"></i> <span>Configuración</span>
                         </button>
                     </div>
                 </nav>
@@ -650,7 +658,8 @@
                                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3"><p class="text-[10px] uppercase text-slate-400">Acumulado este mes</p><p id="creditMonth" class="text-lg font-black text-cyan-300 font-mono">S/ 0.00</p></div>
                                     <div class="bg-slate-900 border border-purple-500/30 rounded-2xl p-3"><p class="text-[10px] uppercase text-slate-400">Mérito:</p><p id="creditMerit" class="text-lg font-black text-purple-300 font-mono">S/ 0.00</p></div>
                                 </div>
-                                <p class="text-[10px] text-slate-500">+S/ 0.01 por cada día que ingresas · +S/ 0.10 por proyecto concretado como integrante (S/ 0.20 si eres líder) · −S/ 0.05 por amonestación oficial. El Mérito lo habilita la cuenta master.</p>
+                                <p id="creditRulesText" class="text-[10px] text-slate-500">+S/ 0.01 por cada día que ingresas · +S/ 0.10 por proyecto concretado como integrante (S/ 0.20 si eres líder) · −S/ 0.05 por amonestación oficial. El Mérito lo habilita la cuenta master.</p>
+                                <div id="creditUserActions" class="space-y-2"></div>
                                 <div id="creditMoves" class="space-y-1 max-h-64 overflow-y-auto pr-1"></div>
                             </div>
                             <div id="creditMasterTools" class="hidden space-y-4">
@@ -671,6 +680,7 @@
                                         <button onclick="masterDiscount()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 rounded-xl text-xs">Descontar</button>
                                     </div>
                                 </div>
+                                <div id="creditReqPanel" class="space-y-2"></div>
                                 <div id="creditTeamRows" class="space-y-2"></div>
                             </div>
                         </div>
@@ -701,6 +711,60 @@
                 </section>
 
                 <!-- ================= TAB 6: CRONOGRAMA MENSUAL Y SEMANAL ================= -->
+                <!-- ================= VOUCHERS ================= -->
+                <section id="view-vouchers" class="tab-view hidden space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-5">
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                            <div><h2 class="text-xl font-bold text-cyan-300"><i class="fas fa-receipt mr-2"></i>VOUCHERS</h2>
+                            <p class="text-xs text-slate-400 mt-1">Se generan automáticamente con cada transacción de monto especial, crédito ahorrado y descuento <span id="voucherCount" class="text-cyan-300 font-bold"></span></p></div>
+                            <select id="filterVoucherMonth" onchange="renderVouchers()" class="bg-slate-950 border border-slate-800 text-xs rounded-xl px-3 py-1 text-cyan-300"></select>
+                        </div>
+                        <div id="voucherMasterPanel" class="hidden bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+                            <span class="text-xs font-bold text-rose-300"><i class="fas fa-shield-halved mr-2"></i>MASTER: borrar vouchers según el mes elegido arriba</span>
+                            <div class="flex space-x-2"><button onclick="voucherDeleteBulk('month')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Borrar mes</button><button onclick="voucherDeleteBulk('year')" class="bg-rose-700 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Borrar año</button></div>
+                        </div>
+                        <div id="voucherList" class="space-y-3"></div>
+                    </div>
+                </section>
+
+                <!-- ================= CONFIGURACIÓN (solo Master) ================= -->
+                <section id="view-configuracion" class="tab-view hidden space-y-6">
+                    <div class="bg-slate-900 border border-rose-500/30 rounded-3xl p-6 shadow-xl space-y-5">
+                        <div class="border-b border-slate-800 pb-4">
+                            <h2 class="text-xl font-bold text-rose-300 flex items-center space-x-2"><i class="fas fa-gear text-rose-400"></i><span>CONFIGURACIÓN</span></h2>
+                            <p class="text-xs text-slate-400 mt-1">Exclusivo de la cuenta master. Los cambios se publican en tiempo real para todo el equipo.</p>
+                        </div>
+                        <div id="cfgBody" class="space-y-4"></div>
+                    </div>
+                    <div class="bg-slate-900 border border-cyan-500/30 rounded-3xl p-6 shadow-xl space-y-4">
+                        <div class="border-b border-slate-800 pb-4">
+                            <h2 class="text-lg font-bold text-cyan-300"><i class="fas fa-wand-magic-sparkles mr-2"></i>GENERADOR DE MODIFICACIONES</h2>
+                            <p class="text-xs text-slate-400 mt-1">Escribe lo que quieres cambiar (una instrucción por línea). Se aplica al instante para todos, sin volver a subir el HTML.</p>
+                        </div>
+                        <textarea id="modsInput" rows="4" placeholder="Ej: monto por día 0.05&#10;agregar calificación Excelente desde 95 verde&#10;cambiar texto &quot;Cuponera Fordaworld&quot; por &quot;Cupones&quot;" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono"></textarea>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="runMod()" class="flex-1 min-w-[160px] bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition">APLICAR MODIFICACIÓN</button>
+                            <button type="button" id="modsUndo" onclick="modsUndo()" class="bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold px-4 py-2.5 rounded-xl text-xs"><i class="fas fa-rotate-left mr-1"></i>Edición anterior</button>
+                            <button type="button" id="modsRedo" onclick="modsRedo()" class="bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold px-4 py-2.5 rounded-xl text-xs">Edición siguiente<i class="fas fa-rotate-right ml-1"></i></button>
+                        </div>
+                        <div id="modsResult" data-norep class="hidden bg-slate-950 border border-slate-800 rounded-xl p-3 text-[11px] space-y-1"></div>
+                        <details class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-[11px] text-slate-300" data-norep>
+                            <summary class="cursor-pointer font-bold text-cyan-300">Ejemplos de lo que entiende el generador</summary>
+                            <div class="mt-2 space-y-1 text-slate-400">
+                                <p><b class="text-slate-200">Montos:</b> monto por día 0.05 · líder de proyecto 0.30 · integrante 0.15 · amonestación 0.10</p>
+                                <p><b class="text-slate-200">Calificación:</b> asistencia 50 · tareas 25 · proyectos 25 · amonestación oficial 15 puntos · llamada de atención 3 puntos</p>
+                                <p><b class="text-slate-200">Estados:</b> agregar calificación Excelente desde 95 verde · cambiar calificación Regular a 55 · eliminar calificación Crítico</p>
+                                <p><b class="text-slate-200">Textos:</b> cambiar texto "Cuponera Fordaworld" por "Cupones"</p>
+                                <p><b class="text-slate-200">Pestañas:</b> ocultar pestaña Reuniones · mostrar pestaña Reuniones</p>
+                                <p><b class="text-slate-200">Estilo:</b> css: #tab-btn-vouchers { color: #facc15; }</p>
+                                <p><b class="text-slate-200">Volver al origen:</b> restablecer todo</p>
+                            </div>
+                        </details>
+                        <p class="text-[10px] uppercase font-bold text-slate-500">Historial de ediciones</p>
+                        <div id="modsList" data-norep class="space-y-2 max-h-80 overflow-y-auto pr-1"></div>
+                    </div>
+                </section>
+
                 <section id="view-cronograma" class="tab-view hidden space-y-6">
                     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
                         
@@ -898,6 +962,7 @@
                             <p id="panelFormHint" class="text-[10px] text-slate-500"></p>
                             <div class="flex gap-2">
                                 <button type="button" onclick="closeManagedForm()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2.5 rounded-xl text-xs font-bold">Cancelar</button>
+                                <button type="button" id="panelDeleteBtn" onclick="deleteManagedUser()" class="hidden flex-1 bg-rose-700 hover:bg-rose-600 text-white font-bold py-2.5 rounded-xl text-xs">Eliminar cuenta</button>
                                 <button type="submit" id="panelSaveBtn" class="flex-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition"></button>
                             </div>
                         </form>
@@ -974,6 +1039,26 @@
         </div>
     </div>
 
+
+    <!-- MODAL: DETALLE DE PAGO DE CRÉDITO AHORRADO -->
+    <div id="creditDetailModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeCreditDetail()">
+        <div class="bg-slate-900 border border-amber-500/40 rounded-2xl p-5 max-w-md w-full space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between"><h3 id="creditDetailTitle" class="font-bold text-amber-300">Detalle de pago</h3><button onclick="closeCreditDetail()" class="text-slate-400 hover:text-white"><i class="fas fa-xmark"></i></button></div>
+            <div id="creditDetailContent" class="space-y-2"></div>
+            <div class="text-right"><button onclick="closeCreditDetail()" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-200 text-xs">Cerrar</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL: MODIFICAR SALDO (solo Master) -->
+    <div id="creditEditModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeCreditEdit()">
+        <div class="bg-slate-900 border border-purple-500/40 rounded-2xl p-5 max-w-sm w-full space-y-3 shadow-2xl">
+            <div class="flex items-center justify-between"><h3 class="font-bold text-purple-300">Modificar saldo · <span id="creditEditWho"></span></h3><button onclick="closeCreditEdit()" class="text-slate-400 hover:text-white"><i class="fas fa-xmark"></i></button></div>
+            <div><label class="block text-[10px] uppercase text-slate-400 mb-1">Saldo (S/)</label><input type="number" id="ceBal" step="0.01" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-amber-300 font-mono"></div>
+            <div><label class="block text-[10px] uppercase text-slate-400 mb-1">Mérito (S/)</label><input type="number" id="ceMerit" step="0.01" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-purple-300 font-mono"></div>
+            <div><label class="block text-[10px] uppercase text-slate-400 mb-1">Motivo (opcional)</label><input type="text" id="ceReason" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100"></div>
+            <div class="flex gap-2"><button onclick="closeCreditEdit()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2.5 rounded-xl text-xs font-bold">Cancelar</button><button onclick="saveCreditEdit()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 rounded-xl text-xs">Guardar</button></div>
+        </div>
+    </div>
 
     <!-- MODAL: HISTORIAL DE INGRESO (solo Master) -->
     <div id="userAccessModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeUserAccess()">
@@ -1160,7 +1245,7 @@
                 </select>
                 <p id="warnMasterNotice" class="hidden text-[10px] text-rose-400 mt-1">* Solo se guardará si estás conectado con la cuenta master.</p>
                 <div id="warnDiscountWrap" class="hidden mt-2">
-                    <label class="block text-[10px] text-slate-400 uppercase mb-1">Descuento de Crédito Ahorrado (S/) — por defecto 0.05</label>
+                    <label class="block text-[10px] text-slate-400 uppercase mb-1">Descuento de Crédito Ahorrado (S/) — por defecto <span id="warnDefTxt">0.05</span></label>
                     <input type="number" id="warnDiscount" min="0" step="0.01" value="0.05" class="w-full bg-slate-950 border border-rose-500/40 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono">
                 </div>
             </div>
@@ -1224,7 +1309,7 @@
         const DB_ROOT = "fordaworld";
 
         // Estado de créditos e historial (se sincroniza con Firebase)
-        let creditLedger = [], creditStatus = [], historyItems = [];
+        let creditLedger = [], creditStatus = [], historyItems = [], creditReq = [], vouchers = [];
 
         // Database of users
         const USERS_DB = {
@@ -1333,6 +1418,7 @@
                 document.getElementById('boardTarget').classList.add('hidden');
             }
 
+            syncNavVisibility();
             populateDropdownUsers();
             updateDashboardMetrics();
             renderTeamDuties();
@@ -1345,7 +1431,7 @@
             renderWarningsFeed();
             renderBoard();
             renderUsersPanel();
-            renderCredits(); renderHistory();
+            renderCredits(); renderHistory(); renderVouchers(); applySettingsUI();
             loadProfileFormData();
         }
 
@@ -1361,6 +1447,7 @@
         }
 
         function switchTab(tabId) {
+            if (tabId === 'configuracion' && !isMasterUser()) tabId = 'dashboard';
             document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
 
@@ -1381,6 +1468,8 @@
             if (tabId === 'progreso') renderProjectProgress();
             if (tabId === 'historial') renderHistory();
             if (tabId === 'cuponera') renderCredits();
+            if (tabId === 'vouchers') renderVouchers();
+            if (tabId === 'configuracion') renderConfigPanel(true);
         }
 
         function updateDashboardMetrics() {
@@ -2350,6 +2439,11 @@
             const coupon = claimedCoupons.find(c => c.id === id);
             if (coupon) {
                 coupon.status = newStatus;
+                if (newStatus === 'aprobado' && coupon.amount && !coupon.voucherId) {
+                    const isSp = String(coupon.type).startsWith('Monto Especial');
+                    coupon.voucherId = mkId();
+                    addVoucher({ email: coupon.email, kind: 'especial', title: isSp ? String(coupon.type).replace(/^Monto Especial\s*-\s*/, '') : coupon.type, desc: (coupon.desc || (isSp ? 'Sin descripción' : 'Cupón bono aprobado por Master')) + `\nSolicitado el ${coupon.date}`, amount: parseFloat(coupon.amount) || 0, ref: coupon.id });
+                }
                 renderCouponsHistory();
                 renderCronogram();
                 showToast(`Estado de cupón actualizado a: ${newStatus}`, 'success');
@@ -2698,7 +2792,7 @@
             warnings.unshift({ id: warnId, type, targetUser, createdBy: currentUser.email, reason, date: todayStr });
             if (type === 'Amonestación Oficial' && currentUser.isMaster && !(USERS_DB[targetUser] || {}).isMaster) {
                 const d = parseFloat(document.getElementById('warnDiscount').value);
-                const disc = isNaN(d) ? 0.05 : Math.max(0, d);
+                const disc = isNaN(d) ? CFG().warnPenalty : Math.max(0, d);
                 if (disc > 0) addCredit(targetUser, -disc, 'warning', 'Amonestación oficial: ' + reason.slice(0, 80), { warnId });
             }
 
@@ -2782,17 +2876,19 @@
         function presenceId(email) {
             const b = Object.keys(BASE_USERS).indexOf(email);
             if (b >= 0) return b + 1;
-            const customs = Object.keys(USERS_DB).filter(k => !BASE_USERS[k]).sort((a, c) => (USERS_DB[a].createdAt || 0) - (USERS_DB[c].createdAt || 0) || a.localeCompare(c));
+            const cr = k => ((USERS_DB[k] || deletedAccounts[k] || {}).createdAt || 0);
+            const customs = Array.from(new Set(Object.keys(USERS_DB).filter(k => !BASE_USERS[k]).concat(Object.keys(deletedAccounts).filter(k => !BASE_USERS[k] && deletedAccounts[k] && deletedAccounts[k].custom)))).sort((a, c) => cr(a) - cr(c) || a.localeCompare(c));
             return 100 + customs.indexOf(email) + 1;
         }
 
         // Historial de ingreso por usuario (solo lo muestra la cuenta master)
         let accessLog = {};
+        let deletedAccounts = {};
         function touchAccess(isLogin) {
             if (!currentUser) return;
             const k = currentUser.email, now = Date.now();
             const r = { ...(accessLog[k] || {}) };
-            if (isLogin) { r.first = r.first || now; r.lastLogin = now; r.logins = (Number(r.logins) || 0) + 1; }
+            if (isLogin) { r.first = r.first || now; r.lastLogin = now; r.logins = (Number(r.logins) || 0) + 1; const td = todayLocal(), dy = { ...(r.days || {}) }; dy[td] = (Number(dy[td]) || 0) + 1; r.days = dy; }
             r.lastSeen = now;
             accessLog[k] = r;
         }
@@ -2800,24 +2896,6 @@
             if (!ts) return '—';
             const d = new Date(ts);
             return `${d.toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' })} · ${formatClock12(ts)}`;
-        }
-        function openUserAccess(key) {
-            if (!isMasterUser()) return;
-            const u = USERS_DB[key]; if (!u) return;
-            const r = accessLog[key];
-            const on = isOnline(key);
-            const row = (label, val) => `<div class="bg-slate-950 border border-slate-800 rounded-xl p-3"><p class="text-[10px] uppercase text-slate-500">${label}</p><p class="text-xs font-semibold text-slate-100">${val}</p></div>`;
-            let body;
-            if (!r || !r.first) {
-                body = `<div class="bg-slate-950 border border-amber-500/30 rounded-xl p-4 text-center"><p class="text-sm font-bold text-amber-300">Nunca ha entrado</p><p class="text-[11px] text-slate-500 mt-1">Aún no tiene inicios de sesión registrados.</p></div>`;
-            } else {
-                body = row('Última conexión', on ? '<span class="text-emerald-400">En línea ahora</span>' : esc(fmtAccess(r.lastSeen || r.lastLogin)))
-                     + row('Último inicio de sesión', esc(fmtAccess(r.lastLogin)))
-                     + row('Primer ingreso', esc(fmtAccess(r.first)))
-                     + row('Inicios de sesión', esc(r.logins || 1));
-            }
-            document.getElementById('userAccessContent').innerHTML = `<div class="flex items-center space-x-3"><img src="${esc(u.avatar)}" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" class="w-12 h-12 rounded-full border border-cyan-400/50 object-cover"><div><p class="font-bold text-slate-100">${esc(u.name)}</p><p class="text-[11px] text-cyan-400">${esc(u.role)}</p></div></div>${body}`;
-            document.getElementById('userAccessModal').classList.remove('hidden');
         }
         function closeUserAccess() { document.getElementById('userAccessModal').classList.add('hidden'); }
 
@@ -2896,6 +2974,7 @@
             document.getElementById('panelAvatarFile').value = '';
             document.getElementById('panelFormHint').textContent = 'Si dejas la foto vacía se usará la imagen predeterminada.';
             document.getElementById('panelSaveBtn').textContent = 'GUARDAR CAMBIOS';
+            document.getElementById('panelDeleteBtn').classList.toggle('hidden', !!u.isMaster);
             document.getElementById('panelUserForm').classList.remove('hidden');
             renderManageProfiles();
         }
@@ -2908,12 +2987,14 @@
             document.getElementById('panelAvatarFile').value = '';
             document.getElementById('panelFormHint').textContent = 'El usuario de ingreso solo admite letras minúsculas, números, @, guion y guion bajo (sin espacios ni puntos). Ej: nombre@fordaworld';
             document.getElementById('panelSaveBtn').textContent = 'CREAR CUENTA';
+            document.getElementById('panelDeleteBtn').classList.add('hidden');
             document.getElementById('panelUserForm').classList.remove('hidden');
             renderManageProfiles();
         }
         function closeManagedForm() {
             document.getElementById('panelUserKey').value = '';
             document.getElementById('panelUserForm').classList.add('hidden');
+            document.getElementById('panelDeleteBtn').classList.add('hidden');
             panelAvatarData = '';
             renderManageProfiles();
         }
@@ -2951,6 +3032,7 @@
             if (!avatar) avatar = isNew ? DEFAULT_AVATAR : (document.getElementById('panelAvatarUrl').value.trim() === '' && !String(USERS_DB[key].avatar || '').startsWith('data:') ? DEFAULT_AVATAR : USERS_DB[key].avatar);
 
             if (isNew) {
+                if (deletedAccounts[login]) { if (deletedAccounts[login].custom) { showToast('Ese usuario de ingreso perteneció a una cuenta eliminada; elige otro.', 'error'); return; } delete deletedAccounts[login]; }
                 USERS_DB[login] = { login, password, name, role, age, phone, avatar, createdAt: Date.now(), createdBy: currentUser.email };
                 showToast(`Cuenta creada: ${name}`, 'success');
             } else {
@@ -3018,6 +3100,8 @@
             if (p === 'logs') return ['horarios'];
             if (p === 'meetings') return ['reuniones'];
             if (p === 'coupons') return ['cuponera'];
+            if (p === 'vouchers') return (isMasterUser() || (v && v.email === me)) ? ['vouchers'] : [];
+            if (p === 'creditReq') return (isMasterUser() || (v && v.email === me)) ? ['cuponera'] : [];
             if (p === 'events') return ['cronograma'];
             return [];
         }
@@ -3051,7 +3135,7 @@
                 });
             });
             if (dirty) saveSeen();
-            const labels = { dashboard: '📱 Dashboard / iForda', proyectos: '🚀 Control de Proyectos', historial: '📁 Historial', horarios: '⏱️ Registro de Horarios', reuniones: '📅 Reuniones y Agenda', cuponera: '🎟️ Cuponera Fordaworld', cronograma: '🗓️ Cronograma Mensual', llamadas: '⚠️ Llamadas de Atención', usuarios: '🟢 Usuarios Activos', perfil: '👤 Mi Perfil' };
+            const labels = { dashboard: '📱 Dashboard / iForda', proyectos: '🚀 Control de Proyectos', historial: '📁 Historial', horarios: '⏱️ Registro de Horarios', reuniones: '📅 Reuniones y Agenda', cuponera: '🎟️ Cuponera Fordaworld', vouchers: '🧾 Vouchers', configuracion: '⚙️ Configuración', cronograma: '🗓️ Cronograma Mensual', llamadas: '⚠️ Llamadas de Atención', usuarios: '🟢 Usuarios Activos', perfil: '👤 Mi Perfil' };
             document.querySelectorAll('.nav-tab-btn').forEach(btn => {
                 const t = btn.id.replace('tab-btn-', '');
                 let b = btn.querySelector('.nav-badge');
@@ -3221,6 +3305,9 @@
             { path: 'presence', get: () => presence,      set: v => { presence = v; },      sort: (a, b) => a.id - b.id, render: () => renderUsersPanel() },
             { path: 'credits',  get: () => creditLedger, set: v => { creditLedger = v; }, sort: (a, b) => String(b.date || '').localeCompare(String(a.date || '')) || b.id - a.id, render: () => { renderCredits(); renderUsersPanel(); } },
             { path: 'creditStatus', get: () => creditStatus, set: v => { creditStatus = v; }, sort: (a, b) => a.id - b.id, render: () => { renderCredits(); renderUsersPanel(); } },
+            { path: 'creditReq', get: () => creditReq, set: v => { creditReq = v; }, sort: (a, b) => b.id - a.id, render: () => { renderCredits(); renderUsersPanel(); } },
+            { path: 'vouchers', get: () => vouchers, set: v => { vouchers = v; }, sort: (a, b) => b.id - a.id, render: () => renderVouchers() },
+            { path: 'mods', get: () => mods, set: v => { mods = v; }, sort: (a, b) => a.id - b.id, render: () => renderModsPanel() },
             { path: 'history',  get: () => historyItems, set: v => { historyItems = v; }, sort: (a, b) => b.id - a.id, render: () => renderHistory() },
             { path: 'events',   get: () => customEvents,  set: v => { customEvents = v; },  sort: (a, b) => a.id - b.id, render: () => renderCronogram() }
         ];
@@ -3276,6 +3363,9 @@
                 else if (lg !== em || u.password !== b.password) out.set(`accounts/${em}`, clean({ login: lg, password: u.password }));
             });
             Object.keys(accessLog).forEach(k => { const v = clean(accessLog[k]); if (v) out.set(`access/${k}`, v); });
+            Object.keys(deletedAccounts).forEach(k => { const v = clean(deletedAccounts[k]); if (v) out.set(`deletedAccounts/${k}`, v); });
+            if (canon(SETTINGS) !== canon(DEFAULT_SETTINGS)) out.set('meta/settings', clean(SETTINGS));
+            if (modsCursor !== null) out.set('meta/modsCursor', modsCursor);
             if (publicMasterNote !== DEFAULT_NOTE) out.set('meta/masterNote', publicMasterNote);
             return out;
         }
@@ -3294,11 +3384,13 @@
             });
             const pr = m.profiles;
             if (pr && typeof pr === 'object') Object.keys(pr).forEach(em => { if (pr[em] && typeof pr[em] === 'object') out.set(`profiles/${em}`, pr[em]); });
-            ['accounts', 'access'].forEach(g => {
+            ['accounts', 'access', 'deletedAccounts'].forEach(g => {
                 const o = m[g];
                 if (o && typeof o === 'object') Object.keys(o).forEach(k => { if (o[k] && typeof o[k] === 'object') out.set(`${g}/${k}`, o[k]); });
             });
             if (m.meta && typeof m.meta.masterNote === 'string') out.set('meta/masterNote', m.meta.masterNote);
+            if (m.meta && m.meta.settings && typeof m.meta.settings === 'object') out.set('meta/settings', m.meta.settings);
+            if (m.meta && typeof m.meta.modsCursor === 'number') out.set('meta/modsCursor', m.meta.modsCursor);
             return out;
         }
 
@@ -3414,9 +3506,13 @@
             if (canon(newCL) !== canon(personalChecklists)) { personalChecklists = newCL; changed.add('checklists'); }
 
             let profChanged = false;
+            const dl = (mirror.deletedAccounts && typeof mirror.deletedAccounts === 'object') ? mirror.deletedAccounts : {}, newDel = {};
+            Object.keys(dl).forEach(k => { if (dl[k] && typeof dl[k] === 'object') newDel[k] = { ...dl[k] }; });
+            if (canon(newDel) !== canon(deletedAccounts)) { deletedAccounts = newDel; changed.add('deleted'); }
+            Object.keys(newDel).forEach(k => { if (USERS_DB[k] && !USERS_DB[k].isMaster) { delete USERS_DB[k]; profChanged = true; } });
             // Cuentas (credenciales y cuentas nuevas creadas por Master)
             const acc = (mirror.accounts && typeof mirror.accounts === 'object') ? mirror.accounts : {};
-            Object.keys(acc).filter(k => acc[k] && acc[k].custom && !USERS_DB[k]).sort((a, b) => (acc[a].createdAt || 0) - (acc[b].createdAt || 0) || a.localeCompare(b)).forEach(k => {
+            Object.keys(acc).filter(k => acc[k] && acc[k].custom && !USERS_DB[k] && !newDel[k]).sort((a, b) => (acc[a].createdAt || 0) - (acc[b].createdAt || 0) || a.localeCompare(b)).forEach(k => {
                 USERS_DB[k] = { login: k, password: '', name: '', role: '', age: 0, phone: '', avatar: '', createdAt: acc[k].createdAt || 0, createdBy: acc[k].createdBy || '' };
                 profChanged = true;
             });
@@ -3448,7 +3544,13 @@
 
             const note = (mirror.meta && typeof mirror.meta.masterNote === 'string') ? mirror.meta.masterNote : DEFAULT_NOTE;
             if (note !== publicMasterNote) { publicMasterNote = note; changed.add('note'); }
+            const rs = normSettings(mirror.meta && mirror.meta.settings);
+            if (canon(rs) !== canon(SETTINGS)) { SETTINGS = rs; changed.add('settings'); }
+            const mc = (mirror.meta && typeof mirror.meta.modsCursor === 'number') ? mirror.meta.modsCursor : null;
+            if (mc !== modsCursor) { modsCursor = mc; changed.add('modsCursor'); }
+            if (changed.has('settings')) applySettingsUI();
 
+            if (currentUser && !USERS_DB[currentUser.email]) { setTimeout(() => { if (currentUser) { showToast('Tu cuenta fue eliminada por Master.', 'error'); logout(); } }, 0); return; }
             if (!currentUser) return;
 
             if (profChanged) {
@@ -3461,6 +3563,8 @@
                 if (changed.has('access')) renderUsersPanel();
             }
             if (changed.has('note')) document.getElementById('ifordaNoteDisplay').innerText = publicMasterNote;
+            if (changed.has('settings')) { renderAll(); renderGlobalStatus(); renderConfigPanel(); }
+            if (changed.has('modsCursor')) renderModsPanel();
             updateBadges();
         }
 
@@ -3475,7 +3579,7 @@
             renderBoard();
             renderUsersPanel();
             renderCronogram();
-            renderCredits(); renderHistory();
+            renderCredits(); renderHistory(); renderVouchers();
         }
 
         function refreshHeader() {
@@ -3625,7 +3729,7 @@
         }
 
         function closeAllModals() {
-            ['projectModal', 'newDutyModal', 'newMeetingModal', 'newWarningModal', 'cronogramExamModal', 'workLogDetailModal', 'userAccessModal', 'publishUpdateModal', 'projectDayModal']
+            ['projectModal', 'newDutyModal', 'newMeetingModal', 'newWarningModal', 'cronogramExamModal', 'workLogDetailModal', 'userAccessModal', 'publishUpdateModal', 'projectDayModal', 'creditDetailModal', 'creditEditModal']
                 .forEach(id => document.getElementById(id).classList.add('hidden'));
         }
 
@@ -3665,6 +3769,7 @@
             buildMonthOptions('filterLogMonth', 'Mostrar Todos los Meses');
             buildMonthOptions('filterCouponsMonth', 'Historial Completo');
             buildMonthOptions('filterHistoryMonth', 'Todo el historial'); document.getElementById('filterHistoryMonth').value = 'ALL';
+            buildMonthOptions('filterVoucherMonth', 'Todos los vouchers'); document.getElementById('filterVoucherMonth').value = 'ALL';
             setDefaultDates();
             cronogramToday();
             projectWeekToday();
@@ -3711,46 +3816,190 @@ function awardDailyLogin() {
     if (!currentUser || currentUser.isMaster) return;
     const t = todayLocal(), id = Number(t.replace(/-/g, '')) * 1000 + presenceId(currentUser.email);   // id fijo: 1 vez por día
     if (creditLedger.some(l => l.id === id)) return;
-    creditLedger.push({ id, email: currentUser.email, amount: 0.01, kind: 'login', desc: 'Ingreso diario a la plataforma', date: t, month: t.slice(0, 7), by: currentUser.email });
+    creditLedger.push({ id, email: currentUser.email, amount: CFG().loginAmount, kind: 'login', desc: 'Ingreso diario a la plataforma', date: t, month: t.slice(0, 7), by: currentUser.email });
     scheduleSync();
 }
 
 function statusBadge(st) {
     return st === 'PAGADO' ? 'bg-emerald-950 text-emerald-300 border-emerald-700' : 'bg-amber-950 text-amber-300 border-amber-700';
 }
-function creditBlock(em, btns) {
-    const st = creditStatusOf(em), sc = performanceScore(em), lb = scoreLabel(sc.score);
-    return `<div class="w-full pt-2 border-t border-slate-800 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10px]" onclick="event.stopPropagation()">
-        <span class="font-mono font-bold text-amber-300">💰 ${money(creditBal(em))}</span>
-        <span class="font-mono text-purple-300">⭐ Mérito: ${money(creditMerit(em))}</span>
-        <span class="font-bold ${lb.cls}">📊 ${sc.score}%</span>
-        <span class="font-bold border px-2 py-0.5 rounded-full ${statusBadge(st)}">${st}</span>
-        ${btns ? `<button onclick="creditPay('${esc(em)}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-lg">PAGAR</button><button onclick="creditCarry('${esc(em)}')" class="bg-sky-700 hover:bg-sky-600 text-white font-bold px-2.5 py-1 rounded-lg">TRASPASAR</button>` : ''}
-    </div>`;
+// ---------------- Desglose de pago, solicitudes, traspasos ----------------
+function carryLabel(m) {          // traspaso: cada 30 del mes siguiente (o último día si el mes es más corto)
+    const [y, mo] = m.split('-').map(Number), day = Math.min(30, new Date(y, mo, 0).getDate());
+    return `${day} de ${MONTHS_ES[mo - 1]} ${y}`;
+}
+function payBreakdown(em) {
+    const L = creditLedger.filter(l => l.email === em && !l.settled);
+    const sum = f => r2(L.filter(f).reduce((a, l) => a + (Number(l.amount) || 0), 0));
+    const days = L.filter(l => l.kind === 'login').sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    const rows = [], add = (l, v, n) => { if (Math.abs(v) > 0.004) rows.push({ l, v, n: n || '' }); };
+    const known = ['login', 'project', 'transfer', 'carry', 'discount', 'warning', 'adjust', 'paid', 'merit'];
+    add('Pago por día (ingreso automático)', sum(l => l.kind === 'login'), days.length + ' día(s)');
+    add('Proyectos concretados', sum(l => l.kind === 'project'));
+    add('Transferencias de Master', sum(l => l.kind === 'transfer'));
+    add('Traspasos (neto)', sum(l => l.kind === 'carry'));
+    add('Descuentos y amonestaciones', sum(l => l.kind === 'discount' || l.kind === 'warning'));
+    add('Ajustes de Master', sum(l => l.kind === 'adjust'));
+    add('Pagos anteriores', sum(l => l.kind === 'paid'));
+    add('Otros', sum(l => !known.includes(l.kind)));
+    const meritRows = L.filter(l => l.kind === 'merit').map(l => ({ d: l.desc || 'Mérito', v: Number(l.amount) || 0, date: l.date }));
+    const bal = creditBal(em), merit = creditMerit(em);
+    return { rows, days, meritRows, bal, merit, total: r2(bal + merit) };
+}
+function payDetailHtml(em) {
+    const b = payBreakdown(em);
+    const row = (l, v, sub, cls) => `<div class="flex justify-between gap-2 text-[11px] bg-slate-900 rounded-lg px-2.5 py-1.5"><span class="text-slate-300 break-words min-w-0">${esc(l)}${sub ? ` <span class="text-slate-500">· ${esc(sub)}</span>` : ''}</span><span class="font-mono font-bold shrink-0 ${cls || (v < 0 ? 'text-rose-400' : 'text-emerald-400')}">${v < 0 ? '' : '+'}${money(v)}</span></div>`;
+    const dayChips = b.days.length ? `<div class="max-h-28 overflow-y-auto flex flex-wrap gap-1 pr-1">${b.days.map(d => `<span class="text-[10px] font-mono bg-slate-900 border border-slate-800 rounded px-1.5 py-0.5 text-slate-300">${esc(d.date)} <span class="text-emerald-400">+${money(d.amount)}</span></span>`).join('')}</div>` : '';
+    return `<p class="text-[10px] uppercase font-bold text-slate-500">Pago por día contabilizado automáticamente</p>
+        ${dayChips || '<p class="text-[11px] text-slate-500 italic">Sin días contabilizados.</p>'}
+        <p class="text-[10px] uppercase font-bold text-slate-500 pt-2">Resumen del crédito</p>
+        ${b.rows.length ? b.rows.map(r => row(r.l, r.v, r.n)).join('') : '<p class="text-[11px] text-slate-500 italic">Sin movimientos pendientes.</p>'}
+        ${row('SALDO (sin mérito)', b.bal, '', 'text-amber-300')}
+        <p class="text-[10px] uppercase font-bold text-purple-300 pt-2">Mérito (habilitado manualmente por Master)</p>
+        ${b.meritRows.length ? b.meritRows.map(m => row(m.d, m.v, m.date, 'text-purple-300')).join('') : '<p class="text-[11px] text-slate-500 italic">Sin mérito.</p>'}
+        ${row('MÉRITO TOTAL', b.merit, '', 'text-purple-300')}
+        <div class="flex justify-between items-center gap-2 bg-slate-950 border border-amber-500/50 rounded-xl px-3 py-2.5 mt-2"><span class="text-xs font-extrabold text-amber-300">TOTAL A PAGAR (precio final)</span><span class="font-mono font-black text-lg text-amber-300">${money(b.total)}</span></div>`;
+}
+function openCreditDetail(em) {
+    if (!currentUser || (!currentUser.isMaster && currentUser.email !== em)) return;
+    byId('creditDetailTitle').textContent = 'Detalle de pago · ' + (USERS_DB[em] || {}).name;
+    byId('creditDetailContent').innerHTML = payDetailHtml(em);
+    byId('creditDetailModal').classList.remove('hidden');
+}
+function closeCreditDetail() { byId('creditDetailModal').classList.add('hidden'); }
+
+function settleAll(em, payId) { creditLedger.forEach(l => { if (l.email === em && !l.settled) l.settled = payId; }); }
+function closeReqs(em, type, by) {
+    creditReq.forEach(r => { if (r.email === em && r.type === type && r.status === 'solicitado') { r.status = 'aprobado'; r.resolvedAt = Date.now(); r.resolvedBy = by || (currentUser ? currentUser.email : ''); } });
+}
+function doPay(em) {
+    const u = USERS_DB[em], bd = payBreakdown(em), b = bd.bal, mr = bd.merit, total = bd.total;
+    if (total <= 0.004) return false;
+    const lines = bd.rows.map(r => ({ l: r.l + (r.n ? ' (' + r.n + ')' : ''), v: r.v }));
+    bd.meritRows.forEach(m => lines.push({ l: 'Mérito: ' + m.d, v: m.v }));
+    lines.push({ l: 'TOTAL PAGADO', v: total });
+    addVoucher({ email: em, kind: 'credito', title: `Pago de crédito ahorrado · ${u.name}`, desc: `Pago realizado por la cuenta Master por un total de ${money(total)} (incluye mérito).`, amount: total, lines });
+    if (Math.abs(b) > 0.004) addCredit(em, -b, 'paid', `Pagado por Master (${money(total)})`);
+    if (Math.abs(mr) > 0.004) addCredit(em, -mr, 'merit', 'Mérito liquidado en el pago');
+    settleAll(em, mkId());
+    const m = curMonth(), id = Number(m.replace('-', '')) * 1000 + presenceId(em);
+    const rec = { id, email: em, month: m, status: 'PAGADO', amount: total, ts: Date.now() };
+    const i = creditStatus.findIndex(s => s.id === id);
+    if (i >= 0) creditStatus[i] = rec; else creditStatus.push(rec);
+    closeReqs(em, 'pago');
+    renderCredits(); renderUsersPanel(); scheduleSync();
+    return total;
+}
+function doCarry(em) {
+    const m = curMonth(), nm = nextMonthStr(m), amt = creditMonthAmt(em, m), u = USERS_DB[em];
+    if (amt <= 0.004) return false;
+    const base = { email: em, kind: 'carry', by: currentUser.email, date: todayLocal() };
+    creditLedger.push({ ...base, id: mkId(), amount: -amt, month: m, desc: `Traspaso hacia ${carryLabel(nm)}` });
+    creditLedger.push({ ...base, id: mkId() + 1, amount: amt, month: nm, desc: `Traspaso recibido de ${m} (se acumula al ${carryLabel(nm)})`, carryTo: nm + '-30' });
+    addVoucher({ email: em, kind: 'credito', title: `Traspaso de crédito ahorrado · ${u.name}`, desc: `Se traspasan ${money(amt)} de ${m} para acumularse cada 30 del siguiente mes: ${carryLabel(nm)}.`, amount: amt, lines: [{ l: `Monto de ${m}`, v: amt }, { l: `Traspasado al ${carryLabel(nm)}`, v: amt }] });
+    closeReqs(em, 'traspaso');
+    renderCredits(); renderUsersPanel(); scheduleSync();
+    return amt;
 }
 function creditPay(em) {
     if (!isMasterUser()) return;
-    const b = creditBal(em), u = USERS_DB[em];
-    if (b <= 0.004) { showToast('Este usuario no tiene saldo por pagar.', 'error'); return; }
-    if (!confirm(`¿Confirmas que ${u.name} ya fue pagado por ${money(b)}? (El pago se realiza fuera de la plataforma)`)) return;
-    addCredit(em, -b, 'paid', `Pagado por Master (${money(b)})`);
-    const m = curMonth(), id = Number(m.replace('-', '')) * 1000 + presenceId(em);
-    const rec = { id, email: em, month: m, status: 'PAGADO', amount: b, ts: Date.now() };
-    const i = creditStatus.findIndex(s => s.id === id);
-    if (i >= 0) creditStatus[i] = rec; else creditStatus.push(rec);
-    renderCredits(); renderUsersPanel(); scheduleSync();
-    showToast(`${u.name}: PAGADO ${money(b)}. El crédito comienza de nuevo.`, 'success');
+    const total = payBreakdown(em).total, u = USERS_DB[em];
+    if (total <= 0.004) { showToast('Este usuario no tiene saldo por pagar.', 'error'); return; }
+    if (!confirm(`¿Confirmas que ${u.name} ya fue pagado por ${money(total)} (saldo + mérito)? (El pago se realiza fuera de la plataforma)`)) return;
+    const paid = doPay(em);
+    if (paid) showToast(`${u.name}: PAGADO ${money(paid)}. Voucher generado. El crédito comienza de nuevo.`, 'success');
 }
 function creditCarry(em) {
     if (!isMasterUser()) return;
     const m = curMonth(), nm = nextMonthStr(m), amt = creditMonthAmt(em, m);
     if (amt <= 0.004) { showToast('No hay monto de este mes para traspasar.', 'error'); return; }
-    if (!confirm(`¿Traspasar ${money(amt)} de ${m} a ${nm} para ${USERS_DB[em].name}?`)) return;
-    const base = { email: em, kind: 'carry', by: currentUser.email, date: todayLocal() };
-    creditLedger.push({ ...base, id: mkId(), amount: -amt, month: m, desc: `Traspaso hacia ${nm}` });
-    creditLedger.push({ ...base, id: mkId() + 1, amount: amt, month: nm, desc: `Traspaso recibido de ${m}` });
+    if (!confirm(`¿Traspasar ${money(amt)} de ${m} al ${carryLabel(nm)} para ${USERS_DB[em].name}?`)) return;
+    doCarry(em);
+    showToast(`Monto de ${money(amt)} traspasado al ${carryLabel(nm)}. Voucher generado.`, 'success');
+}
+// ---- Solicitudes del usuario ----
+const pendingReq = em => creditReq.find(r => r.email === em && r.status === 'solicitado');
+function creditRequest(type) {
+    if (!currentUser || currentUser.isMaster) return;
+    const em = currentUser.email, m = curMonth(), nm = nextMonthStr(m);
+    if (pendingReq(em)) { showToast('Ya tienes una solicitud pendiente de aprobación.', 'info'); return; }
+    let amount;
+    if (type === 'pago') {
+        amount = payBreakdown(em).total;
+        if (amount <= 0.004) { showToast('No tienes saldo disponible para solicitar pago.', 'error'); return; }
+        if (!confirm(`¿Solicitar el pago de ${money(amount)} (saldo + mérito)?`)) return;
+    } else {
+        amount = creditMonthAmt(em, m);
+        if (amount <= 0.004) { showToast('No tienes monto de este mes para traspasar.', 'error'); return; }
+        if (!confirm(`¿Solicitar traspasar ${money(amount)} para acumularse el ${carryLabel(nm)}?`)) return;
+    }
+    creditReq.unshift({ id: mkId(), email: em, type, amount, month: m, target: type === 'traspaso' ? nm : '', status: 'solicitado', date: todayLocal(), ts: Date.now() });
+    renderCredits(); scheduleSync();
+    showToast(type === 'pago' ? 'Solicitud de pago enviada a Master (estado: Solicitado)' : 'Solicitud de traspaso enviada a Master (estado: Solicitado)', 'success');
+}
+function creditReqResolve(id, st) {
+    if (!isMasterUser()) return;
+    const r = creditReq.find(x => x.id === id); if (!r || r.status !== 'solicitado') return;
+    const u = USERS_DB[r.email]; if (!u) return;
+    if (st === 'aprobado') {
+        const now = r.type === 'pago' ? payBreakdown(r.email).total : creditMonthAmt(r.email, curMonth());
+        if (now <= 0.004) { showToast('Ya no hay monto disponible para esta solicitud.', 'error'); return; }
+        if (!confirm(`¿Aprobar ${r.type === 'pago' ? 'el pago' : 'el traspaso'} de ${money(now)} para ${u.name}?`)) return;
+        r.type === 'pago' ? doPay(r.email) : doCarry(r.email);
+        showToast(`Solicitud de ${u.name} aprobada. Voucher generado.`, 'success');
+    } else {
+        if (!confirm(`¿Rechazar la solicitud de ${r.type} de ${u.name}?`)) return;
+        r.status = 'rechazado'; r.resolvedAt = Date.now(); r.resolvedBy = currentUser.email;
+        showToast(`Solicitud de ${u.name} rechazada.`, 'info');
+    }
+    renderCredits(); scheduleSync();
+}
+// ---- Controles Master: borrar / modificar saldo ----
+function masterClearBalance(em) {
+    if (!isMasterUser()) return;
+    const u = USERS_DB[em], b = creditBal(em), mr = creditMerit(em);
+    if (Math.abs(b) < 0.005 && Math.abs(mr) < 0.005) { showToast('Este usuario no tiene saldo ni mérito.', 'info'); return; }
+    if (!confirm(`¿Borrar el saldo (${money(b)}) y el mérito (${money(mr)}) de ${u.name}? No se paga: queda en S/ 0.00.`)) return;
+    if (Math.abs(b) >= 0.005) addCredit(em, -b, 'adjust', 'Saldo borrado por Master');
+    if (Math.abs(mr) >= 0.005) addCredit(em, -mr, 'merit', 'Mérito borrado por Master');
+    settleAll(em, mkId());
+    addVoucher({ email: em, kind: 'credito', title: `Saldo borrado · ${u.name}`, desc: 'La cuenta Master borró el saldo y el mérito del usuario.', amount: -(b + mr), lines: [{ l: 'Saldo anterior', v: b }, { l: 'Mérito anterior', v: mr }, { l: 'Saldo actual', v: 0 }] });
     renderCredits(); renderUsersPanel(); scheduleSync();
-    showToast(`Monto de ${money(amt)} traspasado a ${nm}. Sigue ACUMULANDO.`, 'success');
+    showToast(`Saldo de ${u.name} borrado.`, 'success');
+}
+let creditEditEm = '';
+function openCreditEdit(em) {
+    if (!isMasterUser()) return;
+    creditEditEm = em;
+    byId('creditEditWho').textContent = USERS_DB[em].name;
+    byId('ceBal').value = creditBal(em).toFixed(2); byId('ceMerit').value = creditMerit(em).toFixed(2); byId('ceReason').value = '';
+    byId('creditEditModal').classList.remove('hidden');
+}
+function closeCreditEdit() { byId('creditEditModal').classList.add('hidden'); }
+function saveCreditEdit() {
+    if (!isMasterUser()) return;
+    const em = creditEditEm, u = USERS_DB[em]; if (!u) return;
+    const nb = parseFloat(byId('ceBal').value), nm = parseFloat(byId('ceMerit').value), why = byId('ceReason').value.trim();
+    if (isNaN(nb) || isNaN(nm)) { showToast('Ingresa saldo y mérito válidos.', 'error'); return; }
+    const b = creditBal(em), mr = creditMerit(em), db = r2(nb - b), dm = r2(nm - mr);
+    if (Math.abs(db) < 0.005 && Math.abs(dm) < 0.005) { showToast('No hay cambios que guardar.', 'info'); return; }
+    if (Math.abs(db) >= 0.005) addCredit(em, db, 'adjust', 'Saldo modificado por Master' + (why ? ' – ' + why : ''));
+    if (Math.abs(dm) >= 0.005) addCredit(em, dm, 'merit', 'Mérito modificado por Master' + (why ? ' – ' + why : ''));
+    addVoucher({ email: em, kind: 'credito', title: `Saldo modificado · ${u.name}`, desc: why || 'Modificación manual realizada por la cuenta Master.', amount: r2(db + dm), lines: [{ l: 'Saldo anterior', v: b }, { l: 'Saldo nuevo', v: nb }, { l: 'Mérito anterior', v: mr }, { l: 'Mérito nuevo', v: nm }] });
+    closeCreditEdit(); renderCredits(); renderUsersPanel(); scheduleSync();
+    showToast(`Saldo de ${u.name} modificado.`, 'success');
+}
+function creditBlock(em, btns) {
+    const st = creditStatusOf(em), sc = performanceScore(em), lb = scoreLabel(sc.score), pr = pendingReq(em);
+    const bt = (fn, cls, t) => `<button onclick="${fn}('${esc(em)}')" class="${cls} text-white font-bold px-2.5 py-1 rounded-lg">${t}</button>`;
+    return `<div class="w-full pt-2 border-t border-slate-800 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10px]" onclick="event.stopPropagation()">
+        <span class="font-mono font-bold text-amber-300">💰 ${money(creditBal(em))}</span>
+        <span class="font-mono text-purple-300">⭐ Mérito: ${money(creditMerit(em))}</span>
+        <span class="font-bold ${lb.cls}">📊 ${sc.score}%</span>
+        <span class="font-bold border px-2 py-0.5 rounded-full ${statusBadge(st)}">${st}</span>
+        ${pr ? `<span class="font-bold border px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border-cyan-800">⏳ Solicitó ${esc(pr.type)}</span>` : ''}
+        ${btns ? bt('creditPay', 'bg-emerald-600 hover:bg-emerald-500', 'PAGAR') + bt('creditCarry', 'bg-sky-700 hover:bg-sky-600', 'TRASPASAR') + bt('openCreditDetail', 'bg-slate-700 hover:bg-slate-600', 'DETALLE') + bt('openCreditEdit', 'bg-purple-700 hover:bg-purple-600', 'MODIFICAR') + bt('masterClearBalance', 'bg-rose-700 hover:bg-rose-600', 'BORRAR SALDO') : ''}
+    </div>`;
 }
 function masterTransfer() {
     if (!isMasterUser()) return;
@@ -3759,6 +4008,7 @@ function masterTransfer() {
     if (isNaN(amt) || amt <= 0 || amt > 4444) { showToast('El monto debe estar entre S/ 0.01 y S/ 4444.', 'error'); return; }
     if (dest === 'merit') addCredit(em, amt, 'merit', 'Mérito habilitado por Master' + (d ? ' – ' + d : ''));
     else addCredit(em, amt, 'transfer', 'Transferencia de Master' + (d ? ' – ' + d : ''));
+    addVoucher({ email: em, kind: 'credito', title: dest === 'merit' ? 'Mérito habilitado por Master' : 'Transferencia de Master a crédito ahorrado', desc: d || 'Sin descripción.', amount: amt });
     byId('crAmount').value = ''; byId('crDesc').value = '';
     showToast(`${money(amt)} transferido a ${USERS_DB[em].name}`, 'success');
 }
@@ -3768,25 +4018,45 @@ function masterDiscount() {
     if (!em || isNaN(amt) || amt <= 0) { showToast('Selecciona usuario e ingresa un monto mayor a 0.', 'error'); return; }
     if (amt > creditBal(em) && !confirm(`El descuento supera el saldo (${money(creditBal(em))}). ¿Continuar igualmente?`)) return;
     addCredit(em, -amt, 'discount', 'Descuento automático' + (d ? ' – ' + d : ''));
+    addVoucher({ email: em, kind: 'descuento', title: 'Descuento aplicado por Master', desc: d || 'Sin descripción.', amount: -amt });
     byId('dcAmount').value = ''; byId('dcDesc').value = '';
     showToast(`Descuento de ${money(amt)} aplicado a ${USERS_DB[em].name}`, 'success');
 }
+function reqRowHtml(r, M) {
+    const u = USERS_DB[r.email] || { name: r.email };
+    let bc = 'bg-amber-950 text-amber-300 border-amber-800';
+    if (r.status === 'aprobado') bc = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+    if (r.status === 'rechazado') bc = 'bg-rose-950 text-rose-300 border-rose-800';
+    const what = r.type === 'pago' ? 'Solicitud de PAGO' : `Solicitud de TRASPASO${r.target ? ' al ' + carryLabel(r.target) : ''}`;
+    const acts = (M && r.status === 'solicitado') ? `<button onclick="creditReqResolve(${esc(r.id)}, 'aprobado')" class="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white">✓ Aprobar</button><button onclick="creditReqResolve(${esc(r.id)}, 'rechazado')" class="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-rose-700 hover:bg-rose-600 text-white">✗ Rechazar</button>` : '';
+    const det = (M && r.type === 'pago') ? `<button onclick="openCreditDetail('${esc(r.email)}')" class="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-white">Detalle</button>` : '';
+    return `<div class="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px]"><div class="min-w-0"><p class="font-bold text-slate-200 break-words">${M ? esc(u.name) + ' · ' : ''}${what} · <span class="font-mono text-amber-300">${money(r.amount)}</span></p><p class="text-[10px] text-slate-500 font-mono">${esc(r.date)}</p></div><div class="flex items-center gap-2 flex-wrap"><span class="text-[10px] uppercase font-bold border px-2.5 py-1 rounded-full ${bc}">${esc(r.status)}</span>${det}${acts}</div></div>`;
+}
 function renderCredits() {
     if (!byId('creditSection') || !currentUser) return;
-    const M = currentUser.isMaster;
+    const M = currentUser.isMaster, c = CFG();
     byId('creditUserCard').classList.toggle('hidden', M);
     byId('creditMasterTools').classList.toggle('hidden', !M);
     byId('creditStatusBadge').classList.toggle('hidden', M);
     const opts = workers().map(k => `<option value="${esc(k)}">${esc(USERS_DB[k].name)}</option>`).join('');
     ['crTarget', 'dcTarget'].forEach(id => { const s = byId(id); if (s && s.dataset.sig !== opts) { const v = s.value; s.innerHTML = opts; s.dataset.sig = opts; if (v) s.value = v; } });
     if (M) {
+        const pend = creditReq.filter(r => r.status === 'solicitado'), done = creditReq.filter(r => r.status !== 'solicitado').slice(0, 8);
+        byId('creditReqPanel').innerHTML = `<p class="text-xs font-bold text-cyan-300"><i class="fas fa-inbox mr-1"></i>SOLICITUDES DE CRÉDITO AHORRADO <span class="text-[10px] ${pend.length ? 'text-amber-300' : 'text-slate-500'}">· ${pend.length} por aprobar</span></p>` + (pend.concat(done).length ? pend.concat(done).map(r => reqRowHtml(r, true)).join('') : '<p class="text-[11px] text-slate-500 italic">Aún no hay solicitudes de pago o traspaso.</p>');
         byId('creditTeamRows').innerHTML = workers().map(em => `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-3"><p class="text-xs font-bold text-slate-200">${esc(USERS_DB[em].name)} <span class="text-[10px] text-slate-500">${esc(USERS_DB[em].role)}</span></p>${creditBlock(em, true)}</div>`).join('');
     } else {
-        const em = currentUser.email, st = creditStatusOf(em), b = byId('creditStatusBadge');
+        const em = currentUser.email, st = creditStatusOf(em), b = byId('creditStatusBadge'), nm = nextMonthStr(curMonth()), pr = pendingReq(em);
         b.textContent = st; b.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full border ' + statusBadge(st);
         byId('creditBalance').textContent = money(creditBal(em));
         byId('creditMonth').textContent = money(creditMonthAmt(em, curMonth()));
         byId('creditMerit').textContent = money(creditMerit(em));
+        byId('creditRulesText').textContent = `+S/ ${r2(c.loginAmount).toFixed(2)} por cada día que ingresas · +S/ ${r2(c.projMember).toFixed(2)} por proyecto concretado como integrante (S/ ${r2(c.projLeader).toFixed(2)} si eres líder) · −S/ ${r2(c.warnPenalty).toFixed(2)} por amonestación oficial. El Mérito lo habilita la cuenta master.`;
+        const mine = creditReq.filter(r => r.email === em).slice(0, 3);
+        byId('creditUserActions').innerHTML = `<div class="flex flex-wrap gap-2">
+            <button onclick="creditRequest('pago')" ${pr ? 'disabled' : ''} class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-xl text-xs ${pr ? 'opacity-50 cursor-not-allowed' : ''}">SOLICITAR PAGO</button>
+            <button onclick="creditRequest('traspaso')" ${pr ? 'disabled' : ''} class="bg-sky-700 hover:bg-sky-600 text-white font-bold px-3 py-2 rounded-xl text-xs ${pr ? 'opacity-50 cursor-not-allowed' : ''}">TRASPASAR (cada 30 · ${esc(carryLabel(nm))})</button>
+            <button onclick="openCreditDetail('${esc(em)}')" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-3 py-2 rounded-xl text-xs">VER DETALLE DE PAGO</button></div>
+            ${mine.map(r => reqRowHtml(r, false)).join('')}`;
         const mv = creditLedger.filter(l => l.email === em).slice(0, 40);
         byId('creditMoves').innerHTML = mv.length ? mv.map(l => `<div class="flex justify-between gap-2 text-[11px] bg-slate-900 rounded-lg px-2.5 py-1.5"><span class="text-slate-300 break-words min-w-0"><span class="text-slate-500 font-mono">${esc(l.date)}</span> · ${esc(l.desc)}${l.kind === 'merit' ? ' <span class="text-purple-300">(Mérito)</span>' : ''}</span><span class="font-mono font-bold shrink-0 ${l.amount < 0 ? 'text-rose-400' : 'text-emerald-400'}">${l.amount < 0 ? '' : '+'}${money(l.amount)}</span></div>`).join('') : '<p class="text-[11px] text-slate-500 italic">Aún no hay movimientos.</p>';
     }
@@ -3811,14 +4081,12 @@ function performanceScore(em) {
     const act = projects.filter(inv).map(p => !(p.dueDate < today && !['Completado', 'Aprobado'].includes(p.status)));
     const dn = historyItems.filter(h => inv(h) && String(h.completedAt).startsWith(mo)).map(h => !h.dueDate || h.completedAt <= h.dueDate);
     const all = act.concat(dn), pr = all.length ? all.filter(Boolean).length / all.length : 1;
-    let pen = 0; warnings.filter(w => w.targetUser === em && String(w.date).startsWith(mo)).forEach(w => { pen += w.type === 'Amonestación Oficial' ? 10 : 5; });
-    return { score: Math.max(0, Math.min(100, Math.round(40 * att + 30 * tk + 30 * pr - pen))), att, tk, pr, pen, days, wd };
+    let pen = 0; warnings.filter(w => w.targetUser === em && String(w.date).startsWith(mo)).forEach(w => { pen += w.type === 'Amonestación Oficial' ? CFG().penOfficial : CFG().penCall; });
+    return { score: Math.max(0, Math.min(100, Math.round(CFG().wAtt * att + CFG().wTasks * tk + CFG().wProj * pr - pen + (Number(CFG().adj[em]) || 0)))), att, tk, pr, pen, days, wd };
 }
 function scoreLabel(s) {
-    if (s >= 85) return { t: 'Óptimo', cls: 'text-emerald-400' };
-    if (s >= 70) return { t: 'Bueno', cls: 'text-sky-300' };
-    if (s >= 50) return { t: 'Regular', cls: 'text-amber-300' };
-    return { t: 'Crítico', cls: 'text-rose-400' };
+    const T = tierList(), t = T.find(x => s >= x.min) || T[T.length - 1];
+    return { t: t.n, cls: TIER_C[t.c] || 'text-slate-300' };
 }
 function scoreDetail(sc) { return `Asistencia ${sc.days}/${sc.wd} días · Tareas ${Math.round(sc.tk * 100)}% · Proyectos ${Math.round(sc.pr * 100)}% · Penalización −${sc.pen}`; }
 function renderGlobalStatus() {
@@ -3867,7 +4135,7 @@ function completeProject(p) {
         const t = todayLocal();
         creditLedger.push({ id, email: em, amount: amt, kind: 'project', desc: `Proyecto concretado: ${p.title} (${role})`, date: t, month: t.slice(0, 7), by: currentUser.email, projectId: p.id });
     };
-    give(emailOfName(p.owner), 0.20, 'Líder'); rec.team.forEach(n => give(emailOfName(n), 0.10, 'Integrante'));
+    give(emailOfName(p.owner), CFG().projLeader, 'Líder'); rec.team.forEach(n => give(emailOfName(n), CFG().projMember, 'Integrante'));
     renderProjects(); renderHistory(); renderCredits(); scheduleSync();
     showToast('Proyecto CONCLUIDO: pasó al Historial y se acreditó el Crédito Ahorrado al equipo', 'success');
 }
@@ -3930,6 +4198,383 @@ function histDeleteBulk(type) {
     if (!n) { showToast('No hay carpetas en ese período.', 'info'); return; }
     if (!confirm(`¿Eliminar ${n} carpeta(s) del ${type === 'month' ? 'mes ' + ref : 'año ' + ref.slice(0, 4)}? No se puede deshacer.`)) return;
     historyItems = historyItems.filter(h => !inScope(h)); renderHistory(); showToast('Historial eliminado por Master', 'info');
+}
+
+</script>
+<script>
+// =====================================================================
+//  VOUCHERS · REGISTRO DE INGRESOS · CONFIGURACIÓN · GENERADOR DE MODIFICACIONES
+//  (todo se sincroniza en tiempo real con Firebase: vouchers, creditReq, mods, meta/settings)
+// =====================================================================
+const clone = o => JSON.parse(JSON.stringify(o));
+const normTxt = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+// ---------------- VOUCHERS ----------------
+const VOUCHER_KINDS = {
+    especial:  { ico: '💎', lb: 'MONTO ESPECIAL',   chip: 'bg-purple-950 text-purple-300 border-purple-700', bd: 'border-purple-500/40' },
+    credito:   { ico: '💰', lb: 'CRÉDITO AHORRADO', chip: 'bg-amber-950 text-amber-300 border-amber-700',   bd: 'border-amber-500/40' },
+    descuento: { ico: '➖', lb: 'DESCUENTO',         chip: 'bg-rose-950 text-rose-300 border-rose-700',     bd: 'border-rose-500/40' }
+};
+function addVoucher(v) {
+    const t = todayLocal(), now = Date.now();
+    vouchers.unshift(Object.assign({ id: mkId(), date: t, month: t.slice(0, 7), time: formatClock12(now), by: currentUser ? currentUser.email : '', byName: currentUser ? currentUser.name : '' }, v));
+    renderVouchers(); scheduleSync();
+}
+const voucherOpen = new Set();
+function voucherToggle(em, open) { open ? voucherOpen.add(em) : voucherOpen.delete(em); }
+function renderVouchers() {
+    const box = byId('voucherList'); if (!box || !currentUser) return;
+    const M = isMasterUser(), f = byId('filterVoucherMonth')?.value || 'ALL';
+    byId('voucherMasterPanel').classList.toggle('hidden', !M);
+    const inScope = v => f === 'ALL' || String(v.month || v.date || '').slice(0, 7) === f;
+    const users = M ? Object.keys(USERS_DB).filter(k => !USERS_DB[k].isMaster) : [currentUser.email];
+    const total = vouchers.filter(v => users.includes(v.email) && inScope(v)).length;
+    byId('voucherCount').textContent = `· ${total} voucher(s)`;
+    if (!users.length) { box.innerHTML = '<p class="text-xs text-slate-500 italic text-center py-8">No hay usuarios.</p>'; return; }
+    box.innerHTML = users.map(em => {
+        const u = USERS_DB[em] || { name: em, role: '' };
+        const list = vouchers.filter(v => v.email === em && inScope(v)).sort((a, b) => b.id - a.id);
+        const items = list.length ? list.map(v => {
+            const k = VOUCHER_KINDS[v.kind] || VOUCHER_KINDS.credito, amt = Number(v.amount) || 0;
+            const lines = toArr(v.lines).filter(x => x && typeof x === 'object');
+            return `<div class="rounded-2xl border ${k.bd} bg-slate-900 p-3 space-y-2">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                    <div class="min-w-0"><span class="text-[9px] font-bold border px-2 py-0.5 rounded-full ${k.chip}">${k.ico} ${k.lb}</span>
+                    <p class="text-sm font-extrabold text-white mt-1.5 break-words">${esc(v.title)}</p></div>
+                    <div class="text-right shrink-0"><p class="font-mono font-black text-sm ${amt < 0 ? 'text-rose-400' : 'text-emerald-400'}">${amt < 0 ? '' : '+'}${money(amt)}</p><p class="text-[10px] font-mono text-slate-500">${esc(v.date)} · ${esc(v.time || '')}</p></div>
+                </div>
+                <p class="text-xs text-slate-300 whitespace-pre-wrap break-words">${esc(v.desc || 'Sin descripción')}</p>
+                ${lines.length ? `<div class="space-y-1">${lines.map(x => `<div class="flex justify-between gap-2 text-[11px] bg-slate-950 rounded-lg px-2.5 py-1"><span class="text-slate-400 break-words min-w-0">${esc(x.l)}</span><span class="font-mono font-bold shrink-0 text-slate-200">${money(Number(x.v) || 0)}</span></div>`).join('')}</div>` : ''}
+                <div class="flex flex-wrap items-center justify-between gap-2"><p class="text-[10px] text-slate-500">Emitido por ${esc(v.byName || v.by || '—')}</p>
+                ${M ? `<button onclick="voucherDelete(${esc(v.id)})" class="text-[10px] bg-rose-950 hover:bg-rose-700 border border-rose-500/40 text-rose-300 px-2.5 py-1 rounded-lg"><i class="fas fa-trash-can mr-1"></i>Eliminar voucher</button>` : ''}</div>
+            </div>`;
+        }).join('') : '<p class="text-[11px] text-slate-500 italic">Sin vouchers en este período.</p>';
+        return `<details ${voucherOpen.has(em) ? 'open' : ''} ontoggle="voucherToggle('${esc(em)}', this.open)" class="rounded-2xl border border-cyan-500/30 bg-slate-950/70">
+            <summary class="cursor-pointer p-4 flex flex-wrap items-center justify-between gap-2"><span class="font-black text-sm text-cyan-300 break-words">📁 ${esc(u.name)} <span class="text-[10px] font-semibold text-slate-400">${esc(u.role || '')}</span></span>
+            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-900 text-slate-300 border border-slate-700">${list.length} voucher(s)</span></summary>
+            <div class="p-4 pt-0 space-y-3">${items}</div></details>`;
+    }).join('');
+}
+function voucherDelete(id) {
+    if (!isMasterUser()) return;
+    const v = vouchers.find(x => x.id === id); if (!v || !confirm(`¿Eliminar el voucher “${v.title}”?`)) return;
+    vouchers = vouchers.filter(x => x.id !== id); renderVouchers(); scheduleSync(); showToast('Voucher eliminado por Master', 'info');
+}
+function voucherDeleteBulk(type) {
+    if (!isMasterUser()) return;
+    const sel = byId('filterVoucherMonth').value, ref = sel !== 'ALL' ? sel : curMonth();
+    const mo = v => String(v.month || v.date || '').slice(0, 7);
+    const inScope = v => type === 'month' ? mo(v) === ref : mo(v).slice(0, 4) === ref.slice(0, 4);
+    const n = vouchers.filter(inScope).length;
+    if (!n) { showToast('No hay vouchers en ese período.', 'info'); return; }
+    if (!confirm(`¿Eliminar ${n} voucher(s) del ${type === 'month' ? 'mes ' + ref : 'año ' + ref.slice(0, 4)}? No se puede deshacer.`)) return;
+    vouchers = vouchers.filter(v => !inScope(v)); renderVouchers(); scheduleSync(); showToast('Vouchers eliminados por Master', 'info');
+}
+
+// ---------------- REGISTRO DE INICIOS DE SESIÓN (modal Master) ----------------
+let accessKey = '', accessMode = 'hoy', accessCal = '';
+function openUserAccess(key) {
+    if (!isMasterUser() || !USERS_DB[key]) return;
+    accessKey = key; accessMode = 'hoy'; accessCal = todayLocal().slice(0, 7);
+    renderUserAccess();
+    byId('userAccessModal').classList.remove('hidden');
+}
+function accessSetMode(v) { accessMode = v; renderUserAccess(); }
+function accessShift(d) { let [y, m] = accessCal.split('-').map(Number); m += d; if (m < 1) { m = 12; y--; } if (m > 12) { m = 1; y++; } accessCal = `${y}-${pad2(m)}`; renderUserAccess(); }
+function accessClear(scope) {
+    if (!isMasterUser()) return;
+    const key = accessKey, r = { ...(accessLog[key] || {}) }, d = { ...(r.days || {}) };
+    if (scope === 'month') {
+        if (!confirm(`¿Borrar los inicios de sesión de ${accessCal} de ${USERS_DB[key].name}?`)) return;
+        let n = 0; Object.keys(d).forEach(k => { if (k.startsWith(accessCal)) { n += Number(d[k]) || 0; delete d[k]; } });
+        r.days = d; r.logins = Math.max(0, (Number(r.logins) || 0) - n);
+    } else {
+        if (!confirm(`¿Borrar TODOS los inicios de sesión registrados de ${USERS_DB[key].name}?`)) return;
+        r.days = {}; r.logins = 0;
+    }
+    accessLog[key] = r; renderUserAccess(); renderUsersPanel(); scheduleSync(); showToast('Inicios de sesión borrados por Master', 'info');
+}
+function renderUserAccess() {
+    const key = accessKey, u = USERS_DB[key]; if (!u) return;
+    const r = accessLog[key], on = isOnline(key), days = (r && r.days) || {}, today = todayLocal();
+    const row = (label, val) => `<div class="bg-slate-950 border border-slate-800 rounded-xl p-3"><p class="text-[10px] uppercase text-slate-500">${label}</p><p class="text-xs font-semibold text-slate-100">${val}</p></div>`;
+    let body;
+    if (!r || !r.first) {
+        body = `<div class="bg-slate-950 border border-amber-500/30 rounded-xl p-4 text-center"><p class="text-sm font-bold text-amber-300">Nunca ha entrado</p><p class="text-[11px] text-slate-500 mt-1">Aún no tiene inicios de sesión registrados.</p></div>`;
+    } else {
+        let detail;
+        if (accessMode === 'hoy') {
+            const n = Number(days[today]) || 0;
+            detail = `<p class="text-xs text-slate-200">Hoy (${esc(today)}) ingresó <span class="font-black text-cyan-300">${n}</span> vez/veces. <span class="text-slate-500">Este contador se reinicia cada día.</span></p>`;
+        } else {
+            const [y, m] = accessCal.split('-').map(Number), first = new Date(y, m - 1, 1).getDay(), dim = new Date(y, m, 0).getDate();
+            let cells = '<div></div>'.repeat(first), tot = 0, dd = 0;
+            for (let d = 1; d <= dim; d++) {
+                const k = `${y}-${pad2(m)}-${pad2(d)}`, n = Number(days[k]) || 0; tot += n; if (n) dd++;
+                cells += `<div class="rounded text-center py-1 ${n ? 'bg-cyan-950/70 text-cyan-200 ring-1 ring-cyan-500/40' : 'text-slate-600'} ${k === today ? 'outline outline-1 outline-yellow-400' : ''}"><div class="text-[10px]">${d}</div><div class="text-[9px] font-black ${n ? 'text-emerald-400' : ''}">${n ? '×' + n : '·'}</div></div>`;
+            }
+            detail = `<div class="flex items-center justify-between"><button onclick="accessShift(-1)" class="px-2 text-slate-300 hover:text-white">‹</button><p class="text-[11px] font-bold text-cyan-300 uppercase">${MONTHS_ES[m - 1]} ${y}</p><button onclick="accessShift(1)" class="px-2 text-slate-300 hover:text-white">›</button></div>
+                <div class="grid grid-cols-7 gap-0.5 text-[9px]">${['D', 'L', 'M', 'M', 'J', 'V', 'S'].map(x => `<div class="text-center text-slate-500">${x}</div>`).join('')}${cells}</div>
+                <p class="text-[10px] text-slate-400">${dd} día(s) con ingreso · ${tot} inicio(s) de sesión en el mes</p>`;
+        }
+        body = row('Última conexión', on ? '<span class="text-emerald-400">En línea ahora</span>' : esc(fmtAccess(r.lastSeen || r.lastLogin)))
+            + row('Último inicio de sesión', esc(fmtAccess(r.lastLogin)))
+            + row('Primer ingreso', esc(fmtAccess(r.first)))
+            + `<div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2"><div class="flex items-center justify-between gap-2"><div><p class="text-[10px] uppercase text-slate-500">Inicios de sesión</p><p class="text-xs font-semibold text-slate-100">${esc(Number(r.logins) || 0)}</p></div>
+                <select onchange="accessSetMode(this.value)" class="bg-slate-900 border border-cyan-500/40 rounded-lg px-2 py-1 text-[11px] text-cyan-300"><option value="hoy" ${accessMode === 'hoy' ? 'selected' : ''}>Día de hoy</option><option value="registro" ${accessMode === 'registro' ? 'selected' : ''}>Registro</option></select></div>${detail}</div>
+               <div class="flex flex-wrap gap-2"><button onclick="accessClear('month')" class="text-[10px] bg-rose-950 hover:bg-rose-700 border border-rose-500/40 text-rose-300 px-2.5 py-1.5 rounded-lg">Borrar mes mostrado</button><button onclick="accessClear('all')" class="text-[10px] bg-rose-950 hover:bg-rose-700 border border-rose-500/40 text-rose-300 px-2.5 py-1.5 rounded-lg">Borrar todos los inicios de sesión</button></div>`;
+    }
+    byId('userAccessContent').innerHTML = `<div class="flex items-center space-x-3"><img src="${esc(u.avatar)}" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" class="w-12 h-12 rounded-full border border-cyan-400/50 object-cover"><div><p class="font-bold text-slate-100">${esc(u.name)}</p><p class="text-[11px] text-cyan-400">${esc(u.role)}</p></div></div>${body}`;
+}
+
+// ---------------- CONFIGURACIÓN (solo Master) ----------------
+const TABS = {
+    dashboard: ['dashboard', 'iforda', 'inicio'], proyectos: ['control de proyectos', 'proyectos'], horarios: ['registro de horarios', 'horarios'],
+    reuniones: ['reuniones y agenda', 'reuniones', 'agenda'], cuponera: ['cuponera fordaworld', 'cuponera', 'cupones'], vouchers: ['vouchers', 'voucher', 'tickets'],
+    cronograma: ['cronograma mensual', 'cronograma'], progreso: ['progreso de proyectos', 'progreso'], historial: ['historial'],
+    llamadas: ['llamadas de atencion', 'llamadas', 'amonestaciones'], usuarios: ['usuarios activos', 'usuarios'], perfil: ['mi perfil', 'perfil'], configuracion: ['configuracion', 'ajustes']
+};
+const TIER_C = { emerald: 'text-emerald-400', sky: 'text-sky-300', amber: 'text-amber-300', rose: 'text-rose-400', purple: 'text-purple-300', cyan: 'text-cyan-300' };
+const TIER_NAMES = { emerald: 'Verde', sky: 'Azul', amber: 'Amarillo', rose: 'Rojo', purple: 'Morado', cyan: 'Cian' };
+const DEFAULT_SETTINGS = {
+    cfg: { loginAmount: 0.01, projLeader: 0.20, projMember: 0.10, warnPenalty: 0.05, wAtt: 40, wTasks: 30, wProj: 30, penOfficial: 10, penCall: 5,
+        tiers: [{ n: 'Óptimo', min: 85, c: 'emerald' }, { n: 'Bueno', min: 70, c: 'sky' }, { n: 'Regular', min: 50, c: 'amber' }, { n: 'Crítico', min: 0, c: 'rose' }], adj: {} },
+    ui: { rep: [], hide: [], css: '' }
+};
+const CFG_LABELS = { loginAmount: 'Monto automático por día (S/)', projLeader: 'Proyecto concretado · líder (S/)', projMember: 'Proyecto concretado · integrante (S/)', warnPenalty: 'Descuento por amonestación oficial (S/)',
+    wAtt: 'Peso asistencia (pts)', wTasks: 'Peso tareas (pts)', wProj: 'Peso proyectos (pts)', penOfficial: 'Penalización amonestación oficial (pts)', penCall: 'Penalización llamada de atención (pts)' };
+let SETTINGS = clone(DEFAULT_SETTINGS), mods = [], modsCursor = null;
+const CFG = () => SETTINGS.cfg;
+
+function normSettings(raw) {
+    const d = clone(DEFAULT_SETTINGS), r = (raw && typeof raw === 'object') ? raw : {}, rc = (r.cfg && typeof r.cfg === 'object') ? r.cfg : {}, ru = (r.ui && typeof r.ui === 'object') ? r.ui : {};
+    const cfg = d.cfg;
+    Object.keys(CFG_LABELS).forEach(k => { const n = Number(rc[k]); if (rc[k] !== undefined && isFinite(n) && n >= 0) cfg[k] = n; });
+    const tiers = toArr(rc.tiers).filter(t => t && typeof t === 'object' && String(t.n || '').trim() && isFinite(Number(t.min))).map(t => ({ n: String(t.n).trim(), min: Math.max(0, Math.min(100, Number(t.min))), c: TIER_C[t.c] ? t.c : 'sky' }));
+    if (tiers.length) cfg.tiers = tiers;
+    cfg.tiers.sort((a, b) => b.min - a.min);
+    cfg.adj = {}; if (rc.adj && typeof rc.adj === 'object') Object.keys(rc.adj).forEach(e => { const n = Number(rc.adj[e]); if (isFinite(n) && n !== 0) cfg.adj[e] = Math.max(-100, Math.min(100, n)); });
+    const ui = d.ui;
+    ui.rep = toArr(ru.rep).filter(x => x && typeof x === 'object' && String(x.from || '') !== '').map(x => ({ from: String(x.from), to: String(x.to ?? '') }));
+    ui.hide = toArr(ru.hide).filter(t => TABS[t] && t !== 'perfil' && t !== 'configuracion');
+    ui.css = typeof ru.css === 'string' ? ru.css : '';
+    return { cfg, ui };
+}
+const modsCur = () => modsCursor == null ? mods.length : Math.max(0, Math.min(modsCursor, mods.length));
+
+function sanitizeCss(css) { return String(css || '').replace(/@import[^;]*;?/gi, '').replace(/url\s*\(/gi, '(').replace(/expression\s*\(/gi, '(').replace(/javascript:/gi, '').replace(/<\/?style/gi, ''); }
+function applyTextRules() {
+    const rules = SETTINGS.ui.rep;
+    if (!rules.length && !applyTextRules.had) return;
+    applyTextRules.had = rules.length > 0;
+    const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: n => {
+        const p = n.parentNode; if (!p) return NodeFilter.FILTER_REJECT;
+        if (['SCRIPT', 'STYLE', 'TEXTAREA', 'NOSCRIPT'].includes(p.nodeName)) return NodeFilter.FILTER_REJECT;
+        if (p.closest && p.closest('[data-norep]')) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+    } });
+    const nodes = []; let n; while ((n = w.nextNode())) nodes.push(n);
+    nodes.forEach(t => {
+        if (t.__a !== undefined && t.nodeValue !== t.__a) { t.__o = t.nodeValue; t.__a = undefined; }
+        const o = t.__o !== undefined ? t.__o : t.nodeValue; let v = o;
+        rules.forEach(r => { v = v.split(r.from).join(r.to); });
+        if (v !== t.nodeValue) { if (t.__o === undefined) t.__o = o; t.__a = v; t.nodeValue = v; }
+    });
+}
+let textTimer = null;
+new MutationObserver(() => { clearTimeout(textTimer); textTimer = setTimeout(applyTextRules, 120); }).observe(document.body, { childList: true, subtree: true, characterData: true });
+
+function syncNavVisibility() {
+    const hide = SETTINGS.ui.hide, M = isMasterUser();
+    document.querySelectorAll('.nav-tab-btn').forEach(b => {
+        const t = b.id.replace('tab-btn-', '');
+        b.classList.toggle('hidden', hide.includes(t) || (t === 'configuracion' && !M));
+    });
+    document.querySelectorAll('#globalNavSelect option').forEach(o => { o.hidden = hide.includes(o.value) || (o.value === 'configuracion' && !M); });
+}
+function applySettingsUI() {
+    let st = byId('fdwDynCss'); if (!st) { st = document.createElement('style'); st.id = 'fdwDynCss'; document.head.appendChild(st); }
+    st.textContent = sanitizeCss(SETTINGS.ui.css);
+    syncNavVisibility();
+    const wd = byId('warnDefTxt'); if (wd) wd.textContent = CFG().warnPenalty;
+    applyTextRules();
+    if (currentUser && SETTINGS.ui.hide.includes(currentTab)) switchTab('dashboard');
+}
+function tierList() { return CFG().tiers.slice().sort((a, b) => b.min - a.min); }
+let cfgDirty = false, tierDraft = [];
+function renderConfigPanel(force) {
+    const box = byId('cfgBody'); if (!box || !isMasterUser()) return;
+    renderModsPanel();
+    if (cfgDirty && !force) return;
+    cfgDirty = false;
+    const c = CFG(); tierDraft = clone(tierList());
+    const inp = (id, v, step, label) => `<div><label class="block text-[10px] uppercase text-slate-400 mb-1">${label}</label><input type="number" id="${id}" min="0" step="${step}" value="${v}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono"></div>`;
+    box.innerHTML = `
+        <div class="bg-slate-950 border border-amber-500/30 rounded-2xl p-4 space-y-3">
+            <p class="text-xs font-bold text-amber-300"><i class="fas fa-coins mr-1"></i>MONTOS AUTOMÁTICOS DE CRÉDITO AHORRADO</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${inp('cfgLoginAmount', c.loginAmount, '0.01', CFG_LABELS.loginAmount)}${inp('cfgWarnPenalty', c.warnPenalty, '0.01', CFG_LABELS.warnPenalty)}${inp('cfgProjLeader', c.projLeader, '0.01', CFG_LABELS.projLeader)}${inp('cfgProjMember', c.projMember, '0.01', CFG_LABELS.projMember)}</div>
+            <p class="text-[10px] text-slate-500">Los cambios aplican a los movimientos nuevos; lo ya acreditado no se modifica.</p>
+        </div>
+        <div class="bg-slate-950 border border-cyan-500/30 rounded-2xl p-4 space-y-3">
+            <p class="text-xs font-bold text-cyan-300"><i class="fas fa-chart-pie mr-1"></i>PARÁMETROS DE CALIFICACIÓN (PUNTAJE %)</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">${inp('cfgWAtt', c.wAtt, '1', CFG_LABELS.wAtt)}${inp('cfgWTasks', c.wTasks, '1', CFG_LABELS.wTasks)}${inp('cfgWProj', c.wProj, '1', CFG_LABELS.wProj)}${inp('cfgPenOfficial', c.penOfficial, '1', CFG_LABELS.penOfficial)}${inp('cfgPenCall', c.penCall, '1', CFG_LABELS.penCall)}</div>
+            <p class="text-[10px] text-slate-500">Puntaje = asistencia + tareas + proyectos (según su peso) − penalizaciones del mes, entre 0 y 100. Lo ideal es que los tres pesos sumen 100.</p>
+            <p class="text-[10px] uppercase font-bold text-slate-400 pt-2">Estados / calificaciones</p>
+            <div id="cfgTiers" class="space-y-2"></div>
+            <button type="button" onclick="tierAdd()" class="text-[11px] font-bold bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg"><i class="fas fa-plus mr-1"></i>Añadir calificación</button>
+            <p class="text-[10px] uppercase font-bold text-slate-400 pt-2">Ajuste manual de puntaje por usuario (±puntos)</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${workers().map(em => `<div class="flex items-center justify-between gap-2 bg-slate-900 rounded-xl px-3 py-2 text-xs"><span class="font-bold text-slate-200 min-w-0 break-words">${esc(USERS_DB[em].name)}</span><input type="number" step="1" min="-100" max="100" data-adj="${esc(em)}" value="${Number(c.adj[em]) || 0}" class="w-20 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-100 font-mono"></div>`).join('') || '<p class="text-[11px] text-slate-500 italic">Sin usuarios.</p>'}</div>
+        </div>
+        <button type="button" onclick="saveConfig()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition">GUARDAR CONFIGURACIÓN</button>`;
+    if (!box.__bound) { box.__bound = true; box.addEventListener('input', () => { cfgDirty = true; }); }
+    renderTierRows();
+}
+function renderTierRows() {
+    const el = byId('cfgTiers'); if (!el) return;
+    el.innerHTML = tierDraft.map((t, i) => `<div class="grid grid-cols-12 gap-2 items-center">
+        <input type="text" value="${esc(t.n)}" oninput="tierEdit(${i}, 'n', this.value)" placeholder="Nombre" class="col-span-5 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-100">
+        <input type="number" min="0" max="100" value="${t.min}" oninput="tierEdit(${i}, 'min', this.value)" title="Desde (%)" class="col-span-3 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-100 font-mono">
+        <select onchange="tierEdit(${i}, 'c', this.value)" class="col-span-3 bg-slate-900 border border-slate-800 rounded-lg px-1 py-1.5 text-xs ${TIER_C[t.c]}">${Object.keys(TIER_C).map(k => `<option value="${k}" ${k === t.c ? 'selected' : ''}>${TIER_NAMES[k]}</option>`).join('')}</select>
+        <button type="button" onclick="tierDel(${i})" title="Eliminar" class="col-span-1 text-slate-500 hover:text-rose-400"><i class="fas fa-trash-can text-xs"></i></button></div>`).join('');
+}
+function tierEdit(i, k, v) { if (!tierDraft[i]) return; tierDraft[i][k] = k === 'min' ? Number(v) : v; cfgDirty = true; }
+function tierAdd() { tierDraft.push({ n: 'Nueva', min: 0, c: 'sky' }); cfgDirty = true; renderTierRows(); }
+function tierDel(i) { if (tierDraft.length <= 1) { showToast('Debe existir al menos una calificación.', 'error'); return; } tierDraft.splice(i, 1); cfgDirty = true; renderTierRows(); }
+
+function saveConfig() {
+    if (!isMasterUser()) return;
+    const S = clone(SETTINGS), c = S.cfg, summary = [];
+    const ids = { cfgLoginAmount: 'loginAmount', cfgWarnPenalty: 'warnPenalty', cfgProjLeader: 'projLeader', cfgProjMember: 'projMember', cfgWAtt: 'wAtt', cfgWTasks: 'wTasks', cfgWProj: 'wProj', cfgPenOfficial: 'penOfficial', cfgPenCall: 'penCall' };
+    for (const id of Object.keys(ids)) {
+        const v = parseFloat(byId(id).value);
+        if (isNaN(v) || v < 0) { showToast(`Valor inválido en: ${CFG_LABELS[ids[id]]}`, 'error'); return; }
+        if (v !== c[ids[id]]) { summary.push(`${CFG_LABELS[ids[id]]}: ${c[ids[id]]} → ${v}`); c[ids[id]] = v; }
+    }
+    const names = new Set();
+    for (const t of tierDraft) {
+        const n = String(t.n || '').trim();
+        if (!n || isNaN(t.min) || t.min < 0 || t.min > 100) { showToast('Revisa las calificaciones: nombre y porcentaje (0–100) son obligatorios.', 'error'); return; }
+        if (names.has(normTxt(n))) { showToast('Hay calificaciones con el mismo nombre.', 'error'); return; }
+        names.add(normTxt(n));
+    }
+    const newTiers = tierDraft.map(t => ({ n: String(t.n).trim(), min: Number(t.min), c: t.c })).sort((a, b) => b.min - a.min);
+    if (canon(newTiers) !== canon(c.tiers)) { summary.push('Calificaciones: ' + c.tiers.map(t => `${t.n} ≥${t.min}`).join(', ') + ' → ' + newTiers.map(t => `${t.n} ≥${t.min}`).join(', ')); c.tiers = newTiers; }
+    const adj = {};
+    document.querySelectorAll('#cfgBody [data-adj]').forEach(i => { const v = parseFloat(i.value); if (!isNaN(v) && v !== 0) adj[i.dataset.adj] = v; });
+    if (canon(adj) !== canon(c.adj)) { summary.push('Ajustes manuales de puntaje por usuario actualizados'); c.adj = adj; }
+    if (!summary.length) { showToast('No hay cambios que guardar.', 'info'); return; }
+    commitEdit('Edición manual en Configuración', S, summary);
+    showToast('Configuración guardada y aplicada a todo el equipo', 'success');
+}
+
+// ---------------- GENERADOR DE MODIFICACIONES (con deshacer / rehacer) ----------------
+function commitEdit(text, S, summary) {
+    const before = clone(SETTINGS), after = normSettings(S), cur = modsCur();
+    mods = mods.slice(0, cur);
+    mods.push({ id: mkId(), text, summary, before, after, by: currentUser.email, byName: currentUser.name, date: todayLocal(), time: formatClock12(Date.now()) });
+    if (mods.length > 60) mods = mods.slice(mods.length - 60);
+    modsCursor = null; SETTINGS = after; afterSettingsChange();
+}
+function afterSettingsChange() {
+    cfgDirty = false; applySettingsUI(); renderAll(); renderGlobalStatus(); renderConfigPanel(true); scheduleSync();
+}
+function modsUndo() {
+    if (!isMasterUser()) return; const cur = modsCur(); if (cur <= 0) return;
+    SETTINGS = normSettings(clone(mods[cur - 1].before)); modsCursor = cur - 1; afterSettingsChange();
+    showResult(`<p class="text-amber-300 font-bold">↶ Edición deshecha:</p><p class="text-slate-300 whitespace-pre-wrap break-words">${esc(mods[cur - 1].text)}</p>`);
+}
+function modsRedo() {
+    if (!isMasterUser()) return; const cur = modsCur(); if (cur >= mods.length) return;
+    SETTINGS = normSettings(clone(mods[cur].after)); modsCursor = cur + 1 >= mods.length ? null : cur + 1; afterSettingsChange();
+    showResult(`<p class="text-emerald-300 font-bold">↷ Edición restaurada:</p><p class="text-slate-300 whitespace-pre-wrap break-words">${esc(mods[cur].text)}</p>`);
+}
+function showResult(html) { const r = byId('modsResult'); if (r) { r.innerHTML = html; r.classList.remove('hidden'); } }
+function renderModsPanel() {
+    const L = byId('modsList'); if (!L) return;
+    const cur = modsCur();
+    const u = byId('modsUndo'), r = byId('modsRedo');
+    if (u) { u.disabled = cur <= 0; u.classList.toggle('opacity-40', cur <= 0); u.classList.toggle('cursor-not-allowed', cur <= 0); u.title = cur > 0 ? 'Deshacer: ' + mods[cur - 1].text.slice(0, 80) : 'No hay ediciones anteriores'; }
+    if (r) { r.disabled = cur >= mods.length; r.classList.toggle('opacity-40', cur >= mods.length); r.classList.toggle('cursor-not-allowed', cur >= mods.length); r.title = cur < mods.length ? 'Rehacer: ' + mods[cur].text.slice(0, 80) : 'No hay ediciones siguientes'; }
+    L.innerHTML = mods.length ? mods.map((m, i) => ({ m, i })).reverse().map(({ m, i }) => `<div class="rounded-xl border ${i < cur ? 'border-emerald-500/30' : 'border-slate-800 opacity-60'} bg-slate-900 p-2.5 text-[11px] space-y-1">
+        <div class="flex flex-wrap items-center justify-between gap-2"><span class="font-mono text-slate-500">${esc(m.date)} · ${esc(m.time || '')} · ${esc(m.byName || '')}</span><span class="text-[9px] font-bold border px-2 py-0.5 rounded-full ${i < cur ? 'bg-emerald-950 text-emerald-300 border-emerald-700' : 'bg-slate-950 text-slate-400 border-slate-700'}">${i < cur ? 'ACTIVA' : 'DESHECHA'}</span></div>
+        <p class="text-slate-200 whitespace-pre-wrap break-words">${esc(m.text)}</p>${toArr(m.summary).length ? `<p class="text-slate-500 whitespace-pre-wrap break-words">→ ${toArr(m.summary).map(esc).join('\n→ ')}</p>` : ''}</div>`).join('') : '<p class="text-[11px] text-slate-500 italic">Aún no hay ediciones.</p>';
+}
+function findTab(txt) {
+    const t = normTxt(txt), all = []; Object.keys(TABS).forEach(id => TABS[id].forEach(a => all.push([a, id]))); all.sort((a, b) => b[0].length - a[0].length);
+    const hit = all.find(([a]) => t.includes(a)); return hit ? hit[1] : null;
+}
+function colorOf(t) { const n = normTxt(t); if (/verde/.test(n)) return 'emerald'; if (/azul|celeste/.test(n)) return 'sky'; if (/amarill|naranja/.test(n)) return 'amber'; if (/rojo/.test(n)) return 'rose'; if (/morad|lila|violeta/.test(n)) return 'purple'; if (/cian|turquesa/.test(n)) return 'cyan'; return null; }
+function interpretLine(line, S) {
+    const n = normTxt(line), c = S.cfg, ui = S.ui, num = (s => { const m = String(s).match(/-?\d+(?:[.,]\d+)?/); return m ? parseFloat(m[0].replace(',', '.')) : NaN; })(line);
+    const setNum = (k, v, lab) => { if (isNaN(v) || v < 0) return { ok: false }; const o = c[k]; c[k] = v; return { ok: true, msg: `${lab}: ${o} → ${v}` }; };
+    let m;
+    if ((m = line.match(/^\s*css\s*:\s*([\s\S]+)$/i))) { ui.css = (ui.css ? ui.css + '\n' : '') + sanitizeCss(m[1].trim()); return { ok: true, msg: 'Estilo CSS añadido: ' + m[1].trim().slice(0, 80) }; }
+    if (/^(restablecer|resetear|reiniciar)\s+(todo|valores|configuracion|ajustes)/.test(n)) { const d = clone(DEFAULT_SETTINGS); S.cfg = d.cfg; S.ui = d.ui; return { ok: true, msg: 'Configuración y ajustes visuales restablecidos a los valores originales' }; }
+    if ((m = line.match(/(?:cambiar|reemplazar|renombrar|modificar|sustituir)\s+(?:el\s+|la\s+)?(?:texto\s+|nombre\s+|titulo\s+|título\s+)?["“'«](.+?)["”'»]\s+(?:por|a|con)\s+["“'«](.*?)["”'»]/i))) {
+        ui.rep = ui.rep.filter(r => r.from !== m[1]); ui.rep.push({ from: m[1], to: m[2] }); return { ok: true, msg: `Texto “${m[1]}” → “${m[2]}”` };
+    }
+    if ((m = n.match(/^(ocultar|esconder|quitar|desactivar|mostrar|restaurar|activar|volver a mostrar)\s+(?:la\s+|el\s+)?(?:pestana|seccion|menu|tab)?\s*(.+)$/))) {
+        const id = findTab(m[2]); if (!id) return { ok: false };
+        if (id === 'perfil' || id === 'configuracion') return { ok: false, msg: 'La pestaña Mi Perfil y Configuración no se pueden ocultar' };
+        const hide = /^(ocultar|esconder|quitar|desactivar)/.test(m[1]);
+        ui.hide = ui.hide.filter(t => t !== id); if (hide) ui.hide.push(id);
+        return { ok: true, msg: `Pestaña “${TABS[id][0]}” ${hide ? 'oculta' : 'visible'}` };
+    }
+    if ((/(calificaci|categoria|etiqueta|rango|nivel)/.test(n) || /\bestado\b/.test(n)) && !/(asistencia|tareas|deberes|llamada|lider|integrante|amonestaci)/.test(n)) {
+        const kw = '(?:calificaci[oó]n|categor[ií]a|etiqueta|rango|nivel|estado)';
+        const find = nm => c.tiers.find(t => normTxt(t.n) === normTxt(nm.trim()));
+        if (/^(eliminar|borrar|quitar)/.test(n)) {
+            const d = line.match(new RegExp(kw + '\\s+["“\']?(.+?)["”\']?\\s*$', 'i')); const t = d && find(d[1]);
+            if (!t) return { ok: false, msg: 'No encontré esa calificación' };
+            if (c.tiers.length <= 1) return { ok: false, msg: 'Debe quedar al menos una calificación' };
+            c.tiers = c.tiers.filter(x => x !== t); return { ok: true, msg: `Calificación “${t.n}” eliminada` };
+        }
+        const a = line.match(new RegExp(kw + '\\s+(?:llamad[ao]\\s+)?["“\']?([A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+?)["”\']?\\s*(?:desde el|desde|a partir de|con|de|a|minimo|mínimo|>=|>|:|=)?\\s*(\\d{1,3})\\s*%?', 'i'));
+        if (a) {
+            const min = Math.min(100, Number(a[2])), col = colorOf(line), t = find(a[1]);
+            if (/^(agregar|anadir|añadir|crear|nueva|nuevo|poner)/.test(n) && !t) { c.tiers.push({ n: a[1].trim(), min, c: col || 'sky' }); c.tiers.sort((x, y) => y.min - x.min); return { ok: true, msg: `Calificación “${a[1].trim()}” añadida desde ${min}%` }; }
+            if (t) { const o = t.min; t.min = min; if (col) t.c = col; c.tiers.sort((x, y) => y.min - x.min); return { ok: true, msg: `Calificación “${t.n}”: desde ${o}% → ${min}%` }; }
+            return { ok: false, msg: 'No existe esa calificación (usa “agregar calificación Nombre desde 90”)' };
+        }
+        return { ok: false };
+    }
+    if (/lider/.test(n)) return setNum('projLeader', num, 'Proyecto concretado · líder (S/)');
+    if (/(integrante|miembro)/.test(n)) return setNum('projMember', num, 'Proyecto concretado · integrante (S/)');
+    if (/(por dia|diario|diaria|por inicio|inicio de sesion|ingreso)/.test(n)) return setNum('loginAmount', num, 'Monto automático por día (S/)');
+    if (/asistencia/.test(n)) return setNum('wAtt', num, 'Peso asistencia (pts)');
+    if (/(tareas|deberes)/.test(n)) return setNum('wTasks', num, 'Peso tareas (pts)');
+    if (/llamada/.test(n)) return setNum('penCall', num, 'Penalización llamada de atención (pts)');
+    if (/amonestaci/.test(n)) return /(puntos|pts|puntaje|calificacion|%)/.test(n) ? setNum('penOfficial', num, 'Penalización amonestación oficial (pts)') : setNum('warnPenalty', num, 'Descuento por amonestación oficial (S/)');
+    if (/proyectos?/.test(n)) return setNum('wProj', num, 'Peso proyectos (pts)');
+    return { ok: false };
+}
+function runMod() {
+    if (!isMasterUser()) return;
+    const ta = byId('modsInput'), text = ta.value.trim(); if (!text) { showToast('Escribe la modificación que quieres hacer.', 'error'); return; }
+    const S = clone(SETTINGS), done = [], fail = [];
+    text.split(/\n/).map(s => s.trim()).filter(Boolean).forEach(l => { const r = interpretLine(l, S); if (r.ok) done.push(r.msg); else fail.push(r.msg ? `${l} — ${r.msg}` : l); });
+    const failHtml = fail.length ? `<p class="text-rose-300 font-bold mt-2">No pude interpretar:</p>${fail.map(f => `<p class="text-slate-400 break-words">• ${esc(f)}</p>`).join('')}<p class="text-slate-500 mt-1">Abre “Ejemplos de lo que entiende el generador” para ver cómo escribirlo.</p>` : '';
+    if (!done.length) { showResult(failHtml); showToast('No se aplicó ningún cambio.', 'error'); return; }
+    commitEdit(text, S, done);
+    const sum = S.cfg.wAtt + S.cfg.wTasks + S.cfg.wProj;
+    showResult(`<p class="text-emerald-300 font-bold">✓ Aplicado y publicado para todo el equipo:</p>${done.map(d => `<p class="text-slate-300 break-words">• ${esc(d)}</p>`).join('')}${sum !== 100 ? `<p class="text-amber-300 mt-1">Aviso: los pesos de calificación suman ${sum} (lo ideal es 100).</p>` : ''}${failHtml}<p class="text-slate-500 mt-1">¿No te gustó? Usa “Edición anterior” para deshacer.</p>`);
+    ta.value = '';
+}
+
+// Valor por defecto del descuento al abrir el modal de amonestaciones
+(function () { const f = window.openNewWarningModal; if (typeof f === 'function') window.openNewWarningModal = function () { f.apply(this, arguments); const el = byId('warnDiscount'); if (el) el.value = CFG().warnPenalty; }; })();
+
+// Eliminar cuenta (solo Master)
+function deleteManagedUser() {
+    if (!isMasterUser()) { showToast('Acción restringida únicamente a la cuenta master fordaworld@fordaworld', 'error'); return; }
+    const key = byId('panelUserKey').value, u = USERS_DB[key];
+    if (!u || u.isMaster || key === '__new__') return;
+    if (key === currentUser.email) { showToast('No puedes eliminar la cuenta con la que estás conectado.', 'error'); return; }
+    if (!confirm(`¿Eliminar definitivamente la cuenta de ${u.name} (${key})? Ya no podrá ingresar. Esta acción se aplica a todo el equipo.`)) return;
+    deletedAccounts[key] = { at: Date.now(), custom: !BASE_USERS[key], createdAt: u.createdAt || 0, by: currentUser.email };
+    delete USERS_DB[key]; delete accessLog[key]; presence = presence.filter(p => p.email !== key);
+    closeManagedForm(); populateDropdownUsers(); renderAll(); syncDirty();
+    showToast(`Cuenta de ${u.name} eliminada`, 'success');
 }
 
 </script>
