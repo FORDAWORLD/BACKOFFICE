@@ -3517,10 +3517,12 @@
             while (opQueue.length) {
                 const op = opQueue[0];
                 try {
+                    const body = op.val === null ? undefined : JSON.stringify(op.val);
+                    // keepalive solo admite cuerpos pequeños (<64KB); con más peso el navegador rechaza el envío
                     const res = await fetch(dbUrl(op.key), {
                         method: op.val === null ? 'DELETE' : 'PUT',
-                        body: op.val === null ? undefined : JSON.stringify(op.val),
-                        keepalive: true
+                        body: body,
+                        keepalive: !body || body.length < 60000
                     });
                     if (!res.ok) {
                         const err = new Error('HTTP ' + res.status);
@@ -3530,6 +3532,12 @@
                     opQueue.shift();
                     setSyncStatus('online');
                 } catch (e) {
+                    // Error del cliente (dato inválido): se descarta para no bloquear el resto de la cola
+                    if (e.status >= 400 && e.status < 500 && e.status !== 401 && e.status !== 403 && e.status !== 408 && e.status !== 429) {
+                        console.error('Escritura descartada (' + e.status + '):', op.key);
+                        opQueue.shift();
+                        continue;
+                    }
                     setSyncStatus(e.status === 401 || e.status === 403 ? 'denied' : 'retry');
                     await new Promise(r => setTimeout(r, 3000));
                 }
