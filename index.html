@@ -83,8 +83,41 @@
     <!-- MAIN APP CONTAINER -->
     <div id="app" class="flex-1 flex flex-col min-h-screen">
         
+
+        <!-- PORTAL SELECTOR -->
+        <section id="portalSelector" class="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-sky-950">
+          <div class="w-full max-w-4xl bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl">
+            <div class="text-center mb-8"><div class="inline-flex w-16 h-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-slate-950 font-black text-2xl">FDW</div>
+              <h1 class="text-2xl font-black tracking-wider mt-3">FORDAWORLD</h1><p class="text-xs text-slate-400 mt-2">Selecciona el portal al que deseas ingresar</p></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <button onclick="openPortal('backoffice')" class="rounded-2xl border border-cyan-500/50 bg-cyan-950/40 hover:bg-cyan-900/50 p-5 text-left"><i class="fas fa-gauge-high text-cyan-300 text-xl"></i><b class="block mt-3 text-cyan-200">BACKOFFICE</b><small class="text-slate-400">Portal operativo actual</small></button>
+              <button onclick="openPortal('database')" class="rounded-2xl border border-sky-500/40 bg-sky-950/30 hover:bg-sky-900/50 p-5 text-left"><i class="fas fa-database text-sky-300 text-xl"></i><b class="block mt-3 text-sky-200">BASE DE DATOS</b><small class="text-slate-400">Equipo y marcas aliadas</small></button>
+              <button onclick="openPortal('finance')" class="rounded-2xl border border-emerald-500/40 bg-emerald-950/30 hover:bg-emerald-900/50 p-5 text-left"><i class="fas fa-chart-pie text-emerald-300 text-xl"></i><b class="block mt-3 text-emerald-200">FINANZAS</b><small class="text-slate-400">Ingresos y egresos</small></button>
+              <button onclick="openPortal('hr')" class="rounded-2xl border border-purple-500/40 bg-purple-950/30 hover:bg-purple-900/50 p-5 text-left"><i class="fas fa-people-group text-purple-300 text-xl"></i><b class="block mt-3 text-purple-200">RR.HH</b><small class="text-slate-400">Postulantes y entrevistas</small></button>
+            </div>
+            <p class="text-[10px] text-slate-500 text-center mt-6">Sistema de gestión FORDAWORLD</p>
+          </div>
+        </section>
+        <section id="enterprisePortal" class="hidden flex-1 min-h-screen bg-slate-950 p-4 md:p-8">
+          <div class="max-w-7xl mx-auto space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div><p class="text-xs text-cyan-400 font-bold tracking-widest">FORDAWORLD / PORTAL</p><h2 id="enterpriseTitle" class="text-2xl font-black text-white">BASE DE DATOS</h2></div>
+              <div class="flex gap-2"><button onclick="returnToPortals()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold">Cambiar portal</button><button onclick="enterpriseLogout()" class="px-4 py-2 rounded-xl bg-rose-700 text-xs font-bold">Salir</button></div>
+            </div>
+            <div id="enterpriseContent" class="space-y-5"></div>
+          </div>
+        </section>
+        <section id="portalGate" class="hidden flex-1 items-center justify-center p-4 bg-slate-950">
+          <div class="w-full max-w-sm rounded-3xl border border-slate-700 bg-slate-900 p-7 space-y-4">
+            <h2 id="portalGateTitle" class="text-xl font-black text-cyan-300">Acceso</h2>
+            <input id="portalGateEmail" type="email" autocomplete="username" placeholder="Correo de usuario" class="w-full rounded-xl bg-slate-950 border border-slate-700 p-3 text-sm"><input id="portalGatePassword" type="password" autocomplete="off" class="w-full rounded-xl bg-slate-950 border border-slate-700 p-3 text-sm" placeholder="Contraseña">
+            <p id="portalGateError" class="text-xs text-rose-400"></p>
+            <button onclick="submitPortalGate()" class="w-full rounded-xl bg-cyan-500 text-slate-950 font-black p-3 text-xs">INGRESAR</button>
+            <button onclick="returnToPortals()" class="w-full rounded-xl bg-slate-800 p-3 text-xs">Volver</button>
+          </div>
+        </section>
         <!-- ================= LOGIN SCREEN ================= -->
-        <section id="loginScreen" class="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-sky-950">
+        <section id="loginScreen" class="hidden flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-sky-950">
             <div class="w-full max-w-md bg-slate-900/90 border border-slate-800 backdrop-blur-xl rounded-3xl p-8 shadow-2xl shadow-cyan-950/50">
                 
                 <!-- Logo & Header -->
@@ -735,6 +768,18 @@
                             <p class="text-xs text-slate-400 mt-1">Exclusivo de la cuenta master. Los cambios se publican en tiempo real para todo el equipo.</p>
                         </div>
                         <div id="cfgBody" class="space-y-4"></div>
+                         <div class="rounded-2xl border border-rose-500/30 bg-rose-950/20 p-4 space-y-3">
+                           <h3 class="text-sm font-black text-rose-300">CONTROL MASTER DE CALIFICACIONES</h3>
+                           <p class="text-xs text-slate-400">Reinicia los porcentajes calculados de una persona o de todo el equipo. No elimina asistencias ni registros originales.</p>
+                           <div class="flex flex-wrap gap-2"><select id="scoreResetUser" class="flex-1 min-w-[180px] bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs"></select>
+                           <button onclick="masterResetScore()" class="bg-rose-700 hover:bg-rose-600 rounded-lg px-3 py-2 text-xs font-bold">BORRAR ESTADO DE PORCENTAJE</button>
+                           <button onclick="masterResetAllScores()" class="bg-rose-900 hover:bg-rose-800 rounded-lg px-3 py-2 text-xs font-bold">REINICIAR TODOS</button></div>
+                         </div>
+                         <div class="rounded-2xl border border-cyan-500/30 bg-cyan-950/10 p-4 space-y-3">
+                           <div><h3 class="text-sm font-black text-cyan-300">ADMINISTRACIÓN TOTAL DEL PORTAL</h3>
+                           <p class="text-xs text-slate-400">Control exclusivo de fordaworld@fordaworld para BASE DE DATOS, FINANZAS y RR.HH.</p></div>
+                           <div id="masterPortalControls" class="space-y-3"></div>
+                         </div>
                     </div>
                     <div class="bg-slate-900 border border-cyan-500/30 rounded-3xl p-6 shadow-xl space-y-4">
                         <div class="border-b border-slate-800 pb-4">
@@ -952,6 +997,7 @@
                                 <div>
                                     <label class="block text-xs font-bold text-rose-300 mb-1">Contraseña</label>
                                     <input type="text" id="panelPassword" required autocomplete="off" class="w-full bg-slate-950 border border-rose-500/40 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono">
+                                    <label class="mt-2 flex items-center gap-2 text-xs text-rose-300"><input type="checkbox" id="panelDisabled" class="accent-rose-500"> Deshabilitar usuario (denegar acceso)</label>
                                 </div>
                             </div>
                             <div>
@@ -3020,6 +3066,7 @@
             const phone = document.getElementById('panelPhone').value.trim();
             const login = document.getElementById('panelLogin').value.trim().toLowerCase();
             const password = document.getElementById('panelPassword').value.trim();
+            const disabled = !!document.getElementById('panelDisabled')?.checked;
             const urlAvatar = document.getElementById('panelAvatarUrl').value.trim();
             if (!name || !role) { showToast('Nombre y cargo son obligatorios', 'error'); return; }
             if (!/^[a-z0-9_@-]+$/.test(login)) { showToast('Usuario inválido: usa solo minúsculas, números, @, guion o guion bajo (sin espacios ni puntos).', 'error'); return; }
@@ -3033,10 +3080,10 @@
 
             if (isNew) {
                 if (deletedAccounts[login]) { if (deletedAccounts[login].custom) { showToast('Ese usuario de ingreso perteneció a una cuenta eliminada; elige otro.', 'error'); return; } delete deletedAccounts[login]; }
-                USERS_DB[login] = { login, password, name, role, age, phone, avatar, createdAt: Date.now(), createdBy: currentUser.email };
+                USERS_DB[login] = { login, password, name, role, age, phone, avatar, createdAt: Date.now(), createdBy: currentUser.email, disabled };
                 showToast(`Cuenta creada: ${name}`, 'success');
             } else {
-                USERS_DB[key] = { ...USERS_DB[key], login, password, name, role, age, phone, avatar };
+                USERS_DB[key] = { ...USERS_DB[key], login, password, name, role, age, phone, avatar, disabled };
                 if (currentUser && currentUser.email === key) Object.assign(currentUser, { login, password, name, role, age, phone, avatar });
                 showToast(`Datos de ${name} actualizados`, 'success');
             }
@@ -3312,6 +3359,7 @@
             { path: 'events',   get: () => customEvents,  set: v => { customEvents = v; },  sort: (a, b) => a.id - b.id, render: () => renderCronogram() }
         ];
 
+        let enterpriseData = { personnel: {}, brands: {}, candidates: {}, finance: [], access: {} };
         let mirror = {};                 // copia de lo que hay en la base de datos
         let syncedFlat = new Map();      // clave -> versión canónica ya sincronizada
         let dataReady = false;
@@ -3359,14 +3407,15 @@
                 if (canon(p) !== canon(profileOf(BASE_USERS[em]))) out.set(`profiles/${em}`, clean(p));
                 // Cuentas: credenciales modificadas por Master y cuentas nuevas
                 const u = USERS_DB[em], b = BASE_USERS[em], lg = u.login || em;
-                if (!b) out.set(`accounts/${em}`, clean({ custom: true, login: lg, password: u.password || '', createdAt: u.createdAt || 0, createdBy: u.createdBy || '' }));
-                else if (lg !== em || u.password !== b.password) out.set(`accounts/${em}`, clean({ login: lg, password: u.password }));
+                if (!b) out.set(`accounts/${em}`, clean({ custom: true, login: lg, password: u.password || '', disabled: !!u.disabled, createdAt: u.createdAt || 0, createdBy: u.createdBy || '' }));
+                else if (lg !== em || u.password !== b.password || !!u.disabled) out.set(`accounts/${em}`, clean({ login: lg, password: u.password, disabled: !!u.disabled }));
             });
             Object.keys(accessLog).forEach(k => { const v = clean(accessLog[k]); if (v) out.set(`access/${k}`, v); });
             Object.keys(deletedAccounts).forEach(k => { const v = clean(deletedAccounts[k]); if (v) out.set(`deletedAccounts/${k}`, v); });
             if (canon(SETTINGS) !== canon(DEFAULT_SETTINGS)) out.set('meta/settings', clean(SETTINGS));
             if (modsCursor !== null) out.set('meta/modsCursor', modsCursor);
             if (publicMasterNote !== DEFAULT_NOTE) out.set('meta/masterNote', publicMasterNote);
+            out.set('meta/enterprise', clean(enterpriseData));
             return out;
         }
 
@@ -3391,6 +3440,7 @@
             if (m.meta && typeof m.meta.masterNote === 'string') out.set('meta/masterNote', m.meta.masterNote);
             if (m.meta && m.meta.settings && typeof m.meta.settings === 'object') out.set('meta/settings', m.meta.settings);
             if (m.meta && typeof m.meta.modsCursor === 'number') out.set('meta/modsCursor', m.meta.modsCursor);
+            if (m.meta && m.meta.enterprise && typeof m.meta.enterprise === 'object') out.set('meta/enterprise', m.meta.enterprise);
             return out;
         }
 
@@ -3521,6 +3571,7 @@
                 if (!a && !b) return;
                 const lg = (a && a.login) || k;
                 const pw = (a && a.password !== undefined) ? String(a.password) : (b ? b.password : USERS_DB[k].password);
+                USERS_DB[k].disabled = !!(a && a.disabled);
                 if (USERS_DB[k].login !== lg || USERS_DB[k].password !== pw) {
                     USERS_DB[k] = { ...USERS_DB[k], login: lg, password: pw };
                     if (currentUser && currentUser.email === k) { currentUser.login = lg; currentUser.password = pw; }
@@ -3546,6 +3597,7 @@
             if (note !== publicMasterNote) { publicMasterNote = note; changed.add('note'); }
             const rs = normSettings(mirror.meta && mirror.meta.settings);
             if (canon(rs) !== canon(SETTINGS)) { SETTINGS = rs; changed.add('settings'); }
+            if (mirror.meta && mirror.meta.enterprise && typeof mirror.meta.enterprise === 'object') enterpriseData = { personnel:{}, brands:{}, candidates:{}, finance:[], access:{}, ...mirror.meta.enterprise };
             const mc = (mirror.meta && typeof mirror.meta.modsCursor === 'number') ? mirror.meta.modsCursor : null;
             if (mc !== modsCursor) { modsCursor = mc; changed.add('modsCursor'); }
             if (changed.has('settings')) applySettingsUI();
@@ -4428,6 +4480,7 @@ function renderConfigPanel(force) {
         <button type="button" onclick="saveConfig()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition">GUARDAR CONFIGURACIÓN</button>`;
     if (!box.__bound) { box.__bound = true; box.addEventListener('input', () => { cfgDirty = true; }); }
     renderTierRows();
+    renderMasterPortalControls();
 }
 function renderTierRows() {
     const el = byId('cfgTiers'); if (!el) return;
@@ -4578,5 +4631,157 @@ function deleteManagedUser() {
 }
 
 </script>
+
+<script>
+// ======================================================================
+// MÓDULOS CORPORATIVOS FORDAWORLD · DATOS, FINANZAS Y RR.HH.
+// Los registros se sincronizan en Firebase bajo fordaworld/meta/enterprise.
+// ======================================================================
+let activeEnterprisePortal = '', enterpriseAdmin = false;
+const PORTAL_KEYS = { database:'PRODU4FDW', finance:'FDWF4444', hr:'FDW4RRHH@' };
+const EMPLOYEE_FIELDS = [
+ ['firstName','Nombres'],['lastName','Apellidos'],['role','Rol'],['dni','DNI'],['birthDate','Fecha de nacimiento','date'],
+ ['address','Lugar donde reside'],['phone','Celular'],['email','Correo'],['ruc','RUC'],['bank','Tipo de banco'],
+ ['bankAccount','Cuenta bancaria'],['cci','CCI'],['yape','Yape / Plin'],['civilStatus','Estado civil'],
+ ['emergency1Name','Emergencia 1 - nombre'],['emergency1Relation','Emergencia 1 - relación'],
+ ['emergency2Name','Emergencia 2 - nombre'],['emergency2Relation','Emergencia 2 - relación'],
+ ['insurance','Hospital o seguro'],['conditions','Enfermedades o alergias'],['cv','CV / enlace o descripción']
+];
+const BRAND_FIELDS = [['name','Nombre de la marca'],['legalName','Razón social'],['ruc','RUC'],['corporateEmail','Correo corporativo'],['representative','Representante'],['contactName','Contacto (nombre)'],['phone','Celular'],['email','Correo'],['comments','Comentarios']];
+const CANDIDATE_FIELDS = [
+ ['firstName','Nombre principal'],['middleName','Segundo nombre'],['lastName','Apellido paterno'],['secondLastName','Apellido materno'],
+ ['birthDate','Fecha de nacimiento','date'],['dni','DNI'],['ruc','RUC'],['phone','Celular'],['email','Correo'],
+ ['bankType','Tipo de banco'],['bankAccount','Cuenta de banco'],['cci','CCI'],['yape','Yape / Plin'],
+ ['emergencyName','Contacto de emergencia'],['emergencyRelation','Relación'],['insurance','Hospital o seguro'],['conditions','Alergias y/o enfermedades'],['comments','Comentarios']
+];
+const HR_TAGS = ['POSTULANTE','ENTREVISTAD@','SELECCIONADO','POSTERGADO','PARA COLABORAR','PARA CONTRATAR','NO TRABAJAR'];
+function openPortal(kind) {
+ activeEnterprisePortal=kind;
+ document.getElementById('portalSelector').classList.add('hidden');
+ if(kind==='backoffice'){document.getElementById('loginScreen').classList.remove('hidden');return;}
+ if(isMasterUser()){enterpriseAdmin=true;showEnterprisePortal();return;}
+ document.getElementById('portalGate').classList.remove('hidden'); document.getElementById('portalGate').classList.add('flex');
+ const titles={database:'BASE DE DATOS',finance:'FINANZAS',hr:'RR.HH'};
+ document.getElementById('portalGateTitle').textContent=titles[kind];
+ document.getElementById('portalGatePassword').value='';document.getElementById('portalGateEmail').value='';document.getElementById('portalGateError').textContent='';
+}
+function returnToPortals(){
+ ['portalGate','enterprisePortal','loginScreen','mainDashboard'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('hidden');});
+ document.getElementById('portalGate').classList.remove('flex');document.getElementById('portalSelector').classList.remove('hidden');
+ activeEnterprisePortal='';enterpriseAdmin=false;
+}
+function submitPortalGate(){
+ const pass=document.getElementById('portalGatePassword').value;
+ if(pass && pass===currentPortalPassword(activeEnterprisePortal)){enterpriseAdmin=true;showEnterprisePortal();return;}
+ // Existing BACKOFFICE account may access their own personnel record.
+ const email=(document.getElementById('portalGateEmail')?.value||'').trim().toLowerCase();
+ const u=USERS_DB[email];
+ if(activeEnterprisePortal==='database' && u && !u.disabled && u.password===pass){currentUser={email,...u};enterpriseAdmin=false;showEnterprisePortal();return;}
+ document.getElementById('portalGateError').textContent='Contraseña o credenciales incorrectas.';
+}
+function enterpriseLogout(){currentUser=null;returnToPortals();}
+function showEnterprisePortal(){
+ document.getElementById('portalGate').classList.add('hidden');document.getElementById('portalGate').classList.remove('flex');
+ document.getElementById('enterprisePortal').classList.remove('hidden');
+ const title={database:'BASE DE DATOS',finance:'FINANZAS',hr:'RECURSOS HUMANOS'}[activeEnterprisePortal];
+ document.getElementById('enterpriseTitle').textContent=title;
+ renderEnterprise();
+}
+function entSave(){if(!CLOUD_MODE){localStorage.setItem('fdw_enterprise_backup',JSON.stringify(enterpriseData));}scheduleSync();showToast('Registro guardado','success');}
+function entField(f,v=''){const id='ent_'+f[0];return `<label class="block text-[11px] text-slate-300">${f[1]}<${f[2]==='date'?'input type="date"':'input type="text"'} id="${id}" data-field="${f[0]}" value="${esc(v||'')}" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-100"></label>`;}
+function entForm(fields,obj={}){return `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">${fields.map(f=>entField(f,obj[f[0]])).join('')}</div>`;}
+function entValues(){const o={};document.querySelectorAll('#enterpriseContent [data-field]').forEach(e=>o[e.dataset.field]=e.value.trim());return o;}
+function renderEnterprise(){
+ const root=document.getElementById('enterpriseContent');
+ if(activeEnterprisePortal==='database')renderDatabasePortal(root);
+ if(activeEnterprisePortal==='finance')renderFinancePortal(root);
+ if(activeEnterprisePortal==='hr')renderHRPortal(root);
+}
+function renderDatabasePortal(root){
+ const isSelf=!enterpriseAdmin, email=currentUser?.email||'', mine=enterpriseData.personnel[email]||{};
+ const personnel=enterpriseData.personnel, brands=enterpriseData.brands;
+ root.innerHTML=`<div class="flex flex-wrap gap-2"><button onclick="showDbTab('personnel')" class="bg-cyan-600 rounded-lg px-4 py-2 text-xs font-bold">EQUIPO FORDAWORLD</button>${enterpriseAdmin?`<button onclick="showDbTab('brands')" class="bg-sky-700 rounded-lg px-4 py-2 text-xs font-bold">MARCAS ALIADAS</button><button onclick="showDbTab('collaborators')" class="bg-purple-700 rounded-lg px-4 py-2 text-xs font-bold">COLABORADORES</button><button onclick="showDbTab('brands2')" class="bg-indigo-700 rounded-lg px-4 py-2 text-xs font-bold">MARCAS</button>`:''}</div>
+ <div id="dbPanel" class="rounded-2xl border border-slate-800 bg-slate-900 p-4 space-y-4"></div>`;
+ showDbTab('personnel');
+}
+function showDbTab(tab){
+ const p=document.getElementById('dbPanel');if(!p)return;
+ const isBrand=tab==='brands'||tab==='brands2', isSelf=!enterpriseAdmin;
+ const store=isBrand?enterpriseData.brands:enterpriseData.personnel, fields=isBrand?BRAND_FIELDS:EMPLOYEE_FIELDS;
+ if(tab==='collaborators'){p.innerHTML='<h3 class="font-bold text-purple-300">COLABORADORES</h3><p class="text-xs text-slate-400">Registro de colaboradores con la misma ficha del equipo.</p>'+renderDbRecords(enterpriseData.personnel,EMPLOYEE_FIELDS,false);return;}
+ if(isBrand){p.innerHTML=`<h3 class="font-bold text-sky-300">MARCAS ALIADAS / MARCAS</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3">${entForm(fields)}</div><label class="text-xs">Estado<select id="entStatus" class="ml-2 bg-slate-950 border border-slate-700 rounded p-2"><option>Activo</option><option>Inactivo</option><option>Por renovar</option><option>Renovado Activo</option></select></label><button onclick="saveDbRecord('brands')" class="bg-cyan-600 rounded-lg px-4 py-2 text-xs font-bold">GUARDAR MARCA</button>${renderDbRecords(store,fields,true)}</div>`;return;}
+ const person=isSelf?store[currentUser.email]||{}:{};
+ p.innerHTML=`<h3 class="font-bold text-cyan-300">EQUIPO FORDAWORLD</h3>${isSelf?'<p class="text-xs text-slate-400">Solo puedes consultar y completar tu propia ficha.</p>':'<input id="dbSearch" oninput="filterDbRecords()" placeholder="Buscar por nombre, DNI, rol o correo" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs">'}
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-3">${entForm(fields,person)}</div>
+ <label class="text-xs text-slate-300">Estado<select id="entStatus" class="ml-2 bg-slate-950 border border-slate-700 rounded p-2"><option>Activo</option><option>De Baja</option><option>De Prueba</option><option>En Falta</option><option>Por Despedir</option><option>Activo Estrella</option></select></label>
+ <div><label class="text-xs text-slate-300">Adjuntar CV <input id="cvFile" type="file" accept=".pdf,.doc,.docx" class="block mt-2 text-xs"></label></div>
+ <button onclick="saveDbRecord('personnel')" class="bg-cyan-600 rounded-lg px-4 py-2 text-xs font-bold">GUARDAR MI REGISTRO</button>${isSelf?'':renderDbRecords(store,fields,true)}`;
+}
+function renderDbRecords(store,fields,admin){return `<div id="dbRecords" class="space-y-2 mt-4">${Object.entries(store||{}).map(([k,v])=>`<div class="rounded-xl bg-slate-950 border border-slate-800 p-3 text-xs"><b>${esc(v.name||((v.firstName||'')+' '+(v.lastName||''))||k)}</b> · ${esc(v.role||v.status||'')} <span class="text-slate-500">${esc(v.email||'')}</span>${admin?`<button onclick="editDbRecord('${k}')" class="float-right text-cyan-300">Editar</button><button onclick="deleteDbRecord('${k}','${fields===BRAND_FIELDS?'brands':'personnel'}')" class="float-right text-rose-400 mr-3">Eliminar</button>`:''}</div>`).join('')}</div>`;}
+let editingDbKey='';
+function saveDbRecord(kind){const v=entValues(),key=editingDbKey||(kind==='personnel'?(enterpriseAdmin?(v.email||v.dni||Date.now()):currentUser.email):(v.ruc||v.name||Date.now()));v.status=document.getElementById('entStatus')?.value||'Activo';if(!enterpriseAdmin&&kind==='personnel')v.email=currentUser.email;enterpriseData[kind][key]=v;editingDbKey='';entSave();renderEnterprise();}
+function editDbRecord(k){editingDbKey=k;const v=enterpriseData.personnel[k]||enterpriseData.brands[k];showDbTab(enterpriseData.brands[k]?'brands':'personnel');Object.entries(v||{}).forEach(([f,x])=>{const e=document.querySelector(`[data-field="${f}"]`);if(e)e.value=x;});}
+function deleteDbRecord(k,kind){if(!enterpriseAdmin||!confirm('¿Eliminar este registro?'))return;delete enterpriseData[kind][k];entSave();renderEnterprise();}
+function filterDbRecords(){const q=(document.getElementById('dbSearch')?.value||'').toLowerCase();document.querySelectorAll('#dbRecords>div').forEach(e=>e.classList.toggle('hidden',!e.textContent.toLowerCase().includes(q)));}
+function renderFinancePortal(root){
+ if(!enterpriseAdmin){root.innerHTML='<p class="text-rose-300 text-sm">Acceso restringido a Master y personal autorizado desde la configuración de permisos.</p>';return;}
+ const rows=enterpriseData.finance||[],income=rows.filter(x=>x.type==='Ingreso').reduce((a,x)=>a+Number(x.amount||0),0),out=rows.filter(x=>x.type==='Egreso').reduce((a,x)=>a+Number(x.amount||0),0);
+ root.innerHTML=`<div class="grid grid-cols-1 sm:grid-cols-3 gap-3"><div class="bg-slate-900 rounded-xl p-4"><small>INGRESOS</small><p class="text-2xl font-black text-emerald-300">S/ ${income.toFixed(2)}</p></div><div class="bg-slate-900 rounded-xl p-4"><small>EGRESOS</small><p class="text-2xl font-black text-rose-300">S/ ${out.toFixed(2)}</p></div><div class="bg-slate-900 rounded-xl p-4"><small>BALANCE</small><p class="text-2xl font-black text-cyan-300">S/ ${(income-out).toFixed(2)}</p></div></div>
+ <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3"><h3 class="font-bold text-emerald-300">REGISTRAR MOVIMIENTO</h3><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"><select id="finType" class="bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs"><option>Ingreso</option><option>Egreso</option></select><input id="finDate" type="date" value="${new Date().toISOString().slice(0,10)}" class="bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs"><input id="finAmount" type="number" min="0" step=".01" placeholder="Monto S/" class="bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs"><select id="finCategory" class="bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs"><option>Personal: Roles</option><option>Colaboradores</option><option>Pasajes</option><option>Viáticos</option><option>Caja Chica</option><option>Ahorro FDW</option><option>Pago CEO</option><option>Gastos fijos</option><option>Gastos variables</option></select><input id="finDescription" placeholder="Descripción / beneficiario" class="bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs"><input id="finReference" placeholder="Comprobante / referencia" class="bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs"></div><button onclick="saveFinanceMove()" class="bg-emerald-600 rounded-lg px-4 py-2 text-xs font-bold">REGISTRAR</button></div>
+ <div class="bg-slate-900 rounded-2xl p-4"><h3 class="font-bold mb-3">LIBRO FINANCIERO</h3>${rows.slice().reverse().map(x=>`<div class="flex flex-wrap justify-between gap-2 border-b border-slate-800 py-2 text-xs"><span>${esc(x.date)} · ${esc(x.category)} · ${esc(x.description)}</span><b class="${x.type==='Ingreso'?'text-emerald-300':'text-rose-300'}">${x.type==='Ingreso'?'+':'−'} S/ ${Number(x.amount).toFixed(2)}</b><button onclick="deleteFinanceMove('${x.id}')" class="text-rose-400">Eliminar</button></div>`).join('')}</div>`;
+}
+function saveFinanceMove(){const amount=Number(document.getElementById('finAmount').value);if(!(amount>0))return showToast('Ingresa un monto válido','error');enterpriseData.finance.push({id:String(Date.now()),type:document.getElementById('finType').value,date:document.getElementById('finDate').value,amount,category:document.getElementById('finCategory').value,description:document.getElementById('finDescription').value,reference:document.getElementById('finReference').value});entSave();renderEnterprise();}
+function deleteFinanceMove(id){if(!enterpriseAdmin||!confirm('¿Eliminar movimiento?'))return;enterpriseData.finance=enterpriseData.finance.filter(x=>x.id!==id);entSave();renderEnterprise();}
+function renderHRPortal(root){
+ if(!enterpriseAdmin){root.innerHTML='<p class="text-rose-300 text-sm">Acceso restringido a RR.HH autorizado.</p>';return;}
+ root.innerHTML=`<div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3"><h3 class="font-bold text-purple-300">REGISTRO DE POSTULANTES</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3">${entForm(CANDIDATE_FIELDS)}</div><label class="text-xs">Etiqueta<select id="hrTag" class="ml-2 bg-slate-950 border border-slate-700 rounded p-2">${HR_TAGS.map(x=>`<option>${x}</option>`).join('')}</select></label><button onclick="saveCandidate()" class="bg-purple-600 rounded-lg px-4 py-2 text-xs font-bold">GUARDAR POSTULANTE</button></div><div class="space-y-3">${Object.entries(enterpriseData.candidates).map(([id,c])=>`<div class="bg-slate-900 border border-slate-800 rounded-xl p-4"><div class="flex flex-wrap justify-between gap-2"><b>${esc(c.firstName||'')} ${esc(c.lastName||'')} ${esc(c.secondLastName||'')}</b><span class="text-purple-300 text-xs">${esc(c.tag)}</span></div><p class="text-xs text-slate-400">${esc(c.email||'')} · DNI ${esc(c.dni||'')}</p><div class="flex flex-wrap gap-2 mt-3"><button onclick="openCandidateInterview('${id}')" class="bg-slate-800 rounded-lg px-3 py-2 text-xs">Entrevista / historial</button><button onclick="toggleCandidateCheck('${id}')" class="bg-emerald-900 rounded-lg px-3 py-2 text-xs">${c.masterChecked?'✓ Revisado':'☐ Check Master'}</button><button onclick="deleteCandidate('${id}')" class="text-rose-400 text-xs">Eliminar</button></div><div id="interview_${id}" class="hidden mt-3"></div></div>`).join('')}</div>`;
+}
+function saveCandidate(){const v=entValues();v.tag=document.getElementById('hrTag').value;v.history=[];v.masterChecked=false;const id=String(Date.now());enterpriseData.candidates[id]=v;entSave();renderEnterprise();}
+function toggleCandidateCheck(id){const c=enterpriseData.candidates[id];if(!c)return;c.masterChecked=!c.masterChecked;entSave();renderEnterprise();}
+function deleteCandidate(id){if(!confirm('¿Eliminar postulante e historial?'))return;delete enterpriseData.candidates[id];entSave();renderEnterprise();}
+function openCandidateInterview(id){const c=enterpriseData.candidates[id],box=document.getElementById('interview_'+id);if(!c||!box)return;box.classList.toggle('hidden');box.innerHTML=`<div class="space-y-2"><h4 class="text-sm font-bold text-cyan-300">ENTREVISTA DE TRABAJO · HISTORIAL ${c.history.length+1}</h4><input id="intName_${id}" placeholder="Nombre de quien entrevista" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-xs"><div id="questions_${id}" class="space-y-2"></div><button onclick="addInterviewQuestion('${id}')" class="bg-slate-800 rounded p-2 text-xs">+ Agregar pregunta</button><label class="block text-xs">Calificación final (1–20) <input id="final_${id}" type="number" min="1" max="20" class="ml-2 bg-slate-950 border border-slate-700 p-2 rounded w-20"></label><button onclick="saveInterview('${id}')" class="bg-cyan-600 rounded p-2 text-xs font-bold">GUARDAR EVALUACIÓN</button><div class="text-xs text-slate-400">${(c.history||[]).map((h,i)=>`<p>Evaluación ${i+1}: ${h.score}/20 · ${esc(h.interviewer)} · ${esc(h.comment||'')}</p>`).join('')}</div></div>`;addInterviewQuestion(id);}
+function addInterviewQuestion(id){const box=document.getElementById('questions_'+id);const n=box.children.length;box.insertAdjacentHTML('beforeend',`<div class="rounded-lg bg-slate-950 p-3 space-y-2"><input data-q placeholder="Pregunta ${n+1}" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs"><textarea data-a placeholder="Respuesta del postulante" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs"></textarea><textarea data-c placeholder="Comentarios del entrevistador" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs"></textarea><label class="text-xs">Puntuación <select data-star class="bg-slate-900 p-1 rounded">${[1,2,3,4,5].map(x=>`<option value="${x}">${'★'.repeat(x)}</option>`).join('')}</select></label></div>`);}
+function saveInterview(id){const c=enterpriseData.candidates[id],box=document.getElementById('questions_'+id);const qs=[...box.children].map(e=>({question:e.querySelector('[data-q]').value,answer:e.querySelector('[data-a]').value,comment:e.querySelector('[data-c]').value,stars:Number(e.querySelector('[data-star]').value)}));const avg=qs.length?Math.round(qs.reduce((a,x)=>a+x.stars,0)/qs.length*4):0;const manual=document.getElementById('final_'+id).value;c.history=c.history||[];c.history.push({at:Date.now(),interviewer:document.getElementById('intName_'+id).value,questions:qs,score:manual===''?avg:Number(manual),comment:''});entSave();renderEnterprise();}
+function masterResetScore(){if(!isMasterUser())return;const em=document.getElementById('scoreResetUser').value;if(!em)return;SETTINGS.cfg.adj[em]=0;syncDirty();renderGlobalStatus();renderConfigPanel(true);showToast('Ajuste porcentual restablecido; se conservaron los registros originales.','success');}
+function masterResetAllScores(){if(!isMasterUser()||!confirm('¿Restablecer los ajustes porcentuales de todo el equipo? Se conservarán asistencias, tareas, proyectos y movimientos.'))return;SETTINGS.cfg.adj={};syncDirty();renderGlobalStatus();renderConfigPanel(true);showToast('Ajustes porcentuales restablecidos; historial conservado.','success');}
+
+const PORTAL_DEFAULT_PASSWORDS = { database:'PRODU4FDW', finance:'FDWF4444', hr:'FDW4RRHH@' };
+function portalPasswords(){enterpriseData.access=enterpriseData.access||{};enterpriseData.access.portalPasswords=enterpriseData.access.portalPasswords||{};return enterpriseData.access.portalPasswords;}
+function currentPortalPassword(kind){const p=portalPasswords();return Object.prototype.hasOwnProperty.call(p,kind)?String(p[kind]||''):PORTAL_DEFAULT_PASSWORDS[kind];}
+function renderMasterPortalControls(){
+ const box=document.getElementById('masterPortalControls');if(!box||!isMasterUser())return;
+ const names={database:'BASE DE DATOS',finance:'FINANZAS',hr:'RR.HH'};
+ box.innerHTML=`<div class="grid grid-cols-1 md:grid-cols-3 gap-3">${Object.entries(names).map(([k,n])=>`<div class="rounded-xl bg-slate-950 border border-slate-800 p-3 space-y-2"><label class="block text-xs font-bold text-slate-200">${n}</label><input id="portalPass_${k}" type="text" autocomplete="off" value="${esc(currentPortalPassword(k))}" placeholder="Contraseña de acceso" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs"><div class="flex gap-2"><button type="button" onclick="savePortalPassword('${k}')" class="flex-1 bg-cyan-700 rounded-lg p-2 text-[10px] font-bold">GUARDAR</button><button type="button" onclick="removePortalPassword('${k}')" class="bg-rose-900 rounded-lg px-3 text-[10px] font-bold">ELIMINAR</button></div><button type="button" onclick="masterOpenPortal('${k}')" class="w-full bg-slate-800 rounded-lg p-2 text-[10px]">ABRIR MÓDULO</button></div>`).join('')}</div>
+ <div class="rounded-xl bg-slate-950 border border-rose-500/30 p-3 space-y-2"><h4 class="text-xs font-black text-rose-300">RESTABLECIMIENTO DE SALUD GLOBAL</h4><p class="text-[11px] text-slate-400">Restablece los ajustes manuales de porcentaje de todo el equipo sin borrar asistencias, tareas, proyectos, finanzas ni historiales.</p><button type="button" onclick="masterResetGlobalHealth()" class="bg-rose-700 hover:bg-rose-600 rounded-lg px-4 py-2 text-xs font-bold">RESTABLECER SALUD GLOBAL</button></div>
+ <div class="text-[10px] text-amber-300">Los accesos se configuran aquí. La protección real de datos requiere reglas de seguridad y validación en Firebase; una contraseña guardada en este HTML no es un secreto seguro.</div>`;
+}
+function savePortalPassword(kind){
+ if(!isMasterUser())return;
+ const el=document.getElementById('portalPass_'+kind),value=String(el?.value||'').trim();
+ if(!value)return showToast('Escribe una contraseña o usa ELIMINAR para quitarla.','error');
+ portalPasswords()[kind]=value;entSave();renderMasterPortalControls();showToast('Contraseña del módulo actualizada.','success');
+}
+function removePortalPassword(kind){
+ if(!isMasterUser()||!confirm('¿Eliminar la contraseña de este módulo? El acceso quedará solo para Master hasta crear otra.'))return;
+ portalPasswords()[kind]='';entSave();renderMasterPortalControls();showToast('Contraseña eliminada.','success');
+}
+function masterResetGlobalHealth(){
+ if(!isMasterUser()||!confirm('¿Restablecer la salud global del equipo? Se quitarán los ajustes manuales de porcentaje, sin borrar registros originales.'))return;
+ SETTINGS.cfg.adj={};syncDirty();renderGlobalStatus();renderConfigPanel(true);showToast('Salud global restablecida.','success');
+}
+function masterOpenPortal(kind){
+ if(!isMasterUser())return;
+ activeEnterprisePortal=kind;enterpriseAdmin=true;
+ ['portalSelector','portalGate','loginScreen','mainDashboard'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('hidden');});
+ showEnterprisePortal();
+}
+const _oldRenderCfg=window.renderConfig;
+function populateScoreReset(){const e=document.getElementById('scoreResetUser');if(e)e.innerHTML=workers().map(x=>`<option value="${esc(x)}">${esc(USERS_DB[x].name)}</option>`).join('');}
+const _oldInitUserDashboard=window.initUserDashboard;
+if(typeof _oldInitUserDashboard==='function')window.initUserDashboard=function(){_oldInitUserDashboard.apply(this,arguments);populateScoreReset();};
+function renderModsPanel(){if(typeof window.renderModsPanelOriginal==='function')window.renderModsPanelOriginal();}
+document.addEventListener('DOMContentLoaded',()=>{try{const saved=localStorage.getItem('fdw_enterprise_backup');if(saved&&!enterpriseData.personnel)enterpriseData=JSON.parse(saved);}catch(e){}});
+</script>
+
 </body>
 </html>
